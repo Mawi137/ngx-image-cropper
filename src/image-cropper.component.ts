@@ -2,8 +2,8 @@ import { Component, ElementRef, Input, HostListener, EventEmitter, Output } from
 
 interface MoveStart {
 	active: boolean;
-	type: string|null;
-	position: string|null;
+	type: string | null;
+	position: string | null;
 	x1: number;
 	y1: number;
 	x2: number;
@@ -26,8 +26,216 @@ interface CropperPosition {
 
 @Component({
     selector: 'image-cropper',
-    templateUrl: './image-cropper.component.html',
-    styleUrls: ['./image-cropper.component.scss']
+    template: `
+        <div>
+            <img
+                *ngIf="imgDataUrl"
+                [src]="imgDataUrl"
+                [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+                class="source-image"
+                style="width: 100%"
+            />
+            <div class="cropper"
+                [style.top.px]="cropper.y1"
+                [style.left.px]="cropper.x1"
+                [style.width.px]="cropper.x2 - cropper.x1"
+                [style.height.px]="cropper.y2 - cropper.y1"
+                [ngStyle]="styleCrop"
+            >
+                <div
+                    (mousedown)="startMove($event, 'move')"
+                    class="move"
+                >&nbsp;</div>
+                <span
+                    class="resize topleft"
+                    (mousedown)="startMove($event, 'resize', 'topleft')"
+                ></span>
+                <span
+                    class="resize top"
+                ></span>
+                <span
+                    class="resize topright"
+                    (mousedown)="startMove($event, 'resize', 'topright')"
+                ></span>
+                <span
+                    class="resize right"
+                ></span>
+                <span
+                    class="resize bottomright"
+                    (mousedown)="startMove($event, 'resize', 'bottomright')"
+                ></span>
+                <span
+                    class="resize bottom"
+                ></span>
+                <span
+                    class="resize bottomleft"
+                    (mousedown)="startMove($event, 'resize', 'bottomleft')"
+                ></span>
+                <span
+                    class="resize left"
+                ></span>
+                <span
+                    class="resize-bar top"
+                    (mousedown)="startMove($event, 'resize', 'top')"
+                ></span>
+                <span
+                    class="resize-bar right"
+                    (mousedown)="startMove($event, 'resize', 'right')"
+                ></span>
+                <span
+                    class="resize-bar bottom"
+                    (mousedown)="startMove($event, 'resize', 'bottom')"
+                ></span>
+                <span
+                    class="resize-bar left"
+                    (mousedown)="startMove($event, 'resize', 'left')"
+                ></span>
+            </div>
+        </div>
+    `,
+    styles: [`
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding: 5px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            > div {
+                position: relative;
+            }
+
+            .cropper {
+                position: absolute;
+                display: flex;
+                color: #53535C !important;
+                background: transparent !important;
+                outline-color: rgba(255,255,255,0.3);
+                outline-width: 1000px;
+                outline-style: solid;
+
+                img {
+                    width: inherit;
+                    height: inherit;
+                    cursor: move;
+                }
+                &:after {
+                    position: absolute;
+                    content: '';
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    pointer-events: none;
+                    border: dashed 1px;
+                    opacity: .75;
+                    color: inherit;
+                    z-index: 1;
+                }
+
+                .move {
+                    width: 100%;
+                    height: 100%;
+                    cursor: move;
+                    border: 1px solid rgba(255,255,255,0.5);
+                }
+
+                .resize {
+                    position: absolute;
+                    background: #53535C;
+
+                    &.topleft {
+                        top: -5px;
+                        left: -5px;
+                        cursor: nw-resize;
+                    }
+                    &.top {
+                        top: -5px;
+                        left: calc(50% - 5px);
+                        cursor: n-resize;
+                    }
+                    &.topright {
+                        top: -5px;
+                        right: 5px;
+                        cursor: ne-resize;
+                    }
+                    &.right {
+                        top: calc(50% - 5px);
+                        right: 5px;
+                        cursor: e-resize;
+                    }
+                    &.bottomright {
+                        bottom: 5px;
+                        right: 5px;
+                        cursor: se-resize;
+                    }
+                    &.bottom {
+                        bottom: 5px;
+                        left: calc(50% - 5px);
+                        cursor: s-resize;
+                    }
+                    &.bottomleft {
+                        bottom: 5px;
+                        left: -5px;
+                        cursor: sw-resize;
+                    }
+                    &.left {
+                        top: calc(50% - 5px);
+                        left: -5px;
+                        cursor: w-resize;
+                    }
+                    &:after {
+                        position: absolute;
+                        background: inherit;
+                        border: 1px solid rgba(255, 255, 255, 0.5);
+                        content: '';
+                        width: 8px;
+                        height: 8px;
+                        margin: auto;
+                        opacity: .85;
+                        z-index: 1;
+                    }
+                }
+                .resize-bar {
+                    position: absolute;
+                    z-index: 1;
+
+                    &.top {
+                        top: -5px;
+                        left: 5px;
+                        width: calc(100% - 10px);
+                        height: 10px;
+                        cursor: n-resize;
+                    }
+                    &.right {
+                        top: 5px;
+                        right: -5px;
+                        height: calc(100% - 10px);
+                        width: 10px;
+                        cursor: e-resize;
+                    }
+                    &.bottom {
+                        bottom: -5px;
+                        left: 5px;
+                        width: calc(100% - 10px);
+                        height: 10px;
+                        cursor: s-resize;
+                    }
+                    &.left {
+                        top: 5px;
+                        left: -5px;
+                        height: calc(100% - 10px);
+                        width: 10px;
+                        cursor: w-resize;
+                    }
+                }
+            }
+        }
+    `]
 })
 export class ImageCropperComponent {
     private originalImage: any;
