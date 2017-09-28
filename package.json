@@ -1,0 +1,41 @@
+{
+  "name": "ngx-image-cropper",
+  "version": "0.1.0",
+  "description": "Angular Image Cropper Component",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MartijnW49/ngx-image-cropper.git"
+  },
+  "scripts": {
+    "transpile": "ngc",
+    "package": "rollup -c",
+    "minify": "uglifyjs dist/bundles/imagecropper.umd.js --screw-ie8 --compress --mangle --comments --output dist/bundles/imagecropper.umd.min.js",
+    "build": "npm run transpile && npm run package && npm run minify"
+  },
+  "keywords": [
+    "angular",
+    "image",
+    "cropper"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^4.0.0",
+    "@angular/core": "^4.0.0"
+  },
+  "devDependencies": {
+	"@angular/common": "^4.0.0",
+    "@angular/core": "^4.0.0",
+    "@angular/compiler": "^4.0.0",
+    "@angular/compiler-cli": "^4.0.0",
+    "rollup": "^0.50.0",
+    "typescript": "^2.5.3",
+    "uglify-js": "^3.1.2",
+	"rxjs": "^5.0.1",
+	"zone.js": "^0.8.4"
+  },
+  "bugs": {
+    "url": "https://github.com/MartijnW49/ngx-image-cropper/issues"
+  },
+  "homepage": "https://github.com/MartijnW49/ngx-image-cropper#readme",
+  "author": "Martijn Willekens"
+}
