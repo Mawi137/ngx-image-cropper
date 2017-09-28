@@ -1,14 +1,19 @@
-export default {
-  input: 'dist/index.js',
-  file: 'dist/bundles/imagecropper.umd.js',
-  sourceMap: false,
-  output: {
-    format: 'umd'
-  },
-  name: 'ng.imagecropper',
-  globals: {
+import resolve from 'rollup-plugin-node-resolve';
+
+// Add here external dependencies that actually you use.
+const globals = {
     '@angular/core': 'ng.core',
     '@angular/common': 'ng.common'
-  },
-  external: ['@angular/core', '@angular/common']
+};
+
+export default {
+    entry: './dist/modules/ngx-image-cropper.es5.js',
+    dest: './dist/bundles/ngx-image-cropper.umd.js',
+    format: 'umd',
+    exports: 'named',
+    moduleName: 'ng.imageCropper',
+    plugins: [resolve()],
+    external: Object.keys(globals),
+    globals: globals,
+    onwarn: () => { return }
 }
