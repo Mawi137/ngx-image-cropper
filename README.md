@@ -1,11 +1,34 @@
 # Image cropper for Angular
 
-Import the ImageCropperModule into you module.
-
-`import { ImageCropperModule } from 'ngx-image-cropper';`
+### Installation
+`npm install ngx-image-cropper --save`
 
 ### Example usage:
-HTML file:
+Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.
+```
+import { NgModule } from '@angular/core';
+import { ImageCropperModule } from 'ngx-image-cropper';
+
+@NgModule({
+    imports: [
+        ...
+        ImageCropperModule
+    ],
+    declarations: [
+        ...
+    ],
+    exports: [
+        ...
+    ],
+    providers: [
+        ...
+    ]
+})
+export class YourModule {
+}
+```
+
+Add the element to your HTML:
 ```
 <input type="file" (change)="fileChangeEvent($event)" />
 
@@ -20,10 +43,11 @@ HTML file:
 <img [src]="croppedImage" />
 ```
 
-In your ts file:
+And add this your ts file:
 ```
 imageChangedEvent: any = '';
 croppedImage: any = '';
+
 fileChangeEvent(event: any): void {
     this.imageChangedEvent = event;
 }
@@ -31,5 +55,6 @@ imageCropped(image: string) {
     this.croppedImage = image;
 }
 ```
-
-`imageCropped` will return the cropped image as a Base64 string.
+When you choose a file from the file input, it will trigger `fileChangeEvent`.
+That event is then passed to the image cropper through `imageChangedEvent` which will then load the image into the cropper.
+Everytime you release the mouse, the `imageCropped` event will be triggerd with the cropped image as a Base64 string in its payload.

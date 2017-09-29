@@ -1,7 +1,8 @@
 $ cat .gitignore
-/node_modules
-/dist
-/documentation
+node_modules/
+dist/
+documentation/
+.ng_build/
 
 *.log
 *.tgz
