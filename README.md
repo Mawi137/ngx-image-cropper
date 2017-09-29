@@ -56,5 +56,5 @@ imageCropped(image: string) {
 }
 ```
 When you choose a file from the file input, it will trigger `fileChangeEvent`.
-That event is then passed to the image cropper through `imageChangedEvent` which will then load the image into the cropper.
+That event is then passed to the image cropper through `imageChangedEvent` which will load the image into the cropper.
 Everytime you release the mouse, the `imageCropped` event will be triggerd with the cropped image as a Base64 string in its payload.
