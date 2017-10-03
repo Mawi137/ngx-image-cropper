@@ -63,17 +63,15 @@ export class ImageCropperComponent {
             this.loadImage(event);
         }
     }
-    @Input() styleCrop = {
-        color: '#53535C',
-        background: '#53535C',
-    };
     @Input() format = 'png';
     @Input() maintainAspectRatio = true;
     @Input() resizeToWidth = 128;
 
     @Output() imageCropped = new EventEmitter<string>();
+    @Output() imageLoaded = new EventEmitter<void>();
+    @Output() loadImageFailed = new EventEmitter<void>();
 
-    private loadImage(event: any) {
+    loadImage(event: any) {
         this.imageVisible = false;
         this.originalImage = new Image();
         this.originalImage.onload = () => {
@@ -99,12 +97,13 @@ export class ImageCropperComponent {
                     this.cropper.y2 = this.cropper.y1 + maxSize;
 
                     this.crop();
+                    this.imageLoaded.emit();
                     this.imageVisible = true;
                 }, 0);
             } else {
                 this.imgDataUrl = blank;
-                this.originalImage = blank;
                 this.originalImage.src = blank;
+                this.loadImageFailed.emit();
             }
         };
         fileReader.readAsDataURL(event.target.files[0]);

@@ -11,7 +11,7 @@
         [style.left.px]="cropper.x1"
         [style.width.px]="cropper.x2 - cropper.x1"
         [style.height.px]="cropper.y2 - cropper.y1"
-        [ngStyle]="styleCrop"
+        [style.visibility]="imageVisible ? 'visible' : 'hidden'"
     >
         <div
             (mousedown)="startMove($event, 'move')"

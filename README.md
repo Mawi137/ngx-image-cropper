@@ -58,3 +58,15 @@ imageCropped(image: string) {
 When you choose a file from the file input, it will trigger `fileChangeEvent`.
 That event is then passed to the image cropper through `imageChangedEvent` which will load the image into the cropper.
 Everytime you release the mouse, the `imageCropped` event will be triggerd with the cropped image as a Base64 string in its payload.
+
+### API
+## Inputs
+- `imageChangedEvent` - The change event from your file input
+- `format` - Output format (png, jpg, gif)
+- `maintainAspectRatio` - Keep width and height of cropped image equal
+- `resizeToWidth` - Cropped image will be resized to this with (in px)
+
+##Outputs
+- `imageCropped` - Emits a Base64 string of the cropped image each time it is cropped
+- `imageLoaded` - Emits when the image was loaded into the cropper
+- `loadImageFailed` - Emits when a wrong file type was selected (only png, gif and jpg are allowed)
