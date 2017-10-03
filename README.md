@@ -1,6 +1,7 @@
 # Image cropper for Angular
 
-### Plunker example
+### Example
+[[https://github.com/MartijnW49/ngx-image-cropper/blob/master/example.png|alt=Cropper]]
 [Plunker](https://plnkr.co/edit/pcnBN6Fwk8rjjtisIuyC?p=preview)
 
 ### Installation
