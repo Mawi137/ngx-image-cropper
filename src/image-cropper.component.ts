@@ -46,10 +46,10 @@ export class ImageCropperComponent {
     };
 
     cropper = {
-        x1: 0,
-        y1: 0,
-        x2: 128,
-        y2: 128
+        x1: -100,
+        y1: -100,
+        x2: 1000,
+        y2: 1000
     };
 
     imgDataUrl: string;
@@ -87,6 +87,7 @@ export class ImageCropperComponent {
                 event.target.files[0].type === 'image/gif') {
                 this.imgDataUrl = ev.target.result;
                 this.originalImage.src = ev.target.result;
+                this.imageLoaded.emit();
 
                 setTimeout(() => {
                     const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
@@ -97,7 +98,6 @@ export class ImageCropperComponent {
                     this.cropper.y2 = this.cropper.y1 + maxSize;
 
                     this.crop();
-                    this.imageLoaded.emit();
                     this.imageVisible = true;
                 }, 0);
             } else {
