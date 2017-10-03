@@ -1,5 +1,5 @@
 # Image cropper for Angular
-![example](https://github.com/MartijnW49/ngx-image-cropper/blob/master/example.png)
+![example](https://github.com/MartijnW49/ngx-image-cropper/blob/master/cropper-example.png)
 
 [Plunker](https://plnkr.co/edit/pcnBN6Fwk8rjjtisIuyC?p=preview)
 
