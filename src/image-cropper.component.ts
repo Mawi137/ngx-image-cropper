@@ -124,9 +124,9 @@ export class ImageCropperComponent {
     @HostListener('document:mousemove', ['$event'])
     @HostListener('document:touchmove', ['$event'])
     moveImg(event: any) {
-        event.stopPropagation();
-        event.preventDefault();
         if (this.moveStart.active) {
+            event.stopPropagation();
+            event.preventDefault();
             const el = this.elementRef.nativeElement.querySelector('.source-image');
             this.maxSize.width = el.offsetWidth;
             this.maxSize.height = el.offsetHeight;
