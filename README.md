@@ -38,6 +38,7 @@ Add the element to your HTML:
 <image-cropper
     [imageChangedEvent]="imageChangedEvent"
     [maintainAspectRatio]="true"
+    [aspectRatio]="4 / 3"
     [resizeToWidth]="128"
     format="png"
     (imageCropped)="imageCropped($event)"
@@ -46,7 +47,7 @@ Add the element to your HTML:
 <img [src]="croppedImage" />
 ```
 
-And add this your ts file:
+And add this to your ts file:
 ```
 imageChangedEvent: any = '';
 croppedImage: any = '';
@@ -66,8 +67,9 @@ Everytime you release the mouse, the `imageCropped` event will be triggerd with 
 ### Inputs
 - `imageChangedEvent` - The change event from your file input
 - `format` - Output format (png, jpg, gif)
-- `maintainAspectRatio` - Keep width and height of cropped image equal
-- `resizeToWidth` - Cropped image will be resized to this with (in px)
+- `maintainAspectRatio` - Keep width and height of cropped image equal according to the aspectRatio
+- `aspectRatio` - The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...)
+- `resizeToWidth` - Cropped image will be resized to this with (in px) (default 0 = no resizing)
 
 ### Outputs
 - `imageCropped` - Emits a Base64 string of the cropped image each time it is cropped
