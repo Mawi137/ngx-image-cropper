@@ -55,8 +55,7 @@ export class ImageCropperComponent {
     imgDataUrl: string;
     imageVisible = false;
 
-    constructor(private elementRef: ElementRef) {
-    }
+    constructor(private elementRef: ElementRef) {}
 
     @Input()
     set imageChangedEvent(event: any) {
@@ -95,7 +94,7 @@ export class ImageCropperComponent {
                 this.loadImageFailed.emit();
             }
         };
-        fileReader.readAsDataURL(event.target.files[ 0 ]);
+        fileReader.readAsDataURL(event.target.files[0]);
     }
 
     @Input()
@@ -144,8 +143,8 @@ export class ImageCropperComponent {
         Object.assign(this.moveStart, this.cropper);
     }
 
-    @HostListener('document:mousemove', [ '$event' ])
-    @HostListener('document:touchmove', [ '$event' ])
+    @HostListener('document:mousemove', ['$event'])
+    @HostListener('document:touchmove', ['$event'])
     moveImg(event: any) {
         if (this.moveStart.active) {
             event.stopPropagation();
@@ -182,8 +181,8 @@ export class ImageCropperComponent {
         }
     }
 
-    @HostListener('document:mouseup', [ '$event' ])
-    @HostListener('document:touchend', [ '$event' ])
+    @HostListener('document:mouseup', ['$event'])
+    @HostListener('document:touchend', ['$event'])
     moveStop() {
         this.moveStart.active = false;
         this.crop();
