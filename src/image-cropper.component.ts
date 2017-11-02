@@ -83,10 +83,10 @@ export class ImageCropperComponent {
         const fileReader = new FileReader();
         const blank = 'data:image/png;base64,iVBORw0KGg' + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU' + 'AAarVyFEAAAAASUVORK5CYII=';
         fileReader.onload = (ev: any) => {
-            if (event.target.files[ 0 ].type === 'image/jpeg' ||
-                event.target.files[ 0 ].type === 'image/jpg' ||
-                event.target.files[ 0 ].type === 'image/png' ||
-                event.target.files[ 0 ].type === 'image/gif') {
+            if (event.target.files[0].type === 'image/jpeg' ||
+                event.target.files[0].type === 'image/jpg' ||
+                event.target.files[0].type === 'image/png' ||
+                event.target.files[0].type === 'image/gif') {
                 this.imageBase64 = ev.target.result;
             } else {
                 this.imgDataUrl = blank;
