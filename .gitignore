@@ -6,3 +6,4 @@ documentation/
 
 *.log
 *.tgz
+.idea/

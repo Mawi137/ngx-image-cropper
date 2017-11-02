@@ -52,7 +52,7 @@ export class ImageCropperComponent {
         y2: 1000
     };
 
-    imgDataUrl: string;
+    imgDataUrl = 'data:image/png;base64,iVBORw0KGg' + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU' + 'AAarVyFEAAAAASUVORK5CYII=';
     imageVisible = false;
 
     constructor(private elementRef: ElementRef) {}
@@ -131,7 +131,7 @@ export class ImageCropperComponent {
 
             this.crop();
             this.imageVisible = true;
-        }, 0);
+        }, 1);
     }
 
     startMove(event: any, moveType: string, position: string | null = null) {
@@ -184,8 +184,10 @@ export class ImageCropperComponent {
     @HostListener('document:mouseup', ['$event'])
     @HostListener('document:touchend', ['$event'])
     moveStop() {
-        this.moveStart.active = false;
-        this.crop();
+        if (this.moveStart.active) {
+            this.moveStart.active = false;
+            this.crop();
+        }
     }
 
     private move(event: any) {
