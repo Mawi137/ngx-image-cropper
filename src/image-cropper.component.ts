@@ -1,20 +1,20 @@
-import { Component, ElementRef, Input, HostListener, EventEmitter, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 interface MoveStart {
-	active: boolean;
-	type: string | null;
-	position: string | null;
-	x1: number;
-	y1: number;
-	x2: number;
-	y2: number;
-	clientX: number;
-	clientY: number;
+    active: boolean;
+    type: string | null;
+    position: string | null;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    clientX: number;
+    clientY: number;
 }
 
 interface Dimentions {
-	width: number;
-	height: number;
+    width: number;
+    height: number;
 }
 
 @Component({
@@ -63,6 +63,7 @@ export class ImageCropperComponent {
             this.loadImage(event);
         }
     }
+
     @Input() format = 'png';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
@@ -86,29 +87,7 @@ export class ImageCropperComponent {
                 event.target.files[0].type === 'image/jpg' ||
                 event.target.files[0].type === 'image/png' ||
                 event.target.files[0].type === 'image/gif') {
-                this.imgDataUrl = ev.target.result;
-                this.originalImage.src = ev.target.result;
-                this.imageLoaded.emit();
-
-                setTimeout(() => {
-                    const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
-                    if (displayedImage.offsetWidth / this.aspectRatio < displayedImage.offsetHeight) {
-                        this.cropper.x1 = 0;
-                        this.cropper.x2 = displayedImage.offsetWidth;
-                        const cropperHeight = displayedImage.offsetWidth / this.aspectRatio;
-                        this.cropper.y1 = (displayedImage.offsetHeight - cropperHeight) / 2;
-                        this.cropper.y2 = this.cropper.y1 + cropperHeight;
-                    } else {
-                        this.cropper.y1 = 0;
-                        this.cropper.y2 = displayedImage.offsetHeight;
-                        const cropperWidth = displayedImage.offsetHeight * this.aspectRatio;
-                        this.cropper.x1 = (displayedImage.offsetWidth - cropperWidth) / 2;
-                        this.cropper.x2 = this.cropper.x1 + cropperWidth;
-                    }
-
-                    this.crop();
-                    this.imageVisible = true;
-                }, 0);
+                this.imageBase64 = ev.target.result;
             } else {
                 this.imgDataUrl = blank;
                 this.originalImage.src = blank;
@@ -116,6 +95,43 @@ export class ImageCropperComponent {
             }
         };
         fileReader.readAsDataURL(event.target.files[0]);
+    }
+
+    @Input()
+    set imageBase64(imageBase64: string) {
+        this.imageVisible = false;
+        this.originalImage = new Image();
+        this.originalImage.onload = () => {
+            this.originalSize.width = this.originalImage.width;
+            this.originalSize.height = this.originalImage.height;
+        };
+        this.loadImageBase64 = imageBase64;
+    }
+
+    set loadImageBase64(imageBase64: string) {
+        this.imgDataUrl = imageBase64;
+        this.originalImage.src = imageBase64;
+        this.imageLoaded.emit();
+
+        setTimeout(() => {
+            const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
+            if (displayedImage.offsetWidth / this.aspectRatio < displayedImage.offsetHeight) {
+                this.cropper.x1 = 0;
+                this.cropper.x2 = displayedImage.offsetWidth;
+                const cropperHeight = displayedImage.offsetWidth / this.aspectRatio;
+                this.cropper.y1 = (displayedImage.offsetHeight - cropperHeight) / 2;
+                this.cropper.y2 = this.cropper.y1 + cropperHeight;
+            } else {
+                this.cropper.y1 = 0;
+                this.cropper.y2 = displayedImage.offsetHeight;
+                const cropperWidth = displayedImage.offsetHeight * this.aspectRatio;
+                this.cropper.x1 = (displayedImage.offsetWidth - cropperWidth) / 2;
+                this.cropper.x2 = this.cropper.x1 + cropperWidth;
+            }
+
+            this.crop();
+            this.imageVisible = true;
+        }, 0);
     }
 
     startMove(event: any, moveType: string, position: string | null = null) {
@@ -294,8 +310,8 @@ export class ImageCropperComponent {
             const height = Math.round((this.cropper.y2 - this.cropper.y1) * ratio);
             const resizeRatio = this.resizeToWidth > 0 ? this.resizeToWidth / width : 1;
             const cropCanvas = <HTMLCanvasElement>document.createElement('canvas');
-			cropCanvas.width = width * resizeRatio;
-			cropCanvas.height = height * resizeRatio;
+            cropCanvas.width = width * resizeRatio;
+            cropCanvas.height = height * resizeRatio;
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
