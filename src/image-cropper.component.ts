@@ -20,7 +20,7 @@ interface Dimentions {
 @Component({
     selector: 'image-cropper',
     templateUrl: './image-cropper.component.html',
-    styleUrls: [ './image-cropper.component.scss' ]
+    styleUrls: ['./image-cropper.component.scss']
 })
 export class ImageCropperComponent {
     private originalImage: any;
