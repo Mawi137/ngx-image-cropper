@@ -14,11 +14,13 @@
     >
         <div
             (mousedown)="startMove($event, 'move')"
+            (touchstart)="startMove($event, 'move')"
             class="move"
         >&nbsp;</div>
         <span
             class="resize topleft"
             (mousedown)="startMove($event, 'resize', 'topleft')"
+            (touchstart)="startMove($event, 'resize', 'topleft')"
         ></span>
         <span
             class="resize top"
@@ -26,6 +28,7 @@
         <span
             class="resize topright"
             (mousedown)="startMove($event, 'resize', 'topright')"
+            (touchstart)="startMove($event, 'resize', 'topright')"
         ></span>
         <span
             class="resize right"
@@ -33,6 +36,7 @@
         <span
             class="resize bottomright"
             (mousedown)="startMove($event, 'resize', 'bottomright')"
+            (touchstart)="startMove($event, 'resize', 'bottomright')"
         ></span>
         <span
             class="resize bottom"
@@ -40,6 +44,7 @@
         <span
             class="resize bottomleft"
             (mousedown)="startMove($event, 'resize', 'bottomleft')"
+            (touchstart)="startMove($event, 'resize', 'bottomleft')"
         ></span>
         <span
             class="resize left"
@@ -47,18 +52,22 @@
         <span
             class="resize-bar top"
             (mousedown)="startMove($event, 'resize', 'top')"
+            (touchstart)="startMove($event, 'resize', 'top')"
         ></span>
         <span
             class="resize-bar right"
             (mousedown)="startMove($event, 'resize', 'right')"
+            (touchstart)="startMove($event, 'resize', 'right')"
         ></span>
         <span
             class="resize-bar bottom"
             (mousedown)="startMove($event, 'resize', 'bottom')"
+            (touchstart)="startMove($event, 'resize', 'bottom')"
         ></span>
         <span
             class="resize-bar left"
             (mousedown)="startMove($event, 'resize', 'left')"
+            (touchstart)="startMove($event, 'resize', 'left')"
         ></span>
     </div>
 </div>
