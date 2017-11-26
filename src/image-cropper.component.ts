@@ -134,8 +134,8 @@ export class ImageCropperComponent {
         this.moveStart.active = true;
         this.moveStart.type = moveType;
         this.moveStart.position = position;
-        this.moveStart.clientX = event.clientX;
-        this.moveStart.clientY = event.clientY;
+        this.moveStart.clientX = event.clientX || event.touches[0].clientX;
+        this.moveStart.clientY = event.clientY || event.touches[0].clientY;
         Object.assign(this.moveStart, this.cropper);
     }
 
@@ -187,8 +187,8 @@ export class ImageCropperComponent {
     }
 
     private move(event: any) {
-        const diffX = (event.clientX - this.moveStart.clientX);
-        const diffY = (event.clientY - this.moveStart.clientY);
+        const diffX = ((event.clientX || event.touches[0].clientX)- this.moveStart.clientX);
+        const diffY = ((event.clientY || event.touches[0].clientY)- this.moveStart.clientY);
 
         this.cropper.x1 = this.moveStart.x1 + diffX;
         this.cropper.y1 = this.moveStart.y1 + diffY;
@@ -197,8 +197,8 @@ export class ImageCropperComponent {
     }
 
     private resize(event: any) {
-        const diffX = (event.clientX - this.moveStart.clientX);
-        const diffY = (event.clientY - this.moveStart.clientY);
+        const diffX = ((event.clientX || event.touches[0].clientX) - this.moveStart.clientX);
+        const diffY = ((event.clientY || event.touches[0].clientY) - this.moveStart.clientY);
         switch (this.moveStart.position) {
             case 'left':
                 this.cropper.x1 = Math.min(this.moveStart.x1 + diffX, this.cropper.x2 - 20);
