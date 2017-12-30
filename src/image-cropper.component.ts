@@ -67,7 +67,7 @@ export class ImageCropperComponent {
     set imageBase64(imageBase64: string) {
         this.loadBase64Image(imageBase64);
     }
-    @Input() format = 'png';
+    @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
