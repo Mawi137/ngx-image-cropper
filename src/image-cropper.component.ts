@@ -17,6 +17,13 @@ interface Dimentions {
     height: number;
 }
 
+export interface CropperPosition {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+}
+
 @Component({
     selector: 'image-cropper',
     templateUrl: './image-cropper.component.html',
@@ -25,46 +32,28 @@ interface Dimentions {
 export class ImageCropperComponent {
     private originalImage: any;
     private croppedImage: string;
-    private moveStart: MoveStart = {
-        active: false,
-        type: null,
-        position: null,
-        x1: 0,
-        y1: 0,
-        x2: 0,
-        y2: 0,
-        clientX: 0,
-        clientY: 0
-    };
-    private maxSize: Dimentions = {
-        width: 0,
-        height: 0
-    };
-    private originalSize: Dimentions = {
-        width: 0,
-        height: 0
-    };
+    private moveStart: MoveStart;
+    private maxSize: Dimentions;
+    private originalSize: Dimentions;
 
-    cropper = {
-        x1: -100,
-        y1: -100,
-        x2: 1000,
-        y2: 1000
-    };
-
-    imgDataUrl = 'data:image/png;base64,iVBORw0KGg' + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU' + 'AAarVyFEAAAAASUVORK5CYII=';
+    cropper: CropperPosition;
+    imgDataUrl: string;
     imageVisible = false;
 
-    constructor(private elementRef: ElementRef) {}
+    constructor(private elementRef: ElementRef) {
+        this.initCropper();
+    }
 
     @Input()
     set imageChangedEvent(event: any) {
+        this.initCropper();
         if (event && event.target && event.target.files) {
             this.loadImage(event);
         }
     }
     @Input()
     set imageBase64(imageBase64: string) {
+        this.initCropper();
         this.loadBase64Image(imageBase64);
     }
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
@@ -76,8 +65,40 @@ export class ImageCropperComponent {
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
-    loadImage(event: any) {
+    private initCropper() {
         this.imageVisible = false;
+        this.originalImage = null;
+        this.imgDataUrl = 'data:image/png;base64,iVBORw0KGg' 
+            + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU' 
+            + 'AAarVyFEAAAAASUVORK5CYII=';
+        this.moveStart = {
+            active: false,
+            type: null,
+            position: null,
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 0,
+            clientX: 0,
+            clientY: 0
+        };
+        this.maxSize = {
+            width: 0,
+            height: 0
+        };
+        this.originalSize = {
+            width: 0,
+            height: 0
+        };
+        this.cropper = {
+            x1: -100,
+            y1: -100,
+            x2: 1000,
+            y2: 1000
+        };
+    }
+
+    loadImage(event: any) {
         const fileReader = new FileReader();
         fileReader.onload = (ev: any) => {
             if (event.target.files[0].type === 'image/jpeg' ||
@@ -86,10 +107,6 @@ export class ImageCropperComponent {
                 event.target.files[0].type === 'image/gif') {
                 this.loadBase64Image(ev.target.result);
             } else {
-                const blank = 'data:image/png;base64,iVBORw0KGg' + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU' + 'AAarVyFEAAAAASUVORK5CYII=';
-                this.imgDataUrl = blank;
-                this.originalImage = new Image();
-                this.originalImage.src = blank;
                 this.loadImageFailed.emit();
             }
         };
@@ -97,7 +114,6 @@ export class ImageCropperComponent {
     }
 
     private loadBase64Image(imageBase64: string) {
-        this.imageVisible = false;
         this.originalImage = new Image();
         this.originalImage.onload = () => {
             this.originalSize.width = this.originalImage.width;
