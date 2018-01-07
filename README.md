@@ -65,7 +65,7 @@ Everytime you release the mouse, the `imageCropped` event will be triggerd with 
 
 ## API
 ### Inputs
-- `imageChangedEvent` - The change event from your file input
+- `imageChangedEvent` - The change event from your file input (set to `null` to reset the cropper)
 - `format` - Output format (png, jpeg, webp, bmp, ico) (default = png) (not all browsers support all types, png is always supported, others are optional)
 - `maintainAspectRatio` - Keep width and height of cropped image equal according to the aspectRatio (default = true)
 - `aspectRatio` - The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) (default = 1)
