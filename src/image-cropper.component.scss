@@ -1,7 +1,9 @@
 :host {
-    display: block;
+    display: flex;
     position: relative;
     width: 100%;
+    max-width: 100%;
+    max-height: 100%;
     overflow: hidden;
     padding: 5px;
     -webkit-user-select: none;
@@ -11,6 +13,12 @@
 
     > div {
         position: relative;
+        width: 100%;
+
+        .source-image {
+            max-width: 100%;
+            max-height: 100%;
+        }
     }
 
     .cropper {
@@ -21,12 +29,8 @@
         outline-color: rgba(255,255,255,0.3);
         outline-width: 1000px;
         outline-style: solid;
+        touch-action: none;
 
-        img {
-            width: inherit;
-            height: inherit;
-            cursor: move;
-        }
         &:after {
             position: absolute;
             content: '';
