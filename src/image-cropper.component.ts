@@ -60,10 +60,12 @@ export class ImageCropperComponent {
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
+    @Input() initCropValues: CropperPosition;
 
     @Output() imageCropped = new EventEmitter<string>();
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
+    @Output() getCropValues = new EventEmitter<CropperPosition>();
 
     private initCropper() {
         this.imageVisible = false;
@@ -129,18 +131,22 @@ export class ImageCropperComponent {
 
     private resetCropperPosition() {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
-        if (displayedImage.offsetWidth / this.aspectRatio < displayedImage.offsetHeight) {
-            this.cropper.x1 = 0;
-            this.cropper.x2 = displayedImage.offsetWidth;
-            const cropperHeight = displayedImage.offsetWidth / this.aspectRatio;
-            this.cropper.y1 = (displayedImage.offsetHeight - cropperHeight) / 2;
-            this.cropper.y2 = this.cropper.y1 + cropperHeight;
+        if (this.initCropValues) {
+            this.cropper = this.initCropValues;
         } else {
-            this.cropper.y1 = 0;
-            this.cropper.y2 = displayedImage.offsetHeight;
-            const cropperWidth = displayedImage.offsetHeight * this.aspectRatio;
-            this.cropper.x1 = (displayedImage.offsetWidth - cropperWidth) / 2;
-            this.cropper.x2 = this.cropper.x1 + cropperWidth;
+            if (displayedImage.offsetWidth / this.aspectRatio < displayedImage.offsetHeight) {
+                this.cropper.x1 = 0;
+                this.cropper.x2 = displayedImage.offsetWidth;
+                const cropperHeight = displayedImage.offsetWidth / this.aspectRatio;
+                this.cropper.y1 = (displayedImage.offsetHeight - cropperHeight) / 2;
+                this.cropper.y2 = this.cropper.y1 + cropperHeight;
+            } else {
+                this.cropper.y1 = 0;
+                this.cropper.y2 = displayedImage.offsetHeight;
+                const cropperWidth = displayedImage.offsetHeight * this.aspectRatio;
+                this.cropper.x1 = (displayedImage.offsetWidth - cropperWidth) / 2;
+                this.cropper.x2 = this.cropper.x1 + cropperWidth;
+            }
         }
         this.crop();
         this.imageVisible = true;
@@ -332,6 +338,7 @@ export class ImageCropperComponent {
                 this.croppedImage = cropCanvas.toDataURL('image/' + this.format);
                 if (this.croppedImage.length > 10) {
                     this.imageCropped.emit(this.croppedImage);
+                    this.getCropValues.emit(this.cropper);
                 }
             }
         }
