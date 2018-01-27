@@ -2,6 +2,7 @@
     <img
         [src]="imgDataUrl"
         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+        (load)="imageLoadedInView()"
         class="source-image"
     />
     <div class="cropper"

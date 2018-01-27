@@ -68,8 +68,8 @@ export class ImageCropperComponent {
     private initCropper() {
         this.imageVisible = false;
         this.originalImage = null;
-        this.imgDataUrl = 'data:image/png;base64,iVBORw0KGg' 
-            + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU' 
+        this.imgDataUrl = 'data:image/png;base64,iVBORw0KGg'
+            + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
             + 'AAarVyFEAAAAASUVORK5CYII=';
         this.moveStart = {
             active: false,
@@ -118,13 +118,14 @@ export class ImageCropperComponent {
         this.originalImage.onload = () => {
             this.originalSize.width = this.originalImage.width;
             this.originalSize.height = this.originalImage.height;
-            this.imageLoaded.emit();
         };
         this.imgDataUrl = imageBase64;
         this.originalImage.src = imageBase64;
-        setTimeout(() => {
-            this.resetCropperPosition();
-        }, 1);
+    }
+
+    imageLoadedInView(): void {
+        this.resetCropperPosition();
+        this.imageLoaded.emit();
     }
 
     private resetCropperPosition() {
