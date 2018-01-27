@@ -70,9 +70,11 @@ Everytime you release the mouse, the `imageCropped` event will be triggerd with 
 - `maintainAspectRatio` - Keep width and height of cropped image equal according to the aspectRatio (default = true)
 - `aspectRatio` - The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) (default = 1)
 - `resizeToWidth` - Cropped image will be resized to this width (in px) (default = 0 (no resizing))
-- `imageBase64` - If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper
+- `imageBase64` - If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper  
+- `initCropValues` - You can pass an initial crop value. It requires to be of type CropperPosition (x1, y1, x2, y2)
 
 ### Outputs
 - `imageCropped` - Emits a Base64 string of the cropped image each time it is cropped
 - `imageLoaded` - Emits when the image was loaded into the cropper
 - `loadImageFailed` - Emits when a wrong file type was selected (only png, gif and jpg are allowed)
+- `getCropValues` - Emits the cropper position values (x1, y1, x2, y2) upon a crop movement  
