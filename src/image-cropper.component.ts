@@ -1,4 +1,6 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import {
+    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChange
+} from '@angular/core';
 
 interface MoveStart {
     active: boolean;
@@ -29,20 +31,15 @@ export interface CropperPosition {
     templateUrl: './image-cropper.component.html',
     styleUrls: ['./image-cropper.component.scss']
 })
-export class ImageCropperComponent {
+export class ImageCropperComponent implements OnChanges {
     private originalImage: any;
     private croppedImage: string;
     private moveStart: MoveStart;
     private maxSize: Dimentions;
     private originalSize: Dimentions;
 
-    cropper: CropperPosition;
     imgDataUrl: string;
     imageVisible = false;
-
-    constructor(private elementRef: ElementRef) {
-        this.initCropper();
-    }
 
     @Input()
     set imageChangedEvent(event: any) {
@@ -60,10 +57,28 @@ export class ImageCropperComponent {
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
+    @Input() cropper: CropperPosition = {
+        x1: -100,
+        y1: -100,
+        x2: 10000,
+        y2: 10000
+    };
 
     @Output() imageCropped = new EventEmitter<string>();
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
+
+    constructor(private elementRef: ElementRef) {
+        this.initCropper();
+    }
+
+    ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+        if (changes['cropper']) {
+            this.setMaxSize();
+            this.checkCropperPosition(false);
+            this.crop();
+        }
+    }
 
     private initCropper() {
         this.imageVisible = false;
@@ -90,12 +105,10 @@ export class ImageCropperComponent {
             width: 0,
             height: 0
         };
-        this.cropper = {
-            x1: -100,
-            y1: -100,
-            x2: 1000,
-            y2: 1000
-        };
+        this.cropper.x1 = -100;
+        this.cropper.y1 = -100;
+        this.cropper.x2 = 10000;
+        this.cropper.y2 = 10000;
     }
 
     loadImage(event: any) {
@@ -124,8 +137,10 @@ export class ImageCropperComponent {
     }
 
     imageLoadedInView(): void {
-        this.resetCropperPosition();
-        this.imageLoaded.emit();
+        if (this.originalImage != null) {
+            this.resetCropperPosition();
+            this.imageLoaded.emit();
+        }
     }
 
     private resetCropperPosition() {
@@ -162,20 +177,24 @@ export class ImageCropperComponent {
         if (this.moveStart.active) {
             event.stopPropagation();
             event.preventDefault();
-            const el = this.elementRef.nativeElement.querySelector('.source-image');
-            this.maxSize.width = el.offsetWidth;
-            this.maxSize.height = el.offsetHeight;
+            this.setMaxSize();
             if (this.moveStart.type === 'move') {
                 this.move(event);
-                this.checkCoordinates(true);
+                this.checkCropperPosition(true);
             } else if (this.moveStart.type === 'resize') {
                 this.resize(event);
-                this.checkCoordinates(false);
+                this.checkCropperPosition(false);
             }
         }
     }
 
-    private checkCoordinates(maintainSize = false) {
+    private setMaxSize() {
+        const el = this.elementRef.nativeElement.querySelector('.source-image');
+        this.maxSize.width = el.offsetWidth;
+        this.maxSize.height = el.offsetHeight;
+    }
+
+    private checkCropperPosition(maintainSize = false) {
         if (this.cropper.x1 < 0) {
             this.cropper.x2 -= maintainSize ? this.cropper.x1 : 0;
             this.cropper.x1 = 0;
@@ -204,8 +223,8 @@ export class ImageCropperComponent {
     }
 
     private move(event: any) {
-        const diffX = (event.clientX || event.touches[0].clientX) - this.moveStart.clientX;
-        const diffY = (event.clientY || event.touches[0].clientY) - this.moveStart.clientY;
+        const diffX = this.getClientX(event) - this.moveStart.clientX;
+        const diffY = this.getClientY(event) - this.moveStart.clientY;
 
         this.cropper.x1 = this.moveStart.x1 + diffX;
         this.cropper.y1 = this.moveStart.y1 + diffY;
@@ -214,8 +233,8 @@ export class ImageCropperComponent {
     }
 
     private resize(event: any) {
-        const diffX = (event.clientX || event.touches[0].clientX) - this.moveStart.clientX;
-        const diffY = (event.clientY || event.touches[0].clientY) - this.moveStart.clientY;
+        const diffX = this.getClientX(event) - this.moveStart.clientX;
+        const diffY = this.getClientY(event) - this.moveStart.clientY;
         switch (this.moveStart.position) {
             case 'left':
                 this.cropper.x1 = Math.min(this.moveStart.x1 + diffX, this.cropper.x2 - 20);
@@ -317,7 +336,7 @@ export class ImageCropperComponent {
 
     private crop() {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
-        if (displayedImage) {
+        if (displayedImage && this.originalImage != null) {
             const ratio = this.originalSize.width / displayedImage.offsetWidth;
             const left = Math.round(this.cropper.x1 * ratio);
             const top = Math.round(this.cropper.y1 * ratio);
@@ -336,5 +355,13 @@ export class ImageCropperComponent {
                 }
             }
         }
+    }
+
+    private getClientX(event: any) {
+        return event.clientX != null ? event.clientX : event.touches[0].clientX;
+    }
+
+    private getClientY(event: any) {
+        return event.clientY != null ? event.clientY : event.touches[0].clientY;
     }
 }

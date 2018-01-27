@@ -42,6 +42,8 @@ Add the element to your HTML:
     [resizeToWidth]="128"
     format="png"
     (imageCropped)="imageCropped($event)"
+    (imageLoaded)="imageLoaded()"
+    (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
 
 <img [src]="croppedImage" />
@@ -64,6 +66,7 @@ That event is then passed to the image cropper through `imageChangedEvent` which
 Everytime you release the mouse, the `imageCropped` event will be triggerd with the cropped image as a Base64 string in its payload.
 
 ## API
+All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should be set to load an image into the cropper.
 ### Inputs
 - `imageChangedEvent` - The change event from your file input (set to `null` to reset the cropper)
 - `format` - Output format (png, jpeg, webp, bmp, ico) (default = png) (not all browsers support all types, png is always supported, others are optional)
@@ -71,6 +74,7 @@ Everytime you release the mouse, the `imageCropped` event will be triggerd with 
 - `aspectRatio` - The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) (default = 1)
 - `resizeToWidth` - Cropped image will be resized to this width (in px) (default = 0 (no resizing))
 - `imageBase64` - If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper
+- `cropper` - To be able to get the cropper coordinates, you can use this input. Create a new object `{x1: number, y1: number, x2: number, y2: number }` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position.
 
 ### Outputs
 - `imageCropped` - Emits a Base64 string of the cropped image each time it is cropped
