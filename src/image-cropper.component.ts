@@ -74,9 +74,11 @@ export class ImageCropperComponent implements OnChanges {
 
     ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
         if (changes['cropper']) {
-            this.setMaxSize();
-            this.checkCropperPosition(false);
-            this.crop();
+            setTimeout(() => {
+                this.setMaxSize();
+                this.checkCropperPosition(false);
+                this.crop();
+            });
         }
     }
 
@@ -138,8 +140,10 @@ export class ImageCropperComponent implements OnChanges {
 
     imageLoadedInView(): void {
         if (this.originalImage != null) {
-            this.resetCropperPosition();
             this.imageLoaded.emit();
+            setTimeout(() => {
+                this.resetCropperPosition();
+            });
         }
     }
 
@@ -166,8 +170,8 @@ export class ImageCropperComponent implements OnChanges {
         this.moveStart.active = true;
         this.moveStart.type = moveType;
         this.moveStart.position = position;
-        this.moveStart.clientX = event.clientX || event.touches[0].clientX;
-        this.moveStart.clientY = event.clientY || event.touches[0].clientY;
+        this.moveStart.clientX = this.getClientX(event);
+        this.moveStart.clientY = this.getClientY(event);
         Object.assign(this.moveStart, this.cropper);
     }
 
