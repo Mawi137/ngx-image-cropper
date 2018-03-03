@@ -1,7 +1,7 @@
 # Image cropper for Angular
-![example](https://github.com/MartijnW49/ngx-image-cropper/blob/master/cropper-example.png)
+![example](https://github.com/Mawi137/ngx-image-cropper/blob/master/cropper-example.png)
 
-[Plunker](https://plnkr.co/edit/pcnBN6Fwk8rjjtisIuyC?p=preview)
+[StackBlitz](https://stackblitz.com/edit/image-cropper)
 
 ### Installation
 `npm install ngx-image-cropper --save`
@@ -59,6 +59,12 @@ fileChangeEvent(event: any): void {
 }
 imageCropped(image: string) {
     this.croppedImage = image;
+}
+imageLoaded() {
+    // show cropper
+}
+loadImageFailed() {
+    // show message
 }
 ```
 When you choose a file from the file input, it will trigger `fileChangeEvent`.

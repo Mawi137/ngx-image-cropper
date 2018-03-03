@@ -1,6 +1,6 @@
 <div>
     <img
-        [src]="imgDataUrl"
+        [src]="safeImgDataUrl"
         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
         (load)="imageLoadedInView()"
         class="source-image"

@@ -1,6 +1,7 @@
 import {
-    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChange
+    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges
 } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 interface MoveStart {
     active: boolean;
@@ -14,7 +15,7 @@ interface MoveStart {
     clientY: number;
 }
 
-interface Dimentions {
+interface Dimensions {
     width: number;
     height: number;
 }
@@ -35,10 +36,11 @@ export class ImageCropperComponent implements OnChanges {
     private originalImage: any;
     private croppedImage: string;
     private moveStart: MoveStart;
-    private maxSize: Dimentions;
-    private originalSize: Dimentions;
+    private maxSize: Dimensions;
+    private originalSize: Dimensions;
+    private imgDataUrl: string;
 
-    imgDataUrl: string;
+    safeImgDataUrl: SafeUrl | string;
     imageVisible = false;
 
     @Input()
@@ -68,11 +70,11 @@ export class ImageCropperComponent implements OnChanges {
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
-    constructor(private elementRef: ElementRef) {
+    constructor(private elementRef: ElementRef, private sanitizer: DomSanitizer) {
         this.initCropper();
     }
 
-    ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+    ngOnChanges(changes: SimpleChanges): void {
         if (changes['cropper']) {
             setTimeout(() => {
                 this.setMaxSize();
@@ -88,6 +90,7 @@ export class ImageCropperComponent implements OnChanges {
         this.imgDataUrl = 'data:image/png;base64,iVBORw0KGg'
             + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
             + 'AAarVyFEAAAAASUVORK5CYII=';
+        this.safeImgDataUrl = this.imgDataUrl;
         this.moveStart = {
             active: false,
             type: null,
@@ -135,6 +138,7 @@ export class ImageCropperComponent implements OnChanges {
             this.originalSize.height = this.originalImage.height;
         };
         this.imgDataUrl = imageBase64;
+        this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage.src = imageBase64;
     }
 
