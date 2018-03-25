@@ -1,7 +1,7 @@
 import {
     Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges
 } from '@angular/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 
 interface MoveStart {
     active: boolean;
@@ -38,9 +38,9 @@ export class ImageCropperComponent implements OnChanges {
     private moveStart: MoveStart;
     private maxSize: Dimensions;
     private originalSize: Dimensions;
-    private imgDataUrl: string;
 
     safeImgDataUrl: SafeUrl | string;
+    marginLeft: SafeStyle | string = '0px;'
     imageVisible = false;
 
     @Input()
@@ -50,11 +50,13 @@ export class ImageCropperComponent implements OnChanges {
             this.loadImage(event);
         }
     }
+
     @Input()
     set imageBase64(imageBase64: string) {
         this.initCropper();
         this.loadBase64Image(imageBase64);
     }
+
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
@@ -87,10 +89,9 @@ export class ImageCropperComponent implements OnChanges {
     private initCropper() {
         this.imageVisible = false;
         this.originalImage = null;
-        this.imgDataUrl = 'data:image/png;base64,iVBORw0KGg'
+        this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
             + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
             + 'AAarVyFEAAAAASUVORK5CYII=';
-        this.safeImgDataUrl = this.imgDataUrl;
         this.moveStart = {
             active: false,
             type: null,
@@ -137,13 +138,13 @@ export class ImageCropperComponent implements OnChanges {
             this.originalSize.width = this.originalImage.width;
             this.originalSize.height = this.originalImage.height;
         };
-        this.imgDataUrl = imageBase64;
         this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage.src = imageBase64;
     }
 
     imageLoadedInView(): void {
         if (this.originalImage != null) {
+            this.setMaxSize();
             this.imageLoaded.emit();
             setTimeout(() => {
                 this.resetCropperPosition();
@@ -200,6 +201,7 @@ export class ImageCropperComponent implements OnChanges {
         const el = this.elementRef.nativeElement.querySelector('.source-image');
         this.maxSize.width = el.offsetWidth;
         this.maxSize.height = el.offsetHeight;
+        this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
     }
 
     private checkCropperPosition(maintainSize = false) {

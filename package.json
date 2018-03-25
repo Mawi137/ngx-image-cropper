@@ -1,6 +1,6 @@
 {
   "name": "ngx-image-cropper",
-  "version": "0.1.25",
+  "version": "0.1.27",
   "description": "An image cropper for Angular",
   "main": "./bundles/ngx-image-cropper.umd.js",
   "module": "./ngx-image-cropper/ngx-image-cropper.es5.js",
@@ -15,12 +15,12 @@
   "author": "Martijn Willekens",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MartijnW49/ngx-image-cropper.git"
+    "url": "https://github.com/Mawi137/ngx-image-cropper.git"
   },
   "bugs": {
-    "url": "https://github.com/MartijnW49/ngx-image-cropper/issues"
+    "url": "https://github.com/Mawi137/ngx-image-cropper/issues"
   },
-  "homepage": "https://github.com/MartijnW49/ngx-image-cropper",
+  "homepage": "https://github.com/Mawi137/ngx-image-cropper",
   "keywords": [
     "angular",
     "angular 2",
