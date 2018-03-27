@@ -353,12 +353,7 @@ export class ImageCropperComponent implements OnChanges {
             const top = Math.round(this.cropper.y1 * ratio);
             const width = Math.round((this.cropper.x2 - this.cropper.x1) * ratio);
             const height = Math.round((this.cropper.y2 - this.cropper.y1) * ratio);
-            let resizeRatio = 1;
-            if (this.resizeToWidth > 0) {
-                if (!this.onlyScaleDown || width > this.resizeToWidth) {
-                  resizeRatio = this.resizeToWidth / width;
-                }
-            }
+            const resizeRatio = this.getResizeRatio(width);
             const cropCanvas = <HTMLCanvasElement>document.createElement('canvas');
             cropCanvas.width = width * resizeRatio;
             cropCanvas.height = height * resizeRatio;
@@ -371,6 +366,12 @@ export class ImageCropperComponent implements OnChanges {
                 }
             }
         }
+    }
+
+    private getResizeRatio(width: number): number {
+        return this.resizeToWidth > 0 && (!this.onlyScaleDown || width > this.resizeToWidth)
+            ? this.resizeToWidth / width
+            : 1;
     }
 
     private getClientX(event: any) {
