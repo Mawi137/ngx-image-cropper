@@ -61,6 +61,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
+    @Input() onlyScaleDown = false;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
@@ -352,7 +353,12 @@ export class ImageCropperComponent implements OnChanges {
             const top = Math.round(this.cropper.y1 * ratio);
             const width = Math.round((this.cropper.x2 - this.cropper.x1) * ratio);
             const height = Math.round((this.cropper.y2 - this.cropper.y1) * ratio);
-            const resizeRatio = this.resizeToWidth > 0 ? this.resizeToWidth / width : 1;
+            let resizeRatio = 1;
+            if (this.resizeToWidth > 0) {
+                if (!this.onlyScaleDown || width > this.resizeToWidth) {
+                  resizeRatio = this.resizeToWidth / width;
+                }
+            }
             const cropCanvas = <HTMLCanvasElement>document.createElement('canvas');
             cropCanvas.width = width * resizeRatio;
             cropCanvas.height = height * resizeRatio;
@@ -375,3 +381,4 @@ export class ImageCropperComponent implements OnChanges {
         return event.clientY != null ? event.clientY : event.touches[0].clientY;
     }
 }
+
