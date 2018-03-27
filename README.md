@@ -74,16 +74,16 @@ Everytime you release the mouse, the `imageCropped` event will be triggerd with 
 ## API
 All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should be set to load an image into the cropper.
 ### Inputs
-|  Name                  | Type      | Description     |
-| ---------------------- |---------- | --------------- |
-| `imageChangedEvent`    | FileEvent | The change event from your file input (set to `null` to reset the cropper) |
-| `format`               | string    | Output format (png, jpeg, webp, bmp, ico) (default = png) (not all browsers support all types, png is always supported, others are optional) |
-| `maintainAspectRatio`  | boolean   | Keep width and height of cropped image equal according to the aspectRatio (default = true) |
-| `aspectRatio`          | number    | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) (default = 1) |
-| `resizeToWidth`        | number    | Cropped image will be resized to this width (in px) (default = 0 (no resizing)) |
-| `onlyScaleDown`        | boolean   | When the `resizeWidth` is set, enabling this option will make sure smaller images are not scaled up |
-| `imageBase64`          | string    | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
-| `cropper`              | { x1: number, y1: number, x2: number, y2: number } | To be able to get the cropper coordinates, you can use this input. Create a new object `{x1: number, y1: number, x2: number, y2: number }` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position. |
+|  Name                  | Type      | Default      | Description     |
+| ---------------------- |---------- | ------------ | --------------- |
+| `imageChangedEvent`    | FileEvent | null         | The change event from your file input (set to `null` to reset the cropper) |
+| `format`               | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
+| `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
+| `aspectRatio`          | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
+| `resizeToWidth`        | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
+| `onlyScaleDown`        | boolean   | false        | When the `resizeWidth` is set, enabling this option will make sure smaller images are not scaled up |
+| `imageBase64`          | string    | null         | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
+| `cropper`              | { x1: number, y1: number, x2: number, y2: number } |  | To be able to get the cropper coordinates, you can use this input. Create a new object `{x1: number, y1: number, x2: number, y2: number }` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position. |
 
 ### Outputs
 | Name              | Type   | Description |
