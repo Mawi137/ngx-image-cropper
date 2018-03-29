@@ -28,7 +28,7 @@
         color: #53535C !important;
         background: transparent !important;
         outline-color: rgba(255,255,255,0.3);
-        outline-width: 100vw;
+        outline-width: 1000px;
         outline-style: solid;
         touch-action: none;
 
@@ -54,90 +54,92 @@
 
         .resize {
             position: absolute;
-            background: #53535C;
+            display: inline-block;
+            line-height: 6px;
+            padding: 8px;
+            opacity: .85;
+            z-index: 1;
+
+            .square {
+                display: inline-block;
+                background: #53535C !important;
+                width: 6px;
+                height: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+            }
 
             &.topleft {
-                top: -5px;
-                left: -5px;
+                top: -12px;
+                left: -12px;
                 cursor: nw-resize;
             }
             &.top {
-                top: -5px;
-                left: calc(50% - 5px);
+                top: -12px;
+                left: calc(50% - 12px);
                 cursor: n-resize;
             }
             &.topright {
-                top: -5px;
-                right: 5px;
+                top: -12px;
+                right: -12px;
                 cursor: ne-resize;
             }
             &.right {
-                top: calc(50% - 5px);
-                right: 5px;
+                top: calc(50% - 12px);
+                right: -12px;
                 cursor: e-resize;
             }
             &.bottomright {
-                bottom: 5px;
-                right: 5px;
+                bottom: -12px;
+                right: -12px;
                 cursor: se-resize;
             }
             &.bottom {
-                bottom: 5px;
-                left: calc(50% - 5px);
+                bottom: -12px;
+                left: calc(50% - 12px);
                 cursor: s-resize;
             }
             &.bottomleft {
-                bottom: 5px;
-                left: -5px;
+                bottom: -12px;
+                left: -12px;
                 cursor: sw-resize;
             }
             &.left {
-                top: calc(50% - 5px);
-                left: -5px;
+                top: calc(50% - 12px);
+                left: -12px;
                 cursor: w-resize;
             }
-            &:after {
-                position: absolute;
-                background: inherit;
-                border: 1px solid rgba(255, 255, 255, 0.5);
-                content: '';
-                width: 8px;
-                height: 8px;
-                margin: auto;
-                opacity: .85;
-                z-index: 1;
-            }
+
         }
         .resize-bar {
             position: absolute;
             z-index: 1;
 
             &.top {
-                top: -5px;
-                left: 5px;
-                width: calc(100% - 10px);
-                height: 10px;
+                top: -11px;
+                left: 11px;
+                width: calc(100% - 22px);
+                height: 22px;
                 cursor: n-resize;
             }
             &.right {
-                top: 5px;
-                right: -5px;
-                height: calc(100% - 10px);
-                width: 10px;
+                top: 11px;
+                right: -11px;
+                height: calc(100% - 22px);
+                width: 22px;
                 cursor: e-resize;
             }
             &.bottom {
-                bottom: -5px;
-                left: 5px;
-                width: calc(100% - 10px);
-                height: 10px;
+                bottom: -11px;
+                left: 11px;
+                width: calc(100% - 22px);
+                height: 22px;
                 cursor: s-resize;
             }
             &.left {
-                top: 5px;
-                left: -5px;
-                height: calc(100% - 10px);
-                width: 10px;
+                top: 11px;
+                left: -11px;
+                height: calc(100% - 22px);
+                width: 22px;
                 cursor: w-resize;
             }
         }

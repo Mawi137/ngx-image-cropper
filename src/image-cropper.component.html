@@ -6,12 +6,12 @@
         class="source-image"
     />
     <div class="cropper"
-        [style.top.px]="cropper.y1"
-        [style.left.px]="cropper.x1"
-        [style.width.px]="cropper.x2 - cropper.x1"
-        [style.height.px]="cropper.y2 - cropper.y1"
-        [style.margin-left]="marginLeft"
-        [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+         [style.top.px]="cropper.y1"
+         [style.left.px]="cropper.x1"
+         [style.width.px]="cropper.x2 - cropper.x1"
+         [style.height.px]="cropper.y2 - cropper.y1"
+         [style.margin-left]="marginLeft"
+         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
     >
         <div
             (mousedown)="startMove($event, 'move')"
@@ -22,34 +22,34 @@
             class="resize topleft"
             (mousedown)="startMove($event, 'resize', 'topleft')"
             (touchstart)="startMove($event, 'resize', 'topleft')"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize top"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize topright"
             (mousedown)="startMove($event, 'resize', 'topright')"
             (touchstart)="startMove($event, 'resize', 'topright')"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize right"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize bottomright"
             (mousedown)="startMove($event, 'resize', 'bottomright')"
             (touchstart)="startMove($event, 'resize', 'bottomright')"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize bottom"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize bottomleft"
             (mousedown)="startMove($event, 'resize', 'bottomleft')"
             (touchstart)="startMove($event, 'resize', 'bottomleft')"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize left"
-        ></span>
+        ><span class="square"></span></span>
         <span
             class="resize-bar top"
             (mousedown)="startMove($event, 'resize', 'top')"
