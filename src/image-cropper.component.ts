@@ -40,7 +40,7 @@ export class ImageCropperComponent implements OnChanges {
     private originalSize: Dimensions;
 
     safeImgDataUrl: SafeUrl | string;
-    marginLeft: SafeStyle | string = '0px;'
+    marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
     @Input()
@@ -145,9 +145,9 @@ export class ImageCropperComponent implements OnChanges {
 
     imageLoadedInView(): void {
         if (this.originalImage != null) {
-            this.setMaxSize();
             this.imageLoaded.emit();
             setTimeout(() => {
+                this.setMaxSize();
                 this.resetCropperPosition();
             });
         }
@@ -382,4 +382,3 @@ export class ImageCropperComponent implements OnChanges {
         return event.clientY != null ? event.clientY : event.touches[0].clientY;
     }
 }
-
