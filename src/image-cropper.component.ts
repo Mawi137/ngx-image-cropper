@@ -1,5 +1,5 @@
 import {
-    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges
+    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 
@@ -73,7 +73,7 @@ export class ImageCropperComponent implements OnChanges {
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
-    constructor(private elementRef: ElementRef, private sanitizer: DomSanitizer) {
+    constructor(private elementRef: ElementRef, private sanitizer: DomSanitizer, private cd: ChangeDetectorRef) {
         this.initCropper();
     }
 
@@ -188,6 +188,7 @@ export class ImageCropperComponent implements OnChanges {
             event.stopPropagation();
             event.preventDefault();
             this.setMaxSize();
+            this.cd.detectChanges();
             if (this.moveStart.type === 'move') {
                 this.move(event);
                 this.checkCropperPosition(true);
