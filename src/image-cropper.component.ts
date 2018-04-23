@@ -1,5 +1,5 @@
 import {
-    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges
+    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 
@@ -30,11 +30,11 @@ export interface CropperPosition {
 @Component({
     selector: 'image-cropper',
     templateUrl: './image-cropper.component.html',
-    styleUrls: ['./image-cropper.component.scss']
+    styleUrls: ['./image-cropper.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageCropperComponent implements OnChanges {
     private originalImage: any;
-    private croppedImage: string;
     private moveStart: MoveStart;
     private maxSize: Dimensions;
     private originalSize: Dimensions;
@@ -46,7 +46,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input()
     set imageChangedEvent(event: any) {
         this.initCropper();
-        if (event && event.target && event.target.files) {
+        if (event && event.target && event.target.files && event.target.files.length > 0) {
             this.loadImage(event);
         }
     }
@@ -62,6 +62,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
     @Input() onlyScaleDown = false;
+    @Input() imageQuality = 92;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
@@ -73,7 +74,7 @@ export class ImageCropperComponent implements OnChanges {
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
-    constructor(private elementRef: ElementRef, private sanitizer: DomSanitizer) {
+    constructor(private elementRef: ElementRef, private sanitizer: DomSanitizer, private cd: ChangeDetectorRef) {
         this.initCropper();
     }
 
@@ -83,6 +84,7 @@ export class ImageCropperComponent implements OnChanges {
                 this.setMaxSize();
                 this.checkCropperPosition(false);
                 this.crop();
+                this.cd.markForCheck();
             });
         }
     }
@@ -138,6 +140,7 @@ export class ImageCropperComponent implements OnChanges {
         this.originalImage.onload = () => {
             this.originalSize.width = this.originalImage.width;
             this.originalSize.height = this.originalImage.height;
+            this.cd.markForCheck();
         };
         this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage.src = imageBase64;
@@ -149,6 +152,7 @@ export class ImageCropperComponent implements OnChanges {
             setTimeout(() => {
                 this.setMaxSize();
                 this.resetCropperPosition();
+                this.cd.markForCheck();
             });
         }
     }
@@ -179,6 +183,7 @@ export class ImageCropperComponent implements OnChanges {
         this.moveStart.clientX = this.getClientX(event);
         this.moveStart.clientY = this.getClientY(event);
         Object.assign(this.moveStart, this.cropper);
+        this.cd.markForCheck();
     }
 
     @HostListener('document:mousemove', ['$event'])
@@ -195,6 +200,7 @@ export class ImageCropperComponent implements OnChanges {
                 this.resize(event);
                 this.checkCropperPosition(false);
             }
+            this.cd.markForCheck();
         }
     }
 
@@ -230,6 +236,7 @@ export class ImageCropperComponent implements OnChanges {
         if (this.moveStart.active) {
             this.moveStart.active = false;
             this.crop();
+            this.cd.markForCheck();
         }
     }
 
@@ -360,9 +367,10 @@ export class ImageCropperComponent implements OnChanges {
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
-                this.croppedImage = cropCanvas.toDataURL('image/' + this.format);
-                if (this.croppedImage.length > 10) {
-                    this.imageCropped.emit(this.croppedImage);
+                const quality = Math.min(1, Math.max(0, this.imageQuality / 100))
+                const croppedImage = cropCanvas.toDataURL('image/' + this.format, quality);
+                if (croppedImage.length > 10) {
+                    this.imageCropped.emit(croppedImage);
                 }
             }
         }
