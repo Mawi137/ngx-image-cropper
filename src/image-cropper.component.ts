@@ -232,7 +232,7 @@ export class ImageCropperComponent implements OnChanges {
 
     @HostListener('document:mouseup', ['$event'])
     @HostListener('document:touchend', ['$event'])
-    moveStop() {
+    moveStop(event: any) {
         if (this.moveStart.active) {
             this.moveStart.active = false;
             this.crop();
