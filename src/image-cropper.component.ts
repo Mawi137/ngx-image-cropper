@@ -157,6 +157,22 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
+    @HostListener('window:resize', ['$event'])
+    imageResizedInView(event: Event) {
+        this.resizeCropperPosition();
+        this.setMaxSize();
+    }
+
+    private resizeCropperPosition() {
+        const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
+        if (this.maxSize.width !== displayedImage.offsetWidth || this.maxSize.height !== displayedImage.offsetHeight) {
+            this.cropper.x1 = this.cropper.x1 * displayedImage.offsetWidth / this.maxSize.width;
+            this.cropper.x2 = this.cropper.x2 * displayedImage.offsetWidth / this.maxSize.width;
+            this.cropper.y1 = this.cropper.y1 * displayedImage.offsetHeight / this.maxSize.height;
+            this.cropper.y2 = this.cropper.y2 * displayedImage.offsetHeight / this.maxSize.height;
+        }
+    }
+
     private resetCropperPosition() {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
         if (displayedImage.offsetWidth / this.aspectRatio < displayedImage.offsetHeight) {
