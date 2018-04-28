@@ -157,6 +157,22 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
+    @HostListener('window:resize', ['$event'])
+    imageResizedInView(event: Event) {
+        this.resizeCropperPosition();
+        this.setMaxSize();
+    }
+
+    private resizeCropperPosition() {
+        const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
+        if (this.maxSize.width !== displayedImage.offsetWidth || this.maxSize.height !== displayedImage.offsetHeight) {
+            this.cropper.x1 = this.cropper.x1 * displayedImage.offsetWidth / this.maxSize.width;
+            this.cropper.x2 = this.cropper.x2 * displayedImage.offsetWidth / this.maxSize.width;
+            this.cropper.y1 = this.cropper.y1 * displayedImage.offsetHeight / this.maxSize.height;
+            this.cropper.y2 = this.cropper.y2 * displayedImage.offsetHeight / this.maxSize.height;
+        }
+    }
+
     private resetCropperPosition() {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
         if (displayedImage.offsetWidth / this.aspectRatio < displayedImage.offsetHeight) {
@@ -302,6 +318,7 @@ export class ImageCropperComponent implements OnChanges {
                     this.cropper.x2 -= (overflowY * this.aspectRatio) > overflowX ? (overflowY * this.aspectRatio) : overflowX;
                     this.cropper.y1 += (overflowY * this.aspectRatio) > overflowX ? overflowY : overflowX / this.aspectRatio;
                 }
+                break;
             case 'bottom':
                 this.cropper.x2 = this.cropper.x1 + (this.cropper.y2 - this.cropper.y1) * this.aspectRatio;
                 overflowX = Math.max(this.cropper.x2 - this.maxSize.width, 0);
@@ -367,7 +384,7 @@ export class ImageCropperComponent implements OnChanges {
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
-                const quality = Math.min(1, Math.max(0, this.imageQuality / 100))
+                const quality = Math.min(1, Math.max(0, this.imageQuality / 100));
                 const croppedImage = cropCanvas.toDataURL('image/' + this.format, quality);
                 if (croppedImage.length > 10) {
                     this.imageCropped.emit(croppedImage);
