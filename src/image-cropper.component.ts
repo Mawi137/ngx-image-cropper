@@ -232,7 +232,7 @@ export class ImageCropperComponent implements OnChanges {
 
     @HostListener('document:mouseup', ['$event'])
     @HostListener('document:touchend', ['$event'])
-    moveStop() {
+    moveStop(event: any) {
         if (this.moveStart.active) {
             this.moveStart.active = false;
             this.crop();
@@ -302,6 +302,7 @@ export class ImageCropperComponent implements OnChanges {
                     this.cropper.x2 -= (overflowY * this.aspectRatio) > overflowX ? (overflowY * this.aspectRatio) : overflowX;
                     this.cropper.y1 += (overflowY * this.aspectRatio) > overflowX ? overflowY : overflowX / this.aspectRatio;
                 }
+                break;
             case 'bottom':
                 this.cropper.x2 = this.cropper.x1 + (this.cropper.y2 - this.cropper.y1) * this.aspectRatio;
                 overflowX = Math.max(this.cropper.x2 - this.maxSize.width, 0);
@@ -361,13 +362,13 @@ export class ImageCropperComponent implements OnChanges {
             const width = Math.round((this.cropper.x2 - this.cropper.x1) * ratio);
             const height = Math.round((this.cropper.y2 - this.cropper.y1) * ratio);
             const resizeRatio = this.getResizeRatio(width);
-            const cropCanvas = <HTMLCanvasElement>document.createElement('canvas');
+            const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
             cropCanvas.width = width * resizeRatio;
             cropCanvas.height = height * resizeRatio;
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
-                const quality = Math.min(1, Math.max(0, this.imageQuality / 100))
+                const quality = Math.min(1, Math.max(0, this.imageQuality / 100));
                 const croppedImage = cropCanvas.toDataURL('image/' + this.format, quality);
                 if (croppedImage.length > 10) {
                     this.imageCropped.emit(croppedImage);
