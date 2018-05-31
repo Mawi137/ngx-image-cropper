@@ -1,7 +1,17 @@
 import {
-    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
+import { ImageUtils } from './image.utils';
 
 interface MoveStart {
     active: boolean;
@@ -123,16 +133,34 @@ export class ImageCropperComponent implements OnChanges {
     loadImage(event: any) {
         const fileReader = new FileReader();
         fileReader.onload = (ev: any) => {
-            if (event.target.files[0].type === 'image/jpeg' ||
-                event.target.files[0].type === 'image/jpg' ||
-                event.target.files[0].type === 'image/png' ||
-                event.target.files[0].type === 'image/gif') {
-                this.loadBase64Image(ev.target.result);
+            const imageType = event.target.files[0].type;
+            if (this.isValidImageType(imageType)) {
+                this.checkExifRotationAndLoadImage(ev.target.result);
             } else {
                 this.loadImageFailed.emit();
             }
         };
         fileReader.readAsDataURL(event.target.files[0]);
+    }
+
+    private isValidImageType(type: string) {
+        return type === 'image/jpeg'
+            || type === 'image/jpg'
+            || type === 'image/png'
+            || type === 'image/gif'
+    }
+
+    private checkExifRotationAndLoadImage(imageBase64: string) {
+        const exifRotation = ImageUtils.getOrientation(imageBase64);
+        if (exifRotation > 1) {
+            ImageUtils.resetOrientation(
+                imageBase64,
+                exifRotation,
+                (rotatedBase64: string) => this.loadBase64Image(rotatedBase64)
+            );
+        } else {
+            this.loadBase64Image(imageBase64);
+        }
     }
 
     private loadBase64Image(imageBase64: string) {
@@ -158,7 +186,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     @HostListener('window:resize', ['$event'])
-    imageResizedInView(event: Event) {
+    onResize(event: Event) {
         this.resizeCropperPosition();
         this.setMaxSize();
     }
