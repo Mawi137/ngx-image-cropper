@@ -77,12 +77,13 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 |  Name                  | Type      | Default      | Description     |
 | ---------------------- |---------- | ------------ | --------------- |
 | `imageChangedEvent`    | FileEvent |              | The change event from your file input (set to `null` to reset the cropper) |
+| `imageFileChanged`     | File      |              | The file you want to change (set to `null` to reset the cropper)           |
+| `imageBase64`          | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
 | `format`               | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
 | `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
 | `aspectRatio`          | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `resizeToWidth`        | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
 | `onlyScaleDown`        | boolean   | false        | When the `resizeWidth` is set, enabling this option will make sure smaller images are not scaled up |
-| `imageBase64`          | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
 | `cropper`              | { x1: number, y1: number, x2: number, y2: number } |  | To be able to get the cropper coordinates, you can use this input. Create a new object `{x1: number, y1: number, x2: number, y2: number }` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position. |
 | `imageQuality`          | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
 
