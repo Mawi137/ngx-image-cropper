@@ -54,10 +54,18 @@ export class ImageCropperComponent implements OnChanges {
     imageVisible = false;
 
     @Input()
+    set imageFileChanged(file: File) {
+        this.initCropper();
+        if (file) {
+            this.loadImageFile(file);
+        }
+    }
+
+    @Input()
     set imageChangedEvent(event: any) {
         this.initCropper();
         if (event && event.target && event.target.files && event.target.files.length > 0) {
-            this.loadImage(event);
+            this.loadImageFile(event.target.files[0]);
         }
     }
 
@@ -130,17 +138,17 @@ export class ImageCropperComponent implements OnChanges {
         this.cropper.y2 = 10000;
     }
 
-    loadImage(event: any) {
+    private loadImageFile(file: File) {
         const fileReader = new FileReader();
-        fileReader.onload = (ev: any) => {
-            const imageType = event.target.files[0].type;
+        fileReader.onload = (event: any) => {
+            const imageType = file.type;
             if (this.isValidImageType(imageType)) {
-                this.checkExifRotationAndLoadImage(ev.target.result);
+                this.checkExifRotationAndLoadImage(event.target.result);
             } else {
                 this.loadImageFailed.emit();
             }
         };
-        fileReader.readAsDataURL(event.target.files[0]);
+        fileReader.readAsDataURL(file);
     }
 
     private isValidImageType(type: string) {
