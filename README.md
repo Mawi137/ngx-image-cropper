@@ -87,8 +87,9 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `imageQuality`          | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
 
 ### Outputs
-| Name              | Type   | Description |
-| ----------------- | ------ | ----------- |
-| `imageCropped`    | string | Emits a Base64 string of the cropped image each time it is cropped |
-| `imageLoaded`     | void   | Emits when the image was loaded into the cropper |
-| `loadImageFailed` | void   | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
+| Name                    | Type   | Description |
+| ----------------------- | ------ | ----------- |
+| `imageCroppedBase64`    | string | Emits a Base64 string of the cropped image each time it is cropped |
+| `imageCroppedFile`      | File   | Emits the cropped image as a file each time it is cropped |
+| `imageLoaded`           | void   | Emits when the image was loaded into the cropper |
+| `loadImageFailed`       | void   | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
