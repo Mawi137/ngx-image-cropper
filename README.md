@@ -41,7 +41,7 @@ Add the element to your HTML:
     [aspectRatio]="4 / 3"
     [resizeToWidth]="128"
     format="png"
-    (imageCropped)="imageCropped($event)"
+    (imageCroppedBase64)="imageCropped($event)"
     (imageLoaded)="imageLoaded()"
     (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
