@@ -79,6 +79,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
+    @Input() roundCropper = false;
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
     @Input() cropper: CropperPosition = {
