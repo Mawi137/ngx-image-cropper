@@ -411,19 +411,21 @@ export class ImageCropperComponent implements OnChanges {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
         if (displayedImage && this.originalImage != null) {
             const ratio = this.originalSize.width / displayedImage.offsetWidth;
-            const left = Math.round(this.cropper.x1 * ratio);
-            const top = Math.round(this.cropper.y1 * ratio);
-            const width = Math.round((this.cropper.x2 - this.cropper.x1) * ratio);
-            const height = Math.round((this.cropper.y2 - this.cropper.y1) * ratio);
+            const left = Math.max(0, Math.min(this.originalSize.width, Math.round(this.cropper.x1 * ratio)));
+            const top = Math.max(0, Math.min(this.originalSize.height, Math.round(this.cropper.y1 * ratio)));
+            const width = Math.min(this.originalSize.width, Math.round((this.cropper.x2 - this.cropper.x1) * ratio));
+            const height = Math.min(this.originalSize.height, Math.round((this.cropper.y2 - this.cropper.y1) * ratio));
             const resizeRatio = this.getResizeRatio(width);
 
             const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
-            cropCanvas.width = width * resizeRatio;
-            cropCanvas.height = height * resizeRatio;
+            const widthWithRatio = Math.min(this.originalSize.width, width * resizeRatio);
+            const heightWithRatio = Math.min(this.originalSize.height, height * resizeRatio);
+            cropCanvas.width = widthWithRatio;
+            cropCanvas.height = heightWithRatio;
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
-                ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
+                ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, widthWithRatio, heightWithRatio);
                 const quality = Math.min(1, Math.max(0, this.imageQuality / 100));
                 const croppedImage = cropCanvas.toDataURL(`image/${this.format}`, quality);
                 if (croppedImage.length > 10) {
