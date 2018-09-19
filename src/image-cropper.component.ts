@@ -82,12 +82,18 @@ export class ImageCropperComponent implements OnChanges {
     @Input() roundCropper = false;
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
+    @Input() autoTriggerCrop = true;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
         x2: 10000,
         y2: 10000
     };
+
+    @Input()
+    set triggerCrop(crop: Boolean) {
+        if (crop) { this.crop(); }
+    }
 
     @Output() imageCroppedBase64 = new EventEmitter<string>();
     @Output() imageCroppedFile = new EventEmitter<File>();
@@ -103,7 +109,7 @@ export class ImageCropperComponent implements OnChanges {
             setTimeout(() => {
                 this.setMaxSize();
                 this.checkCropperPosition(false);
-                this.crop();
+                if ( this.autoTriggerCrop ) {this.crop(); }
                 this.cd.markForCheck();
             });
         }
