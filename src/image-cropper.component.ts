@@ -232,7 +232,7 @@ export class ImageCropperComponent implements OnChanges {
             this.cropper.x1 = (displayedImage.offsetWidth - cropperWidth) / 2;
             this.cropper.x2 = this.cropper.x1 + cropperWidth;
         }
-        this.crop();
+        if ( this.autoTriggerCrop ) {this.crop(); }
         this.imageVisible = true;
     }
 
@@ -295,7 +295,7 @@ export class ImageCropperComponent implements OnChanges {
     moveStop(event: any) {
         if (this.moveStart.active) {
             this.moveStart.active = false;
-            this.crop();
+            if ( this.autoTriggerCrop ) {this.crop(); }
             this.cd.markForCheck();
         }
     }
