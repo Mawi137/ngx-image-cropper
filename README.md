@@ -46,6 +46,20 @@ Add the element to your HTML:
     (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
 
+if you want to use button click to crop
+<image-cropper
+    [imageChangedEvent]="imageChangedEvent"
+    [maintainAspectRatio]="true"
+    [aspectRatio]="4 / 3"
+    [resizeToWidth]="128"
+    format="png"
+    (imageCroppedBase64)="imageCropped($event)"
+    (imageLoaded)="imageLoaded()"
+    (loadImageFailed)="loadImageFailed()"
+    [autoTriggerCrop]="false"
+    [triggerCrop]="crop"
+></image-cropper>
+
 <img [src]="croppedImage" />
 ```
 
