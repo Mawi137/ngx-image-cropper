@@ -95,6 +95,14 @@ export class ImageCropperComponent implements OnChanges {
         if (crop) { this.crop(); }
     }
 
+    @Input()
+    set ratioChanged(ratio: number) {
+        if (ratio) {
+            this.aspectRatio = ratio;
+            this.resetCropperPosition();
+        }
+    }
+
     @Output() imageCroppedBase64 = new EventEmitter<string>();
     @Output() imageCroppedFile = new EventEmitter<File>();
     @Output() imageLoaded = new EventEmitter<void>();
