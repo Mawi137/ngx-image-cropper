@@ -1,14 +1,6 @@
 import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    HostListener,
-    Input,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    ChangeDetectorRef,
-    ChangeDetectionStrategy
+    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges,
+    ChangeDetectorRef, ChangeDetectionStrategy
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { ImageUtils } from './image.utils';
@@ -35,6 +27,14 @@ export interface CropperPosition {
     y1: number;
     x2: number;
     y2: number;
+}
+
+export interface ImageCroppedEvent {
+    base64: string;
+    file: Blob;
+    width: number;
+    height: number;
+    cropperPosition: CropperPosition;
 }
 
 @Component({
@@ -89,8 +89,10 @@ export class ImageCropperComponent implements OnChanges {
         y2: 10000
     };
 
+
+    @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
     @Output() imageCroppedBase64 = new EventEmitter<string>();
-    @Output() imageCroppedFile = new EventEmitter<File>();
+    @Output() imageCroppedFile = new EventEmitter<Blob>();
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
@@ -106,6 +108,9 @@ export class ImageCropperComponent implements OnChanges {
                 this.crop();
                 this.cd.markForCheck();
             });
+        }
+        if (changes['aspectRatio']) {
+            this.resetCropperPosition();
         }
     }
 
@@ -416,24 +421,34 @@ export class ImageCropperComponent implements OnChanges {
             const width = Math.round((this.cropper.x2 - this.cropper.x1) * ratio);
             const height = Math.round((this.cropper.y2 - this.cropper.y1) * ratio);
             const resizeRatio = this.getResizeRatio(width);
+            const resizedWidth = Math.floor(width * resizeRatio);
+            const resizedHeight = Math.floor(height * resizeRatio);
 
             const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
-            cropCanvas.width = width * resizeRatio;
-            cropCanvas.height = height * resizeRatio;
+            cropCanvas.width = resizedWidth;
+            cropCanvas.height = resizedHeight;
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
                 const quality = Math.min(1, Math.max(0, this.imageQuality / 100));
-                const croppedImage = cropCanvas.toDataURL(`image/${this.format}`, quality);
+                const croppedImage = cropCanvas.toDataURL('image/' + this.format, quality);
                 if (croppedImage.length > 10) {
                     this.imageCroppedBase64.emit(croppedImage);
                 }
-                cropCanvas.toBlob(
-                    (fileImage: File) => this.imageCroppedFile.emit(fileImage),
-                    `image/${this.format}`,
-                    quality,
-                );
+                const toBlobCallback = (imageFile: Blob | null) => {
+                    if (imageFile != null) {
+                        this.imageCroppedFile.emit(imageFile);
+                        this.imageCropped.emit({
+                            base64: croppedImage,
+                            file: imageFile,
+                            width: resizedWidth,
+                            height: resizedHeight,
+                            cropperPosition: Object.assign({}, this.cropper)
+                        });
+                    }
+                };
+                cropCanvas.toBlob(toBlobCallback, 'image/' + this.format, quality);
             }
         }
     }

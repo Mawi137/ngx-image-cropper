@@ -41,7 +41,7 @@ Add the element to your HTML:
     [aspectRatio]="4 / 3"
     [resizeToWidth]="128"
     format="png"
-    (imageCroppedBase64)="imageCropped($event)"
+    (imageCropped)="imageCropped($event)"
     (imageLoaded)="imageLoaded()"
     (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
@@ -57,8 +57,8 @@ croppedImage: any = '';
 fileChangeEvent(event: any): void {
     this.imageChangedEvent = event;
 }
-imageCropped(image: string) {
-    this.croppedImage = image;
+imageCropped(event: ImageCroppedEvent) {
+    this.croppedImage = event.base64;
 }
 imageLoaded() {
     // show cropper
@@ -77,7 +77,7 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 |  Name                  | Type      | Default      | Description     |
 | ---------------------- |---------- | ------------ | --------------- |
 | `imageChangedEvent`    | FileEvent |              | The change event from your file input (set to `null` to reset the cropper) |
-| `imageFileChanged`     | File      |              | The file you want to change (set to `null` to reset the cropper)           |
+| `imageFileChanged`     | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
 | `imageBase64`          | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
 | `format`               | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
 | `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
@@ -88,9 +88,28 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `imageQuality`          | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
 
 ### Outputs
-| Name                    | Type   | Description |
-| ----------------------- | ------ | ----------- |
-| `imageCroppedBase64`    | string | Emits a Base64 string of the cropped image each time it is cropped |
-| `imageCroppedFile`      | File   | Emits the cropped image as a file each time it is cropped |
-| `imageLoaded`           | void   | Emits when the image was loaded into the cropper |
-| `loadImageFailed`       | void   | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
+| Name                    | Type              | Description |
+| ----------------------- | ----------------- | ----------- |
+| `imageCropped`          | ImageCroppedEvent | Emits a ImageCroppedEvent image each time it is cropped |
+| **(DEPRECATED)** `imageCroppedBase64` | string            | Emits a Base64 string of the cropped image each time it is cropped |
+| **(DEPRECATED)** `imageCroppedFile`  | File              | Emits the cropped image as a file each time it is cropped |
+| `imageLoaded`           | void              | Emits when the image was loaded into the cropper |
+| `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
+
+### Interfaces
+#### CropperPosition
+| Property | Type   | Description |
+| -------- | ------ | ----------- |
+| x1       | number | X position of first coordinate (in px) |
+| y1       | number | Y position of first coordinate (in px) |
+| x2       | number | X position of second coordinate (in px) |
+| y2       | number | Y position of second coordinate (in px) |
+
+#### ImageCroppedEvent
+| Property        | Type            | Description |
+| --------------- | ------          | ----------- |
+| base64          | string          | Base64 string of the cropped image |
+| file            | Blob(File)      | Blob of the cropped image |
+| width           | number          | Width of the cropped image |
+| height          | number          | Height of the cropped image |
+| croppedPosition | CropperPosition | Position of the cropper when it was cropped |
