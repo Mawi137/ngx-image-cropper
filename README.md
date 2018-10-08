@@ -112,4 +112,4 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | file            | Blob(File)      | Blob of the cropped image |
 | width           | number          | Width of the cropped image |
 | height          | number          | Height of the cropped image |
-| croppedPosition | CropperPosition | Position of the cropper when it was cropped |
+| cropperPosition | CropperPosition | Position of the cropper when it was cropped |
