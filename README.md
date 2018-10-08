@@ -80,12 +80,14 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `imageFileChanged`     | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
 | `imageBase64`          | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
 | `format`               | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
+| `outputType`           | string    | both         | Output type ('base64', 'file' or 'both'). Converting the image to a Blob can be quite a heavy operation. With this option, you could choose to only get the base64 which will improve the speed of cropping significantly |
 | `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
 | `aspectRatio`          | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `resizeToWidth`        | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
 | `onlyScaleDown`        | boolean   | false        | When the `resizeWidth` is set, enabling this option will make sure smaller images are not scaled up |
 | `cropper`              | { x1: number, y1: number, x2: number, y2: number } |  | To be able to get the cropper coordinates, you can use this input. Create a new object `{x1: number, y1: number, x2: number, y2: number }` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position. |
-| `imageQuality`          | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
+| `imageQuality`         | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
+| `autoCrop`             | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to true, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
 
 ### Outputs
 | Name                    | Type              | Description |

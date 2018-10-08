@@ -30,8 +30,8 @@ export interface CropperPosition {
 }
 
 export interface ImageCroppedEvent {
-    base64: string;
-    file: Blob;
+    base64?: string | null;
+    file?: Blob | null;
     width: number;
     height: number;
     cropperPosition: CropperPosition;
@@ -76,12 +76,14 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
+    @Input() outputType: 'base64' | 'file' | 'both' = 'both';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
     @Input() roundCropper = false;
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
+    @Input() autoCrop = true;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
@@ -105,7 +107,7 @@ export class ImageCropperComponent implements OnChanges {
             setTimeout(() => {
                 this.setMaxSize();
                 this.checkCropperPosition(false);
-                this.crop();
+                this.doAutoCrop();
                 this.cd.markForCheck();
             });
         }
@@ -231,7 +233,7 @@ export class ImageCropperComponent implements OnChanges {
             this.cropper.x1 = (displayedImage.offsetWidth - cropperWidth) / 2;
             this.cropper.x2 = this.cropper.x1 + cropperWidth;
         }
-        this.crop();
+        this.doAutoCrop();
         this.imageVisible = true;
     }
 
@@ -294,7 +296,7 @@ export class ImageCropperComponent implements OnChanges {
     moveStop(event: any) {
         if (this.moveStart.active) {
             this.moveStart.active = false;
-            this.crop();
+            this.doAutoCrop();
             this.cd.markForCheck();
         }
     }
@@ -412,7 +414,13 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
-    private crop() {
+    private doAutoCrop() {
+        if (this.autoCrop) {
+            this.crop();
+        }
+    }
+
+    crop() {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
         if (displayedImage && this.originalImage != null) {
             const ratio = this.originalSize.width / displayedImage.offsetWidth;
@@ -431,26 +439,68 @@ export class ImageCropperComponent implements OnChanges {
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
-                const quality = Math.min(1, Math.max(0, this.imageQuality / 100));
-                const croppedImage = cropCanvas.toDataURL('image/' + this.format, quality);
-                if (croppedImage.length > 10) {
-                    this.imageCroppedBase64.emit(croppedImage);
-                }
-                const toBlobCallback = (imageFile: Blob | null) => {
-                    if (imageFile != null) {
-                        this.imageCroppedFile.emit(imageFile);
-                        this.imageCropped.emit({
-                            base64: croppedImage,
-                            file: imageFile,
-                            width: resizedWidth,
-                            height: resizedHeight,
-                            cropperPosition: Object.assign({}, this.cropper)
-                        });
-                    }
-                };
-                cropCanvas.toBlob(toBlobCallback, 'image/' + this.format, quality);
+                this.cropToOutputType(cropCanvas, resizedWidth, resizedHeight);
             }
         }
+    }
+
+    private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number) {
+        const output: ImageCroppedEvent = {
+            width: resizedWidth,
+            height: resizedHeight,
+            cropperPosition: Object.assign({}, this.cropper)
+        };
+        switch (this.outputType) {
+            case 'base64':
+                output.base64 = this.cropToBase64(cropCanvas);
+                this.imageCropped.emit(output);
+                break;
+            case 'file':
+                this.cropToFile(cropCanvas)
+                    .then((result: Blob|null) => {
+                        output.file = result;
+                        this.imageCropped.emit(output)
+                    });
+                break;
+            case 'both':
+                output.base64 = this.cropToBase64(cropCanvas);
+                this.cropToFile(cropCanvas)
+                    .then((result: Blob|null) => {
+                        output.file = result;
+                        this.imageCropped.emit(output)
+                    });
+                break;
+        }
+    }
+
+    private cropToBase64(cropCanvas: HTMLCanvasElement): string {
+        const imageBase64 = cropCanvas.toDataURL('image/' + this.format, this.getQuality());
+        this.imageCroppedBase64.emit(imageBase64);
+        return imageBase64;
+    }
+
+    private cropToFile(cropCanvas: HTMLCanvasElement): Promise<Blob|null> {
+        return this.getCanvasBlob(cropCanvas)
+            .then((result: Blob|null) => {
+                if (result) {
+                    this.imageCroppedFile.emit(result);
+                }
+                return result;
+            });
+    }
+
+    private getCanvasBlob(cropCanvas: HTMLCanvasElement): Promise<Blob|null> {
+        return new Promise((resolve) => {
+            cropCanvas.toBlob(
+                (result: Blob|null) => resolve(result),
+                'image/' + this.format,
+                this.getQuality()
+            );
+        });
+    }
+
+    private getQuality(): number {
+       return Math.min(1, Math.max(0, this.imageQuality / 100));
     }
 
     private getResizeRatio(width: number): number {
