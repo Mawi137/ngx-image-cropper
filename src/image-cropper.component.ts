@@ -91,7 +91,6 @@ export class ImageCropperComponent implements OnChanges {
         y2: 10000
     };
 
-
     @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
     @Output() imageCroppedBase64 = new EventEmitter<string>();
     @Output() imageCroppedFile = new EventEmitter<Blob>();
@@ -152,7 +151,11 @@ export class ImageCropperComponent implements OnChanges {
         fileReader.onload = (event: any) => {
             const imageType = file.type;
             if (this.isValidImageType(imageType)) {
-                this.checkExifRotationAndLoadImage(event.target.result);
+                try {
+                    this.checkExifRotationAndLoadImage(event.target.result);
+                } catch (e) {
+                    this.loadImageFailed.emit();
+                }
             } else {
                 this.loadImageFailed.emit();
             }
