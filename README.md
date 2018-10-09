@@ -115,3 +115,29 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | width           | number          | Width of the cropped image |
 | height          | number          | Height of the cropped image |
 | cropperPosition | CropperPosition | Position of the cropper when it was cropped |
+
+
+### Polyfill for IE and Edge
+If you wish to use the file output, you'll need to polyfill the `toBlob` method of the HTML Canvas for IE and Edge.
+```
+if (!HTMLCanvasElement.prototype.toBlob) {
+  Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+    value: function (callback, type, quality) {
+      var dataURL = this.toDataURL(type, quality).split(',')[1];
+      setTimeout(function() {
+
+        var binStr = atob( dataURL ),
+            len = binStr.length,
+            arr = new Uint8Array(len);
+
+        for (var i = 0; i < len; i++ ) {
+          arr[i] = binStr.charCodeAt(i);
+        }
+
+        callback( new Blob( [arr], {type: type || 'image/png'} ) );
+
+      });
+    }
+  });
+}
+```
