@@ -184,13 +184,13 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private loadBase64Image(imageBase64: string) {
+        this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage = new Image();
         this.originalImage.onload = () => {
             this.originalSize.width = this.originalImage.width;
             this.originalSize.height = this.originalImage.height;
             this.cd.markForCheck();
         };
-        this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage.src = imageBase64;
     }
 
@@ -241,13 +241,13 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     startMove(event: any, moveType: string, position: string | null = null) {
-        this.moveStart.active = true;
-        this.moveStart.type = moveType;
-        this.moveStart.position = position;
-        this.moveStart.clientX = this.getClientX(event);
-        this.moveStart.clientY = this.getClientY(event);
-        Object.assign(this.moveStart, this.cropper);
-        this.cd.markForCheck();
+        this.moveStart = Object.assign({
+            active: true,
+            type: moveType,
+            position: position,
+            clientX: this.getClientX(event),
+            clientY: this.getClientY(event)
+        }, this.cropper);
     }
 
     @HostListener('document:mousemove', ['$event'])
@@ -264,7 +264,7 @@ export class ImageCropperComponent implements OnChanges {
                 this.resize(event);
                 this.checkCropperPosition(false);
             }
-            this.cd.markForCheck();
+            this.cd.detectChanges();
         }
     }
 
@@ -300,7 +300,6 @@ export class ImageCropperComponent implements OnChanges {
         if (this.moveStart.active) {
             this.moveStart.active = false;
             this.doAutoCrop();
-            this.cd.markForCheck();
         }
     }
 
@@ -460,17 +459,17 @@ export class ImageCropperComponent implements OnChanges {
                 break;
             case 'file':
                 this.cropToFile(cropCanvas)
-                    .then((result: Blob|null) => {
+                    .then((result: Blob | null) => {
                         output.file = result;
-                        this.imageCropped.emit(output)
+                        this.imageCropped.emit(output);
                     });
                 break;
             case 'both':
                 output.base64 = this.cropToBase64(cropCanvas);
                 this.cropToFile(cropCanvas)
-                    .then((result: Blob|null) => {
+                    .then((result: Blob | null) => {
                         output.file = result;
-                        this.imageCropped.emit(output)
+                        this.imageCropped.emit(output);
                     });
                 break;
         }
@@ -482,9 +481,9 @@ export class ImageCropperComponent implements OnChanges {
         return imageBase64;
     }
 
-    private cropToFile(cropCanvas: HTMLCanvasElement): Promise<Blob|null> {
+    private cropToFile(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
         return this.getCanvasBlob(cropCanvas)
-            .then((result: Blob|null) => {
+            .then((result: Blob | null) => {
                 if (result) {
                     this.imageCroppedFile.emit(result);
                 }
@@ -492,10 +491,10 @@ export class ImageCropperComponent implements OnChanges {
             });
     }
 
-    private getCanvasBlob(cropCanvas: HTMLCanvasElement): Promise<Blob|null> {
+    private getCanvasBlob(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
         return new Promise((resolve) => {
             cropCanvas.toBlob(
-                (result: Blob|null) => resolve(result),
+                (result: Blob | null) => resolve(result),
                 'image/' + this.format,
                 this.getQuality()
             );
@@ -503,7 +502,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private getQuality(): number {
-       return Math.min(1, Math.max(0, this.imageQuality / 100));
+        return Math.min(1, Math.max(0, this.imageQuality / 100));
     }
 
     private getResizeRatio(width: number): number {
