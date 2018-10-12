@@ -92,7 +92,7 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 ### Outputs
 | Name                    | Type              | Description |
 | ----------------------- | ----------------- | ----------- |
-| `imageCropped`          | ImageCroppedEvent | Emits a ImageCroppedEvent image each time it is cropped |
+| `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
 | **(DEPRECATED)** `imageCroppedBase64` | string            | Emits a Base64 string of the cropped image each time it is cropped |
 | **(DEPRECATED)** `imageCroppedFile`  | File              | Emits the cropped image as a file each time it is cropped |
 | `imageLoaded`           | void              | Emits when the image was loaded into the cropper |
