@@ -423,6 +423,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     crop() {
+        let croppedOutput;
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
         if (displayedImage && this.originalImage != null) {
             const ratio = this.originalSize.width / displayedImage.offsetWidth;
@@ -441,9 +442,10 @@ export class ImageCropperComponent implements OnChanges {
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, width * resizeRatio, height * resizeRatio);
-                this.cropToOutputType(cropCanvas, resizedWidth, resizedHeight);
+                croppedOutput = this.cropToOutputType(cropCanvas, resizedWidth, resizedHeight);
             }
         }
+        return croppedOutput;
     }
 
     private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number) {
@@ -473,6 +475,7 @@ export class ImageCropperComponent implements OnChanges {
                     });
                 break;
         }
+        return output;
     }
 
     private cropToBase64(cropCanvas: HTMLCanvasElement): string {
