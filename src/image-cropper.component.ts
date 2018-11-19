@@ -426,8 +426,8 @@ export class ImageCropperComponent implements OnChanges {
         const displayedImage = this.elementRef.nativeElement.querySelector('.source-image');
         if (displayedImage && this.originalImage != null) {
             const ratio = this.originalSize.width / displayedImage.offsetWidth;
-            const left = Math.min(Math.round(this.cropper.x1 * ratio), this.originalSize.width);
-            const top = Math.min(Math.round(this.cropper.y1 * ratio), this.originalSize.height);
+            const left = Math.round(this.cropper.x1 * ratio);
+            const top = Math.round(this.cropper.y1 * ratio);
             const width = Math.min(Math.round((this.cropper.x2 - this.cropper.x1) * ratio), this.originalSize.width - left);
             const height = Math.min(Math.round((this.cropper.y2 - this.cropper.y1) * ratio), this.originalSize.height - top);
             const resizeRatio = this.getResizeRatio(width);
