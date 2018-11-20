@@ -1,6 +1,6 @@
 import {
     Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges,
-    ChangeDetectorRef, ChangeDetectionStrategy
+    ChangeDetectorRef, ChangeDetectionStrategy, NgZone
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { ImageUtils } from './image.utils';
@@ -97,7 +97,10 @@ export class ImageCropperComponent implements OnChanges {
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
-    constructor(private elementRef: ElementRef, private sanitizer: DomSanitizer, private cd: ChangeDetectorRef) {
+    constructor(private elementRef: ElementRef,
+                private sanitizer: DomSanitizer,
+                private cd: ChangeDetectorRef,
+                private zone: NgZone) {
         this.initCropper();
     }
 
@@ -168,6 +171,7 @@ export class ImageCropperComponent implements OnChanges {
             || type === 'image/jpg'
             || type === 'image/png'
             || type === 'image/gif'
+            || type === 'image/tiff';
     }
 
     private checkExifRotationAndLoadImage(imageBase64: string) {
@@ -446,32 +450,32 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
-    private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number) {
+    private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number): ImageCroppedEvent | Promise<ImageCroppedEvent> {
         const output: ImageCroppedEvent = {
             width: resizedWidth,
             height: resizedHeight,
             cropperPosition: Object.assign({}, this.cropper)
         };
         switch (this.outputType) {
-            case 'base64':
-                output.base64 = this.cropToBase64(cropCanvas);
-                this.imageCropped.emit(output);
-                break;
             case 'file':
-                this.cropToFile(cropCanvas)
+                return this.cropToFile(cropCanvas)
                     .then((result: Blob | null) => {
                         output.file = result;
                         this.imageCropped.emit(output);
+                        return output;
                     });
-                break;
             case 'both':
                 output.base64 = this.cropToBase64(cropCanvas);
-                this.cropToFile(cropCanvas)
+                return this.cropToFile(cropCanvas)
                     .then((result: Blob | null) => {
                         output.file = result;
                         this.imageCropped.emit(output);
+                        return output;
                     });
-                break;
+            default:
+                output.base64 = this.cropToBase64(cropCanvas);
+                this.imageCropped.emit(output);
+                return output;
         }
     }
 
@@ -494,7 +498,7 @@ export class ImageCropperComponent implements OnChanges {
     private getCanvasBlob(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
         return new Promise((resolve) => {
             cropCanvas.toBlob(
-                (result: Blob | null) => resolve(result),
+                (result: Blob | null) => this.zone.run(() => resolve(result)),
                 'image/' + this.format,
                 this.getQuality()
             );
