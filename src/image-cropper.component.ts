@@ -4,14 +4,13 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { ImageUtils } from './image.utils';
-import { PDFJSStatic } from 'pdfjs-dist';
+import { PDFJSStatic, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 
 declare global {
     const PDFJS: PDFJSStatic;
 }
 
 let PDFJS: any = require('pdfjs-dist/build/pdf');
-PDFJS.verbosity = PDFJS.verbosityLevel.ERRORS;
 
 interface MoveStart {
     active: boolean;
@@ -218,15 +217,13 @@ export class ImageCropperComponent implements OnChanges {
                 }
             } else if (imageType === 'application/pdf') {
                 var imageCropper = this;
-                PDFJS.getDocument({url: event.target.result}).then(function (pdf: any) {
-                    console.log('# PDF document loaded');
-
-                    pdf.getPage(1).then(function (page: any) {
+                PDFJS.getDocument({url: event.target.result}).then(function (pdf: PDFDocumentProxy) {
+                    pdf.getPage(1).then(function (page: PDFPageProxy) {
                         const viewport = page.getViewport(1.0);
                         const canvasFactory = new NodeCanvasFactory();
                         const workspace = canvasFactory.create(viewport.width, viewport.height);
                         const renderContext = {
-                            canvasContext: workspace.context,
+                            canvasContext: workspace.context || new CanvasRenderingContext2D(),
                             viewport: viewport,
                             canvasFactory: canvasFactory,
                         };
