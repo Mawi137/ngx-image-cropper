@@ -1,6 +1,6 @@
 {
   "name": "ngx-image-cropper",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "An image cropper for Angular",
   "main": "./bundles/ngx-image-cropper.umd.js",
   "module": "./ngx-image-cropper/ngx-image-cropper.es5.js",
@@ -34,7 +34,8 @@
   "peerDependencies": {
     "@angular/common": ">=2.4.0",
     "@angular/core": ">=2.4.0",
-    "@angular/platform-browser": ">=2.4.0"
+    "@angular/platform-browser": ">=2.4.0",
+    "pdfjs-dist": "^2.0.943"
   },
   "devDependencies": {
     "@angular/common": "^6.1.0",
@@ -42,7 +43,9 @@
     "@angular/compiler-cli": "^6.1.0",
     "@angular/core": "^6.1.0",
     "@angular/platform-browser": "^6.1.0",
-    "ng-packagr": "^4.1.0",
+    "@types/pdfjs-dist": "^0.1.2",
+    "ng-packagr": "^4.4.5",
+    "pdfjs-dist": "^2.0.943",
     "rxjs": "^6.0.0",
     "typescript": "~2.7.2",
     "zone.js": "~0.8.26"

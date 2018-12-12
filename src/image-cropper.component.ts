@@ -4,6 +4,14 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { ImageUtils } from './image.utils';
+import { PDFJSStatic } from 'pdfjs-dist';
+
+declare global {
+    const PDFJS: PDFJSStatic;
+}
+
+let PDFJS: any = require('pdfjs-dist/build/pdf');
+PDFJS.verbosity = PDFJS.verbosityLevel.ERRORS;
 
 interface MoveStart {
     active: boolean;
@@ -37,6 +45,36 @@ export interface ImageCroppedEvent {
     cropperPosition: CropperPosition;
 }
 
+interface ICanvasWorkspace {
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D | null;
+}
+
+class NodeCanvasFactory {
+    create(width: number, height: number): ICanvasWorkspace {
+        const canvas = document.createElement('canvas') as HTMLCanvasElement;
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        return {
+            canvas,
+            context,
+        };
+    }
+
+    reset(workspace: ICanvasWorkspace, width: number, height: number) {
+        workspace.canvas.width = width;
+        workspace.canvas.height = height;
+    }
+
+    destroy(workspace: ICanvasWorkspace) {
+        workspace.canvas.width = 0;
+        workspace.canvas.height = 0;
+        workspace.canvas.remove();
+        workspace.context = null;
+    }
+}
+
 @Component({
     selector: 'image-cropper',
     templateUrl: './image-cropper.component.html',
@@ -49,7 +87,7 @@ export class ImageCropperComponent implements OnChanges {
     private maxSize: Dimensions;
     private originalSize: Dimensions;
 
-    safeImgDataUrl: SafeUrl | string;
+    safeImgDataUrl: SafeUrl | string = '';
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
@@ -102,6 +140,25 @@ export class ImageCropperComponent implements OnChanges {
                 private cd: ChangeDetectorRef,
                 private zone: NgZone) {
         this.initCropper();
+        this.moveStart = {
+            active: false,
+            clientX: 0,
+            clientY: 0,
+            position: null,
+            type: null,
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 0,
+        };
+        this.maxSize = {
+            width: 0,
+            height: 0,
+        };
+        this.originalSize = {
+            width: 0,
+            height: 0,
+        };
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -159,6 +216,27 @@ export class ImageCropperComponent implements OnChanges {
                 } catch (e) {
                     this.loadImageFailed.emit();
                 }
+            } else if (imageType === 'application/pdf') {
+                var imageCropper = this;
+                PDFJS.getDocument({url: event.target.result}).then(function (pdf: any) {
+                    console.log('# PDF document loaded');
+
+                    pdf.getPage(1).then(function (page: any) {
+                        const viewport = page.getViewport(1.0);
+                        const canvasFactory = new NodeCanvasFactory();
+                        const workspace = canvasFactory.create(viewport.width, viewport.height);
+                        const renderContext = {
+                            canvasContext: workspace.context,
+                            viewport: viewport,
+                            canvasFactory: canvasFactory,
+                        };
+
+                        page.render(renderContext).then(function () {
+                            const image = workspace.canvas.toDataURL('image/jpeg');
+                            imageCropper.checkExifRotationAndLoadImage(image);
+                        });
+                    });
+                });
             } else {
                 this.loadImageFailed.emit();
             }

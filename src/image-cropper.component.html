@@ -5,7 +5,7 @@
         (load)="imageLoadedInView()"
         class="source-image"
     />
-    <div class="cropper"
+    <div class="cropper" *ngIf="imageVisible"
          [class.rounded]="roundCropper"
          [style.top.px]="cropper.y1"
          [style.left.px]="cropper.x1"
