@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ImageCropperComponent } from './image-cropper.component';
+import { ImageCropperComponent } from './component/image-cropper.component';
 
 @NgModule({
     imports: [
