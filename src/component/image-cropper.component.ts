@@ -5,6 +5,12 @@ import {
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
 import { resetExifOrientation } from '../functions/image.functions';
+import { PDFJSStatic, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+
+declare global {
+    const PDFJS: PDFJSStatic;
+}
+let PDFJS: any = require('pdfjs-dist/build/pdf');
 
 interface ICanvasWorkspace {
     canvas: HTMLCanvasElement;
@@ -177,6 +183,26 @@ export class ImageCropperComponent implements OnChanges {
                 resetExifOrientation(event.target.result)
                     .then((resultBase64: string) => this.loadBase64Image(resultBase64))
                     .catch(() => this.loadImageFailed.emit());
+            } else if (PDFJS && imageType === 'application/pdf') {
+                PDFJS.getDocument({url: event.target.result}).then((pdf: PDFDocumentProxy) => {
+                    pdf.getPage(1).then((page: PDFPageProxy) => {
+                        const viewport = page.getViewport(1.0);
+                        const canvasFactory = new NodeCanvasFactory();
+                        const workspace = canvasFactory.create(viewport.width, viewport.height);
+                        const renderContext = {
+                            canvasContext: workspace.context || new CanvasRenderingContext2D(),
+                            viewport: viewport,
+                            canvasFactory: canvasFactory,
+                        };
+
+                        page.render(renderContext).then(() => {
+                            const result = workspace.canvas.toDataURL('image/jpeg');
+                            resetExifOrientation(result)
+                                .then((resultBase64: string) => this.loadBase64Image(resultBase64))
+                                .catch(() => this.loadImageFailed.emit());
+                        }, () => this.loadImageFailed.emit());
+                    });
+                });
             } else {
                 this.loadImageFailed.emit();
             }
