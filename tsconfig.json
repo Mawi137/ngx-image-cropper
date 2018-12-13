@@ -4,6 +4,7 @@
         "declaration": true,
         "experimentalDecorators": true,
         "strict": true,
+        "strictPropertyInitialization": false,
         "module": "es2015",
         "moduleResolution": "node",
         "outDir": "dist",

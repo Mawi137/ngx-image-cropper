@@ -1,11 +1,13 @@
 <div>
     <img
+        #sourceImage
+        class="source-image"
         [src]="safeImgDataUrl"
         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
         (load)="imageLoadedInView()"
-        class="source-image"
     />
-    <div class="cropper" *ngIf="imageVisible"
+    <div class="cropper"
+         *ngIf="imageVisible"
          [class.rounded]="roundCropper"
          [style.top.px]="cropper.y1"
          [style.left.px]="cropper.x1"

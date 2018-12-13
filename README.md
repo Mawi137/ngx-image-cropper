@@ -96,6 +96,7 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | **(DEPRECATED)** `imageCroppedBase64` | string            | Emits a Base64 string of the cropped image each time it is cropped |
 | **(DEPRECATED)** `imageCroppedFile`  | File              | Emits the cropped image as a file each time it is cropped |
 | `imageLoaded`           | void              | Emits when the image was loaded into the cropper |
+| `startCropImage`        | void              | Emits when the component started cropping the image |
 | `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
 
 ### Interfaces
