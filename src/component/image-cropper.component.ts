@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
-import { resetExifOrientation } from '../functions/image.functions';
+import { resetExifOrientation } from '../utils/image.utils';
 
 @Component({
     selector: 'image-cropper',
@@ -17,6 +17,7 @@ export class ImageCropperComponent implements OnChanges {
     private moveStart: MoveStart;
     private maxSize: Dimensions;
     private originalSize: Dimensions;
+    private setImageMaxSizeRetries = 0;
 
     safeImgDataUrl: SafeUrl | string;
     marginLeft: SafeStyle | string = '0px';
@@ -67,6 +68,7 @@ export class ImageCropperComponent implements OnChanges {
     @Output() imageCroppedBase64 = new EventEmitter<string>();
     @Output() imageCroppedFile = new EventEmitter<Blob>();
     @Output() imageLoaded = new EventEmitter<void>();
+    @Output() cropperReady = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
@@ -76,15 +78,13 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['cropper']) {
-            setTimeout(() => {
-                this.setMaxSize();
-                this.checkCropperPosition(false);
-                this.doAutoCrop();
-                this.cd.markForCheck();
-            });
+        if (changes.cropper) {
+            this.setMaxSize();
+            this.checkCropperPosition(false);
+            this.doAutoCrop();
+            this.cd.markForCheck();
         }
-        if (changes['aspectRatio'] && this.imageVisible) {
+        if (changes.aspectRatio && this.imageVisible) {
             this.resetCropperPosition();
         }
     }
@@ -153,11 +153,24 @@ export class ImageCropperComponent implements OnChanges {
     imageLoadedInView(): void {
         if (this.originalImage != null) {
             this.imageLoaded.emit();
+            this.setImageMaxSizeRetries = 0;
+            setTimeout(() => this.checkImageMaxSizeRecursively());
+        }
+    }
+
+    private checkImageMaxSizeRecursively() {
+        if (this.setImageMaxSizeRetries > 40) {
+            this.loadImageFailed.emit();
+        } else if (this.sourceImage && this.sourceImage.nativeElement && this.sourceImage.nativeElement.offsetWidth > 0) {
+            this.setMaxSize();
+            this.resetCropperPosition();
+            this.cropperReady.emit();
+            this.cd.markForCheck();
+        } else {
+            this.setImageMaxSizeRetries++;
             setTimeout(() => {
-                this.setMaxSize();
-                this.resetCropperPosition();
-                this.cd.markForCheck();
-            });
+                this.checkImageMaxSizeRecursively();
+            }, 50);
         }
     }
 
