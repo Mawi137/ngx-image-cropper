@@ -192,7 +192,12 @@ export class ImageCropperComponent implements OnChanges {
 
     private resetCropperPosition() {
         const sourceImageElement = this.sourceImage.nativeElement;
-        if (sourceImageElement.offsetWidth / this.aspectRatio < sourceImageElement.offsetHeight) {
+        if (!this.maintainAspectRatio) {
+            this.cropper.x1 = 0;
+            this.cropper.x2 = sourceImageElement.offsetWidth;
+            this.cropper.y1 = 0;
+            this.cropper.y2 = sourceImageElement.offsetHeight;
+        } else if (sourceImageElement.offsetWidth / this.aspectRatio < sourceImageElement.offsetHeight) {
             this.cropper.x1 = 0;
             this.cropper.x2 = sourceImageElement.offsetWidth;
             const cropperHeight = sourceImageElement.offsetWidth / this.aspectRatio;
