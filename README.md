@@ -115,7 +115,8 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | file            | Blob(File)      | Blob of the cropped image |
 | width           | number          | Width of the cropped image |
 | height          | number          | Height of the cropped image |
-| cropperPosition | CropperPosition | Position of the cropper when it was cropped |
+| cropperPosition | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
+| imagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
 
 
 ### Polyfill for IE and Edge

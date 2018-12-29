@@ -6,4 +6,5 @@ export interface ImageCroppedEvent {
     width: number;
     height: number;
     cropperPosition: CropperPosition;
+    imagePosition: CropperPosition;
 }

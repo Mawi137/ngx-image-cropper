@@ -379,14 +379,11 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     crop(): ImageCroppedEvent | Promise<ImageCroppedEvent> | null {
-        const sourceImageElement = this.sourceImage.nativeElement;
-        if (sourceImageElement && this.originalImage != null) {
+        if (this.sourceImage.nativeElement && this.originalImage != null) {
             this.startCropImage.emit();
-            const ratio = this.originalSize.width / sourceImageElement.offsetWidth;
-            const left = Math.round(this.cropper.x1 * ratio);
-            const top = Math.round(this.cropper.y1 * ratio);
-            const width = Math.min(Math.round((this.cropper.x2 - this.cropper.x1) * ratio), this.originalSize.width - left);
-            const height = Math.min(Math.round((this.cropper.y2 - this.cropper.y1) * ratio), this.originalSize.height - top);
+            const imagePosition = this.getImagePosition();
+            const width = imagePosition.x2 - imagePosition.x1;
+            const height = imagePosition.y2 - imagePosition.y1;
             const resizeRatio = this.getResizeRatio(width);
             const resizedWidth = Math.floor(width * resizeRatio);
             const resizedHeight = Math.floor(height * resizeRatio);
@@ -397,18 +394,40 @@ export class ImageCropperComponent implements OnChanges {
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
-                ctx.drawImage(this.originalImage, left, top, width, height, 0, 0, resizedWidth, resizedHeight);
-                return this.cropToOutputType(cropCanvas, resizedWidth, resizedHeight);
+                ctx.drawImage(
+                    this.originalImage,
+                    imagePosition.x1,
+                    imagePosition.y1,
+                    width,
+                    height,
+                    0,
+                    0,
+                    resizedWidth,
+                    resizedHeight
+                );
+                return this.cropToOutputType(cropCanvas, resizedWidth, resizedHeight, imagePosition);
             }
         }
         return null;
     }
 
-    private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number): ImageCroppedEvent | Promise<ImageCroppedEvent> {
+    private getImagePosition(): CropperPosition {
+        const sourceImageElement = this.sourceImage.nativeElement;
+        const ratio = this.originalSize.width / sourceImageElement.offsetWidth;
+        return {
+            x1: Math.round(this.cropper.x1 * ratio),
+            y1: Math.round(this.cropper.y1 * ratio),
+            x2: Math.min(Math.round(this.cropper.x2 * ratio), this.originalSize.width),
+            y2: Math.min(Math.round(this.cropper.y2  * ratio), this.originalSize.height)
+        }
+    }
+
+    private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number, imagePosition: CropperPosition): ImageCroppedEvent | Promise<ImageCroppedEvent> {
         const output: ImageCroppedEvent = {
             width: resizedWidth,
             height: resizedHeight,
-            cropperPosition: Object.assign({}, this.cropper)
+            cropperPosition: Object.assign({}, this.cropper),
+            imagePosition: imagePosition
         };
         switch (this.outputType) {
             case 'file':
