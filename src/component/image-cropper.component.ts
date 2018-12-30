@@ -4,7 +4,8 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
-import { resetExifOrientation } from '../utils/image.utils';
+import { resetExifOrientation } from '../utils/exif.utils';
+import { resizeCanvas } from '../utils/resize.utils';
 
 @Component({
     selector: 'image-cropper',
@@ -215,13 +216,14 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     startMove(event: any, moveType: string, position: string | null = null) {
-        this.moveStart = Object.assign({
+        this.moveStart = {
             active: true,
             type: moveType,
             position: position,
             clientX: this.getClientX(event),
-            clientY: this.getClientY(event)
-        }, this.cropper);
+            clientY: this.getClientY(event),
+            ...this.cropper
+        };
     }
 
     @HostListener('document:mousemove', ['$event'])
@@ -402,13 +404,10 @@ export class ImageCropperComponent implements OnChanges {
             const imagePosition = this.getImagePosition();
             const width = imagePosition.x2 - imagePosition.x1;
             const height = imagePosition.y2 - imagePosition.y1;
-            const resizeRatio = this.getResizeRatio(width);
-            const resizedWidth = Math.floor(width * resizeRatio);
-            const resizedHeight = Math.floor(height * resizeRatio);
 
             const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
-            cropCanvas.width = resizedWidth;
-            cropCanvas.height = resizedHeight;
+            cropCanvas.width = width;
+            cropCanvas.height = height;
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
@@ -420,10 +419,17 @@ export class ImageCropperComponent implements OnChanges {
                     height,
                     0,
                     0,
-                    resizedWidth,
-                    resizedHeight
+                    width,
+                    height
                 );
-                return this.cropToOutputType(cropCanvas, resizedWidth, resizedHeight, imagePosition);
+                const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
+                const resizeRatio = this.getResizeRatio(width);
+                if (resizeRatio !== 1) {
+                    output.width = Math.floor(width * resizeRatio);
+                    output.height = Math.floor(height * resizeRatio);
+                    resizeCanvas(cropCanvas, output.width, output.height);
+                }
+                return this.cropToOutputType(cropCanvas, output);
             }
         }
         return null;
@@ -440,13 +446,7 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
-    private cropToOutputType(cropCanvas: HTMLCanvasElement, resizedWidth: number, resizedHeight: number, imagePosition: CropperPosition): ImageCroppedEvent | Promise<ImageCroppedEvent> {
-        const output: ImageCroppedEvent = {
-            width: resizedWidth,
-            height: resizedHeight,
-            cropperPosition: Object.assign({}, this.cropper),
-            imagePosition: imagePosition
-        };
+    private cropToOutputType(cropCanvas: HTMLCanvasElement, output: ImageCroppedEvent): ImageCroppedEvent | Promise<ImageCroppedEvent> {
         switch (this.outputType) {
             case 'file':
                 return this.cropToFile(cropCanvas)
@@ -507,10 +507,10 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private getClientX(event: any) {
-        return event.clientX != null ? event.clientX : event.touches[0].clientX;
+        return event.clientX || event.touches && event.touches[0] && event.touches[0].clientX;
     }
 
     private getClientY(event: any) {
-        return event.clientY != null ? event.clientY : event.touches[0].clientY;
+        return event.clientY || event.touches && event.touches[0] && event.touches[0].clientY;
     }
 }
