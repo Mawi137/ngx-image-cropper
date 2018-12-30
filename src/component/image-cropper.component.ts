@@ -4,8 +4,10 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
-import { resetExifOrientation } from '../utils/exif.utils';
+import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
+
+export type OutputType = 'base64' | 'file' | 'both';
 
 @Component({
     selector: 'image-cropper',
@@ -15,6 +17,7 @@ import { resizeCanvas } from '../utils/resize.utils';
 })
 export class ImageCropperComponent implements OnChanges {
     private originalImage: any;
+    private originalBase64: string;
     private moveStart: MoveStart;
     private maxSize: Dimensions;
     private originalSize: Dimensions;
@@ -51,7 +54,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
-    @Input() outputType: 'base64' | 'file' | 'both' = 'both';
+    @Input() outputType: OutputType = 'both';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
@@ -145,6 +148,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private loadBase64Image(imageBase64: string): void {
+        this.originalBase64 = imageBase64;
         this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage = new Image();
         this.originalImage.onload = () => {
@@ -185,6 +189,29 @@ export class ImageCropperComponent implements OnChanges {
         this.resizeCropperPosition();
         this.setMaxSize();
         this.setCropperScaledMinSize();
+    }
+
+    rotateLeft() {
+        this.transformBase64(8);
+    }
+
+    rotateRight() {
+        this.transformBase64(6);
+    }
+
+    flipHorizontal() {
+        this.transformBase64(2);
+    }
+
+    flipVertical() {
+        this.transformBase64(4);
+    }
+
+    private transformBase64(exifOrientation: number): void {
+        if (this.originalBase64) {
+            transformBase64BasedOnExifRotation(this.originalBase64, exifOrientation)
+                .then((rotatedBase64: string) => this.loadBase64Image(rotatedBase64));
+        }
     }
 
     private resizeCropperPosition(): void {
@@ -415,7 +442,7 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
-    crop(): ImageCroppedEvent | Promise<ImageCroppedEvent> | null {
+    crop(outputType: OutputType = this.outputType): ImageCroppedEvent | Promise<ImageCroppedEvent> | null {
         if (this.sourceImage.nativeElement && this.originalImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
@@ -446,7 +473,7 @@ export class ImageCropperComponent implements OnChanges {
                     output.height = Math.floor(height * resizeRatio);
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
-                return this.cropToOutputType(cropCanvas, output);
+                return this.cropToOutputType(outputType, cropCanvas, output);
             }
         }
         return null;
@@ -463,8 +490,8 @@ export class ImageCropperComponent implements OnChanges {
         }
     }
 
-    private cropToOutputType(cropCanvas: HTMLCanvasElement, output: ImageCroppedEvent): ImageCroppedEvent | Promise<ImageCroppedEvent> {
-        switch (this.outputType) {
+    private cropToOutputType(outputType: OutputType, cropCanvas: HTMLCanvasElement, output: ImageCroppedEvent): ImageCroppedEvent | Promise<ImageCroppedEvent> {
+        switch (outputType) {
             case 'file':
                 return this.cropToFile(cropCanvas)
                     .then((result: Blob | null) => {

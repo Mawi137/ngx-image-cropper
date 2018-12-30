@@ -101,6 +101,16 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `startCropImage`        | void              | Emits when the component started cropping the image |
 | `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
 
+### Methods
+To gain access to the image cropper's methods use `@ViewChild(ImageCropperComponent) imageCropper: ImageCropperComponent;`
+| Name                    | Returns           | Description |
+| ----------------------- | ----------------- | ----------- |
+| `rotateLeft`            | void              | Rotates the image to the left |
+| `rotateRight`           | void              | Rotates the image to the right |
+| `flipHorizontal`        | void              | Flips the image horizontally |
+| `flipVertical`          | void              | Flips the image vertically |
+| `crop`                  | ImageCroppedEvent (when `outputType` is `base64`) or Promise<ImageCroppedEvent> (when `outputType` is `file` or `both`)) | Crops the source image to the current cropper position. Accepts an output type as an argument, default is the one given in the `outputType` input (`base64`, `file` or `both`). Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
+
 ### Interfaces
 #### CropperPosition
 | Property | Type   | Description |

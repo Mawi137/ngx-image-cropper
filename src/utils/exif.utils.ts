@@ -2,7 +2,7 @@ export function resetExifOrientation(srcBase64: string): Promise<string> {
     try {
         const exifRotation = getExifRotation(srcBase64);
         if (exifRotation > 1) {
-            return rotateBase64BasedOnExifRotation(srcBase64, exifRotation);
+            return transformBase64BasedOnExifRotation(srcBase64, exifRotation);
         } else {
             return Promise.resolve(srcBase64);
         }
@@ -11,7 +11,7 @@ export function resetExifOrientation(srcBase64: string): Promise<string> {
     }
 }
 
-function rotateBase64BasedOnExifRotation(srcBase64: string, exifRotation: number): Promise<string> {
+export function transformBase64BasedOnExifRotation(srcBase64: string, exifRotation: number): Promise<string> {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = function () {
@@ -86,7 +86,7 @@ function base64ToArrayBuffer(imageBase64: string) {
     return bytes.buffer;
 }
 
-function  transformCanvas(ctx: any, orientation: number, width: number, height: number) {
+function transformCanvas(ctx: any, orientation: number, width: number, height: number) {
     switch (orientation) {
         case 2:
             ctx.transform(-1, 0, 0, 1, width, 0);
@@ -108,8 +108,6 @@ function  transformCanvas(ctx: any, orientation: number, width: number, height: 
             break;
         case 8:
             ctx.transform(0, -1, 1, 0, 0, width);
-            break;
-        default:
             break;
     }
 }
