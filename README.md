@@ -103,6 +103,7 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 
 ### Methods
 To gain access to the image cropper's methods use `@ViewChild(ImageCropperComponent) imageCropper: ImageCropperComponent;`
+
 | Name                    | Returns           | Description |
 | ----------------------- | ----------------- | ----------- |
 | `rotateLeft`            | void              | Rotates the image to the left |
