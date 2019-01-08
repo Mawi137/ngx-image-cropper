@@ -1,6 +1,6 @@
 import {
-    Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges,
-    ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild
+    Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output,
+    SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
@@ -69,6 +69,9 @@ export class ImageCropperComponent implements OnChanges {
         x2: 10000,
         y2: 10000
     };
+    @HostBinding('style.text-align')
+    @Input() alignImage: 'left' | 'center' = 'center';
+
 
     @Output() startCropImage = new EventEmitter<void>();
     @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
