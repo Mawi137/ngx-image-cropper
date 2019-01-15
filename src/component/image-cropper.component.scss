@@ -25,8 +25,8 @@
     .cropper {
         position: absolute;
         display: flex;
-        color: #53535C !important;
-        background: transparent !important;
+        color: #53535C;
+        background: transparent;
         outline-color: rgba(255,255,255,0.3);
         outline-width: 1000px;
         outline-style: solid;
@@ -62,7 +62,7 @@
 
             .square {
                 display: inline-block;
-                background: #53535C !important;
+                background: #53535C;
                 width: 6px;
                 height: 6px;
                 border: 1px solid rgba(255, 255, 255, 0.5);
