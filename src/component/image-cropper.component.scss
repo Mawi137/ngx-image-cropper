@@ -28,9 +28,13 @@
         color: #53535C;
         background: transparent;
         outline-color: rgba(255,255,255,0.3);
-        outline-width: 1000px;
+        outline-width: 100vw;
         outline-style: solid;
         touch-action: none;
+
+        @media (orientation: portrait) {
+            outline-width: 100vh;
+        }
 
         &:after {
             position: absolute;
@@ -66,47 +70,48 @@
                 width: 6px;
                 height: 6px;
                 border: 1px solid rgba(255, 255, 255, 0.5);
+                box-sizing: content-box;
             }
 
             &.topleft {
                 top: -12px;
                 left: -12px;
-                cursor: nw-resize;
+                cursor: nwse-resize;
             }
             &.top {
                 top: -12px;
                 left: calc(50% - 12px);
-                cursor: n-resize;
+                cursor: ns-resize;
             }
             &.topright {
                 top: -12px;
                 right: -12px;
-                cursor: ne-resize;
+                cursor: nesw-resize;
             }
             &.right {
                 top: calc(50% - 12px);
                 right: -12px;
-                cursor: e-resize;
+                cursor: ew-resize;
             }
             &.bottomright {
                 bottom: -12px;
                 right: -12px;
-                cursor: se-resize;
+                cursor: nwse-resize;
             }
             &.bottom {
                 bottom: -12px;
                 left: calc(50% - 12px);
-                cursor: s-resize;
+                cursor: ns-resize;
             }
             &.bottomleft {
                 bottom: -12px;
                 left: -12px;
-                cursor: sw-resize;
+                cursor: nesw-resize;
             }
             &.left {
                 top: calc(50% - 12px);
                 left: -12px;
-                cursor: w-resize;
+                cursor: ew-resize;
             }
 
         }
@@ -119,28 +124,28 @@
                 left: 11px;
                 width: calc(100% - 22px);
                 height: 22px;
-                cursor: n-resize;
+                cursor: ns-resize;
             }
             &.right {
                 top: 11px;
                 right: -11px;
                 height: calc(100% - 22px);
                 width: 22px;
-                cursor: e-resize;
+                cursor: ew-resize;
             }
             &.bottom {
                 bottom: -11px;
                 left: 11px;
                 width: calc(100% - 22px);
                 height: 22px;
-                cursor: s-resize;
+                cursor: ns-resize;
             }
             &.left {
                 top: 11px;
                 left: -11px;
                 height: calc(100% - 22px);
                 width: 22px;
-                cursor: w-resize;
+                cursor: ew-resize;
             }
         }
 
@@ -148,8 +153,12 @@
             outline-color: transparent;
 
             &:after {
-                box-shadow: 0 0 0 100vw rgba(255,255,255,0.3);
                 border-radius: 100%;
+                box-shadow: 0 0 0 100vw rgba(255,255,255,0.3);
+
+                @media (orientation: portrait) {
+                    box-shadow: 0 0 0 100vh rgba(255,255,255,0.3);
+                }
             }
             .move {
                 border-radius: 100%;
