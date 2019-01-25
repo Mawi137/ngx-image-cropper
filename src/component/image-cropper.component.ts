@@ -252,6 +252,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     startMove(event: any, moveType: string, position: string | null = null): void {
+        event.preventDefault();
         this.moveStart = {
             active: true,
             type: moveType,
