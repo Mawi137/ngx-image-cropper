@@ -54,7 +54,7 @@ And add this to your ts file:
 ```
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 
-export YourComponent {
+export class YourComponent {
     imageChangedEvent: any = '';
     croppedImage: any = '';
     
