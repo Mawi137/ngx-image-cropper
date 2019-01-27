@@ -43,6 +43,7 @@ Add the element to your HTML:
     format="png"
     (imageCropped)="imageCropped($event)"
     (imageLoaded)="imageLoaded()"
+    (cropperReady)="cropperReady()"
     (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
 
@@ -51,20 +52,27 @@ Add the element to your HTML:
 
 And add this to your ts file:
 ```
-imageChangedEvent: any = '';
-croppedImage: any = '';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
 
-fileChangeEvent(event: any): void {
-    this.imageChangedEvent = event;
-}
-imageCropped(event: ImageCroppedEvent) {
-    this.croppedImage = event.base64;
-}
-imageLoaded() {
-    // show cropper
-}
-loadImageFailed() {
-    // show message
+export YourComponent {
+    imageChangedEvent: any = '';
+    croppedImage: any = '';
+    
+    fileChangeEvent(event: any): void {
+        this.imageChangedEvent = event;
+    }
+    imageCropped(event: ImageCroppedEvent) {
+        this.croppedImage = event.base64;
+    }
+    imageLoaded() {
+        // show cropper
+    }
+    cropperReady() {
+        // cropper ready
+    }
+    loadImageFailed() {
+        // show message
+    }
 }
 ```
 When you choose a file from the file input, it will trigger `fileChangeEvent`.
