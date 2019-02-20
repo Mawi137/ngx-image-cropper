@@ -63,6 +63,8 @@ export class ImageCropperComponent implements OnChanges {
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
     @Input() autoCrop = true;
+    @Input() widthOfCropper: number;
+    @Input() heightOfCropper: number;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
@@ -229,7 +231,12 @@ export class ImageCropperComponent implements OnChanges {
 
     private resetCropperPosition(): void {
         const sourceImageElement = this.sourceImage.nativeElement;
-        if (!this.maintainAspectRatio) {
+        if (this.widthOfCropper && this.heightOfCropper) {
+            this.cropper.x1 = 0;
+            this.cropper.x2 = this.widthOfCropper;
+            this.cropper.y1 = 0;
+            this.cropper.y2 = this.heightOfCropper;
+        } else if (!this.maintainAspectRatio) {
             this.cropper.x1 = 0;
             this.cropper.x2 = sourceImageElement.offsetWidth;
             this.cropper.y1 = 0;
@@ -272,7 +279,7 @@ export class ImageCropperComponent implements OnChanges {
             if (this.moveStart.type === 'move') {
                 this.move(event);
                 this.checkCropperPosition(true);
-            } else if (this.moveStart.type === 'resize') {
+            } else if (this.moveStart.type === 'resize' && !this.widthOfCropper && !this.heightOfCropper) {
                 this.resize(event);
                 this.checkCropperPosition(false);
             }

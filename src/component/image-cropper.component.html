@@ -21,6 +21,7 @@
                 (touchstart)="startMove($event, 'move')"
                 class="move"
         >&nbsp;</div>
+        <div *ngIf="!widthOfCropper && !heightOfCropper" >
         <span
                 class="resize topleft"
                 (mousedown)="startMove($event, 'resize', 'topleft')"
@@ -73,5 +74,6 @@
                 (mousedown)="startMove($event, 'resize', 'left')"
                 (touchstart)="startMove($event, 'resize', 'left')"
         ></span>
+    </div>
     </div>
 </div>
