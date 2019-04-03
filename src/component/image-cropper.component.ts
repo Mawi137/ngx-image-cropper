@@ -289,17 +289,27 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private setCropperScaledMinSize(): void {
-        if (this.originalImage && (this.cropperMinWidth > 0 || this.cropperMinHeight)) {
-            this.cropperScaledMinWidth = this.cropperMinWidth > 0
-            ? Math.max(20, this.cropperMinWidth / this.originalImage.width * this.maxSize.width)
-            : 20;
-            this.cropperScaledMinHeight = this.maintainAspectRatio
-                ? Math.max(20, this.cropperScaledMinWidth / this.aspectRatio)
-                : this.cropperMinHeight > 0
-                ? Math.max(20, this.cropperMinHeight / this.originalImage.height * this.maxSize.height)
-                : 20;
+        if (this.originalImage) {
+            this.setCropperScaledMinWidth();
+            this.setCropperScaledMinHeight();
         } else {
             this.cropperScaledMinWidth = 20;
+            this.cropperScaledMinHeight = 20;
+        }
+    }
+
+    private setCropperScaledMinWidth(): void {
+        this.cropperScaledMinWidth = this.cropperMinWidth > 0
+            ? Math.max(20, this.cropperMinWidth / this.originalImage.width * this.maxSize.width)
+            : 20;
+    }
+
+    private setCropperScaledMinHeight(): void {
+        if (this.maintainAspectRatio) {
+            this.cropperScaledMinHeight = Math.max(20, this.cropperScaledMinWidth / this.aspectRatio)
+        } else if (this.cropperMinHeight > 0) {
+            this.cropperScaledMinHeight = Math.max(20, this.cropperMinHeight / this.originalImage.height * this.maxSize.height);
+        } else {
             this.cropperScaledMinHeight = 20;
         }
     }
