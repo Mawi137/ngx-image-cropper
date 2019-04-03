@@ -59,6 +59,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
     @Input() cropperMinWidth = 0;
+    @Input() cropperMinHeight = 0;
     @Input() roundCropper = false;
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
@@ -288,10 +289,14 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private setCropperScaledMinSize(): void {
-        if (this.originalImage && this.cropperMinWidth > 0) {
-            this.cropperScaledMinWidth = Math.max(20, this.cropperMinWidth / this.originalImage.width * this.maxSize.width);
+        if (this.originalImage && (this.cropperMinWidth > 0 || this.cropperMinHeight)) {
+            this.cropperScaledMinWidth = this.cropperMinWidth > 0
+            ? Math.max(20, this.cropperMinWidth / this.originalImage.width * this.maxSize.width)
+            : 20;
             this.cropperScaledMinHeight = this.maintainAspectRatio
                 ? Math.max(20, this.cropperScaledMinWidth / this.aspectRatio)
+                : this.cropperMinHeight > 0
+                ? Math.max(20, this.cropperMinHeight / this.originalImage.height * this.maxSize.height)
                 : 20;
         } else {
             this.cropperScaledMinWidth = 20;
