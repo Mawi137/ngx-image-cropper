@@ -92,7 +92,8 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
 | `aspectRatio`          | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `resizeToWidth`        | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
-| `cropperMinWidth`      | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels (relative to original image's size) (in px) |
+| `cropperMinWidth`      | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
+| `cropperMinHeight`      | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) |
 | `onlyScaleDown`        | boolean   | false        | When the `resizeToWidth` is set, enabling this option will make sure smaller images are not scaled up |
 | `cropper`              | { x1: number, y1: number, x2: number, y2: number } |  | To be able to overwrite the cropper coordinates, you can use this input. Create a new object of type `CropperPosition` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position and wait for the `cropperReady` event to have fired. |
 | `roundCropper`         | boolean   | false        | Set this to true for a round cropper. Resulting image will still be square, use `border-radius: 100%` on resulting image to show it as round. |
