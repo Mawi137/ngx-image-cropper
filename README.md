@@ -117,10 +117,10 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 
 | Name                    | Returns           | Description |
 | ----------------------- | ----------------- | ----------- |
-| `rotateLeft`            | void              | Rotates the image to the left |
-| `rotateRight`           | void              | Rotates the image to the right |
-| `flipHorizontal`        | void              | Flips the image horizontally |
-| `flipVertical`          | void              | Flips the image vertically |
+| `rotateLeft`            | Promise&lt;string&gt; | Rotates the image to the left and returns a promise that resolves to the updated base64 image |
+| `rotateRight`           | Promise&lt;string&gt; | Rotates the image to the right and returns a promise that resolves to the updated base64 image |
+| `flipHorizontal`        | Promise&lt;string&gt; | Flips the image horizontally and returns a promise that resolves to the updated base64 image |
+| `flipVertical`          | Promise&lt;string&gt; | Flips the image vertically and returns a promise that resolves to the updated base64 image |
 | `crop`                  | ImageCroppedEvent (when `outputType` is `base64`) or Promise&lt;ImageCroppedEvent&gt; (when `outputType` is `file` or `both`)) | Crops the source image to the current cropper position. Accepts an output type as an argument, default is the one given in the `outputType` input (`base64`, `file` or `both`). Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
 
 ### Interfaces

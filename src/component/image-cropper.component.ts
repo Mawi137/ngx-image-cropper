@@ -7,7 +7,7 @@ import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../in
 import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 
-export type OutputType = 'base64' | 'file' | 'both';
+export type OutputType = 'base64' | 'file' | 'both';
 
 @Component({
     selector: 'image-cropper',
@@ -83,8 +83,8 @@ export class ImageCropperComponent implements OnChanges {
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
-                private cd: ChangeDetectorRef,
-                private zone: NgZone) {
+        private cd: ChangeDetectorRef,
+        private zone: NgZone) {
         this.initCropper();
     }
 
@@ -151,16 +151,26 @@ export class ImageCropperComponent implements OnChanges {
         return /image\/(png|jpg|jpeg|bmp|gif|tiff)/.test(type);
     }
 
-    private loadBase64Image(imageBase64: string): void {
-        this.originalBase64 = imageBase64;
-        this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
-        this.originalImage = new Image();
-        this.originalImage.onload = () => {
-            this.originalSize.width = this.originalImage.width;
-            this.originalSize.height = this.originalImage.height;
-            this.cd.markForCheck();
-        };
-        this.originalImage.src = imageBase64;
+    private loadBase64Image(imageBase64: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            try {
+                this.originalBase64 = imageBase64;
+                this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
+                this.originalImage = new Image();
+
+                this.originalImage.onload = () => {
+                    this.originalSize.width = this.originalImage.width;
+                    this.originalSize.height = this.originalImage.height;
+                    this.cd.markForCheck();
+                    resolve();
+                };
+
+                this.originalImage.src = imageBase64;
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
     }
 
     imageLoadedInView(): void {
@@ -195,27 +205,32 @@ export class ImageCropperComponent implements OnChanges {
         this.setCropperScaledMinSize();
     }
 
-    rotateLeft() {
-        this.transformBase64(8);
+    rotateLeft(): Promise<string> {
+        return this.transformBase64(8);
     }
 
-    rotateRight() {
-        this.transformBase64(6);
+    rotateRight(): Promise<string> {
+        return this.transformBase64(6);
     }
 
-    flipHorizontal() {
-        this.transformBase64(2);
+    flipHorizontal(): Promise<string> {
+        return this.transformBase64(2);
     }
 
-    flipVertical() {
-        this.transformBase64(4);
+    flipVertical(): Promise<string> {
+        return this.transformBase64(4);
     }
 
-    private transformBase64(exifOrientation: number): void {
+    private transformBase64(exifOrientation: number): Promise<string> {
         if (this.originalBase64) {
-            transformBase64BasedOnExifRotation(this.originalBase64, exifOrientation)
-                .then((rotatedBase64: string) => this.loadBase64Image(rotatedBase64));
+            return transformBase64BasedOnExifRotation(this.originalBase64, exifOrientation).then((rotatedBase64: string) => {
+                return this.loadBase64Image(rotatedBase64).then(() => {
+                    return rotatedBase64;
+                });
+            });
         }
+
+        return Promise.reject(new Error('There is no image available to transform'));
     }
 
     private resizeCropperPosition(): void {
@@ -485,7 +500,7 @@ export class ImageCropperComponent implements OnChanges {
                     width,
                     height
                 );
-                const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
+                const output = { width, height, imagePosition, cropperPosition: { ...this.cropper } };
                 const resizeRatio = this.getResizeRatio(width);
                 if (resizeRatio !== 1) {
                     output.width = Math.floor(width * resizeRatio);
@@ -505,7 +520,7 @@ export class ImageCropperComponent implements OnChanges {
             x1: Math.round(this.cropper.x1 * ratio),
             y1: Math.round(this.cropper.y1 * ratio),
             x2: Math.min(Math.round(this.cropper.x2 * ratio), this.originalSize.width),
-            y2: Math.min(Math.round(this.cropper.y2  * ratio), this.originalSize.height)
+            y2: Math.min(Math.round(this.cropper.y2 * ratio), this.originalSize.height)
         }
     }
 
