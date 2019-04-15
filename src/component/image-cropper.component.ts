@@ -83,8 +83,8 @@ export class ImageCropperComponent implements OnChanges {
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
-        private cd: ChangeDetectorRef,
-        private zone: NgZone) {
+                private cd: ChangeDetectorRef,
+                private zone: NgZone) {
         this.initCropper();
     }
 
@@ -500,7 +500,7 @@ export class ImageCropperComponent implements OnChanges {
                     width,
                     height
                 );
-                const output = { width, height, imagePosition, cropperPosition: { ...this.cropper } };
+                const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
                 const resizeRatio = this.getResizeRatio(width);
                 if (resizeRatio !== 1) {
                     output.width = Math.floor(width * resizeRatio);
