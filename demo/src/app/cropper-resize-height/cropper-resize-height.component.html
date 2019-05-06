@@ -1,0 +1,31 @@
+<div class="container">
+    <h2>Resize To Height ({{height}})</h2>
+
+    <input type="file" (change)="fileChangeEvent($event)"/>
+
+    <div>
+        <div class="cropper-content">
+            <image-cropper
+                [imageChangedEvent]="imageChangedEvent"
+                [cropperMinWidth]="width"
+                [aspectRatio]="3 / 2"
+                [cropperMinHeight]="height"
+                [resizeToHeight]="height"
+                [onlyScaleDown]="false"
+                [roundCropper]="false"
+                [maintainAspectRatio]="false"
+                format="png"
+                outputType="both"
+                (imageCropped)="imageCropped($event)"
+                (imageLoaded)="imageLoaded()"
+                [style.display]="showCropper ? null : 'none'">
+            </image-cropper>
+        </div>
+        <div class="cropper-preview">
+            <img [src]="croppedImage"/><br/>
+            <div *ngIf="croppedWidth && croppedHeight">
+                <strong>Width</strong>: {{croppedWidth}} / <strong>Height</strong>: {{croppedHeight}}
+            </div>
+        </div>
+    </div>
+</div>

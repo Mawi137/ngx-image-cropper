@@ -9,7 +9,9 @@
     "transpile": "ngc",
     "build": "ng-packagr -p ng-package.json",
     "pack-lib": "npm pack ./dist",
-    "publish-lib": "npm publish ./dist"
+    "publish-lib": "npm publish ./dist",
+    "predemo": "npm i",
+    "demo": "cd demo && npm start"
   },
   "typings": "./ngx-image-cropper.d.ts",
   "author": "Martijn Willekens",
