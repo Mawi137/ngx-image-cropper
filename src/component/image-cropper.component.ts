@@ -7,7 +7,7 @@ import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../in
 import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 
-export type OutputType = 'base64' | 'file' | 'both';
+export type OutputType = 'base64' | 'file' | 'both';
 
 @Component({
     selector: 'image-cropper',
@@ -83,8 +83,8 @@ export class ImageCropperComponent implements OnChanges {
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
-                private cd: ChangeDetectorRef,
-                private zone: NgZone) {
+        private cd: ChangeDetectorRef,
+        private zone: NgZone) {
         this.initCropper();
     }
 
@@ -485,11 +485,16 @@ export class ImageCropperComponent implements OnChanges {
                     width,
                     height
                 );
-                const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
+                const output = { width, height, imagePosition, cropperPosition: { ...this.cropper } };
                 const resizeRatio = this.getResizeRatio(width);
                 if (resizeRatio !== 1) {
                     output.width = Math.floor(width * resizeRatio);
-                    output.height = Math.floor(height * resizeRatio);
+                    if (this.maintainAspectRatio) {
+                        let aspect = this.aspectRatio < 1 ? this.aspectRatio : 1 / this.aspectRatio;
+                        output.height = Math.floor(output.width * aspect);
+                    } else {
+                        output.height = Math.floor(height * resizeRatio);
+                    }
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
                 return this.cropToOutputType(outputType, cropCanvas, output);
@@ -505,7 +510,7 @@ export class ImageCropperComponent implements OnChanges {
             x1: Math.round(this.cropper.x1 * ratio),
             y1: Math.round(this.cropper.y1 * ratio),
             x2: Math.min(Math.round(this.cropper.x2 * ratio), this.originalSize.width),
-            y2: Math.min(Math.round(this.cropper.y2  * ratio), this.originalSize.height)
+            y2: Math.min(Math.round(this.cropper.y2 * ratio), this.originalSize.height)
         }
     }
 
