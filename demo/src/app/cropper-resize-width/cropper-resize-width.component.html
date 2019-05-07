@@ -2,10 +2,12 @@
     <h2>Resize To Width ({{width}})</h2>
 
     <input type="file" (change)="fileChangeEvent($event)"/>
-    <button (click)="rotateLeft()">Rotate left</button>
-    <button (click)="rotateRight()">Rotate right</button>
-    <button (click)="flipHorizontal()">Flip horizontal</button>
-    <button (click)="flipVertical()">Flip vertical</button>
+    <button (click)="rotateLeft()" *ngIf="croppedImage">Rotate left</button>
+    <button (click)="rotateRight()" *ngIf="croppedImage">Rotate right</button>
+    <button (click)="flipHorizontal()" *ngIf="croppedImage">Flip horizontal</button>
+    <button (click)="flipVertical()" *ngIf="croppedImage">Flip vertical</button>
+    <button (click)="zoomIn()" *ngIf="croppedImage">Zoom In</button>
+    <button (click)="zoomOut()" *ngIf="croppedImage">Zoom Out</button>
 
     <div>
         <div class="cropper-content">

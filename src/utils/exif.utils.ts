@@ -39,6 +39,31 @@ export function transformBase64BasedOnExifRotation(srcBase64: string, exifRotati
     });
 }
 
+export function zoomBase64(srcBase64: string, zoomLevel: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function () {
+            const width = img.width;
+            const height = img.height;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            if (ctx) {
+                // clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.width = width + (zoomLevel * 10);
+                canvas.height = height + (zoomLevel * 10);
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL());
+            } else {
+                reject(new Error('No context'));
+            }
+        };
+        img.src = srcBase64;
+    });
+}
+
 function getExifRotation(imageBase64: string): number {
     const view = new DataView(base64ToArrayBuffer(imageBase64));
     if (view.getUint16(0, false) != 0xFFD8) {

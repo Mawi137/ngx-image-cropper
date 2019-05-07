@@ -59,4 +59,12 @@ export class CropperResizeWidthComponent {
         this.imageCropper.flipVertical();
     }
 
+    zoomIn() {
+        this.imageCropper.zoomIn();
+    }
+
+    zoomOut() {
+        this.imageCropper.zoomOut();
+    }
+
 }
