@@ -490,8 +490,7 @@ export class ImageCropperComponent implements OnChanges {
                 if (resizeRatio !== 1) {
                     output.width = Math.floor(width * resizeRatio);
                     if (this.maintainAspectRatio) {
-                        let aspect = this.aspectRatio < 1 ? this.aspectRatio : 1 / this.aspectRatio;
-                        output.height = Math.floor(output.width * aspect);
+                        output.height = Math.floor(output.width / this.aspectRatio);
                     } else {
                         output.height = Math.floor(height * resizeRatio);
                     }
