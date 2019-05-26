@@ -7,7 +7,7 @@ import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../in
 import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 
-export type OutputType = 'base64' | 'file' | 'both';
+export type OutputType = 'base64' | 'file' | 'both';
 
 @Component({
     selector: 'image-cropper',
@@ -50,7 +50,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input()
     set imageBase64(imageBase64: string) {
         this.initCropper();
-        this.loadBase64Image(imageBase64);
+        this.checkExifAndLoadBase64Image(imageBase64);
     }
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
@@ -137,9 +137,7 @@ export class ImageCropperComponent implements OnChanges {
         fileReader.onload = (event: any) => {
             const imageType = file.type;
             if (this.isValidImageType(imageType)) {
-                resetExifOrientation(event.target.result)
-                    .then((resultBase64: string) => this.loadBase64Image(resultBase64))
-                    .catch(() => this.loadImageFailed.emit());
+                this.checkExifAndLoadBase64Image(event.target.result);
             } else {
                 this.loadImageFailed.emit();
             }
@@ -149,6 +147,12 @@ export class ImageCropperComponent implements OnChanges {
 
     private isValidImageType(type: string): boolean {
         return /image\/(png|jpg|jpeg|bmp|gif|tiff)/.test(type);
+    }
+
+    private checkExifAndLoadBase64Image(imageBase64: string): void {
+        resetExifOrientation(imageBase64)
+            .then((resultBase64: string) => this.loadBase64Image(resultBase64))
+            .catch(() => this.loadImageFailed.emit());
     }
 
     private loadBase64Image(imageBase64: string): void {
@@ -488,8 +492,10 @@ export class ImageCropperComponent implements OnChanges {
                 const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
                 const resizeRatio = this.getResizeRatio(width);
                 if (resizeRatio !== 1) {
-                    output.width = Math.floor(width * resizeRatio);
-                    output.height = Math.floor(height * resizeRatio);
+                    output.width = Math.round(width * resizeRatio);
+                    output.height = this.maintainAspectRatio
+                        ? Math.round(output.width / this.aspectRatio)
+                        : Math.round(height * resizeRatio);
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
                 return this.cropToOutputType(outputType, cropCanvas, output);
