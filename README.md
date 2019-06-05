@@ -95,7 +95,7 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `resizeToHeight`       | number    | 0 (disabled) | Cropped image will be resized to this height (in px) (will be ignored if resizeToWidth is set)  |
 | `cropperMinWidth`      | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
 | `cropperMinHeight`     | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
-| `onlyScaleDown`        | boolean   | false        | When the `resizeToWidth` or `resizeToHeight` are set, enabling this option will make sure smaller images are not scaled up |
+| `onlyScaleDown`        | boolean   | false        | When the `resizeToWidth` is set, enabling this option will make sure smaller images are not scaled up |
 | `cropper`              | CropperPosition |  | To be able to overwrite the cropper coordinates, you can use this input. Create a new object of type `CropperPosition` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position and wait for the `cropperReady` event to have fired. |
 | `roundCropper`         | boolean   | false        | Set this to true for a round cropper. Resulting image will still be square, use `border-radius: 100%` on resulting image to show it as round. |
 | `imageQuality`         | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
@@ -123,8 +123,6 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | `flipHorizontal`        | void              | Flips the image horizontally |
 | `flipVertical`          | void              | Flips the image vertically |
 | `crop`                  | ImageCroppedEvent (when `outputType` is `base64`) or Promise&lt;ImageCroppedEvent&gt; (when `outputType` is `file` or `both`)) | Crops the source image to the current cropper position. Accepts an output type as an argument, default is the one given in the `outputType` input (`base64`, `file` or `both`). Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
-| `zoomIn`                | void              | Zoom in the image, increasing the with and height in 10 pixels |
-| `zoomOut`               | void              | Zoom out the image, decreasing the with and height in 10 pixels |
 
 ### Interfaces
 #### CropperPosition

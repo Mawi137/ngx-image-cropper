@@ -1,24 +1,13 @@
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    EventEmitter,
-    HostBinding,
-    HostListener,
-    Input,
-    NgZone,
-    OnChanges,
-    Output,
-    SimpleChanges,
-    ViewChild
+    Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output,
+    SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild
 } from '@angular/core';
-import {DomSanitizer, SafeStyle, SafeUrl} from '@angular/platform-browser';
-import {CropperPosition, Dimensions, ImageCroppedEvent, MoveStart} from '../interfaces';
-import {resetExifOrientation, transformBase64BasedOnExifRotation, zoomBase64} from '../utils/exif.utils';
-import {resizeCanvas} from '../utils/resize.utils';
+import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
+import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
+import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
+import { resizeCanvas } from '../utils/resize.utils';
 
-export type OutputType = 'base64' | 'file' | 'both';
+export type OutputType = 'base64' | 'file' | 'both';
 
 @Component({
     selector: 'image-cropper',
@@ -35,7 +24,6 @@ export class ImageCropperComponent implements OnChanges {
     private setImageMaxSizeRetries = 0;
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
-    private zoomLevel = 0;
 
     safeImgDataUrl: SafeUrl | string;
     marginLeft: SafeStyle | string = '0px';
@@ -228,26 +216,6 @@ export class ImageCropperComponent implements OnChanges {
 
     flipVertical() {
         this.transformBase64(4);
-    }
-
-    zoomIn() {
-        if (this.fileLoaded) {
-            this.loadImageFile(this.fileLoaded, () => {
-                this.zoomLevel++;
-                zoomBase64(this.originalBase64, this.zoomLevel)
-                    .then((zoomedBase64: string) => this.loadBase64Image(zoomedBase64));
-            });
-        }
-    }
-
-    zoomOut() {
-        if (this.fileLoaded) {
-            this.zoomLevel--;
-            this.loadImageFile(this.fileLoaded, () => {
-                zoomBase64(this.originalBase64, this.zoomLevel)
-                    .then((zoomedBase64: string) => this.loadBase64Image(zoomedBase64));
-            });
-        }
     }
 
     private transformBase64(exifOrientation: number): void {
