@@ -123,6 +123,8 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | `flipHorizontal`        | void              | Flips the image horizontally |
 | `flipVertical`          | void              | Flips the image vertically |
 | `crop`                  | ImageCroppedEvent (when `outputType` is `base64`) or Promise&lt;ImageCroppedEvent&gt; (when `outputType` is `file` or `both`)) | Crops the source image to the current cropper position. Accepts an output type as an argument, default is the one given in the `outputType` input (`base64`, `file` or `both`). Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
+| `zoomIn`                | void              | Zoom in the image, increasing the with and height in 10 pixels |
+| `zoomOut`               | void              | Zoom out the image, decreasing the with and height in 10 pixels |
 
 ### Interfaces
 #### CropperPosition
