@@ -29,7 +29,7 @@ export class ImageCropperComponent implements OnChanges {
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
-    @ViewChild('sourceImage') sourceImage: ElementRef;
+    @ViewChild('sourceImage', {static : false}) sourceImage: ElementRef;
 
     @Input()
     set imageFileChanged(file: File) {
@@ -70,6 +70,7 @@ export class ImageCropperComponent implements OnChanges {
         x2: 10000,
         y2: 10000
     };
+    @Input() backgroundColor : string = "white";
     @HostBinding('style.text-align')
     @Input() alignImage: 'left' | 'center' = 'center';
 
@@ -478,7 +479,11 @@ export class ImageCropperComponent implements OnChanges {
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
-                ctx.drawImage(
+                if(this.format != "png" || "bmp"){
+                    ctx.fillStyle = this.backgroundColor;
+                    ctx.fillRect(0,0,width, height);
+                }
+                ctx.drawImage(                   
                     this.originalImage,
                     imagePosition.x1,
                     imagePosition.y1,
