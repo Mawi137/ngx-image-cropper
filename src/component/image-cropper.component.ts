@@ -479,7 +479,7 @@ export class ImageCropperComponent implements OnChanges {
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
-                if(this.format != "png" || "bmp"){
+                if(this.format == "jpeg" || this.format == "bmp"){
                     ctx.fillStyle = this.backgroundColor;
                     ctx.fillRect(0,0,width, height);
                 }
