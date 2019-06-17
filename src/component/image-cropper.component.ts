@@ -64,13 +64,13 @@ export class ImageCropperComponent implements OnChanges {
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
     @Input() autoCrop = true;
+    @Input() backgroundColor: string;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
         x2: 10000,
         y2: 10000
     };
-    @Input() backgroundColor : string = "white";
     @HostBinding('style.text-align')
     @Input() alignImage: 'left' | 'center' = 'center';
 
@@ -479,9 +479,9 @@ export class ImageCropperComponent implements OnChanges {
 
             const ctx = cropCanvas.getContext('2d');
             if (ctx) {
-                if(this.format == "jpeg" || this.format == "bmp"){
+                if (this.backgroundColor != null) {
                     ctx.fillStyle = this.backgroundColor;
-                    ctx.fillRect(0,0,width, height);
+                    ctx.fillRect(0, 0, width, height);
                 }
                 ctx.drawImage(                   
                     this.originalImage,
