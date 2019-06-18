@@ -28,7 +28,6 @@ export class ImageCropperComponent implements OnChanges {
     safeImgDataUrl: SafeUrl | string;
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
-    fileLoaded: File;
 
     @ViewChild('sourceImage') sourceImage: ElementRef;
 
@@ -134,14 +133,13 @@ export class ImageCropperComponent implements OnChanges {
         this.cropper.y2 = 10000;
     }
 
-    private loadImageFile(file: File, successFn?: Function): void {
-        this.fileLoaded = file;
+    private loadImageFile(file: File): void {
         const fileReader = new FileReader();
         fileReader.onload = (event: any) => {
             const imageType = file.type;
             if (this.isValidImageType(imageType)) {
                 resetExifOrientation(event.target.result)
-                    .then((resultBase64: string) => this.loadBase64Image(resultBase64, successFn))
+                    .then((resultBase64: string) => this.loadBase64Image(resultBase64))
                     .catch(() => this.loadImageFailed.emit());
             } else {
                 this.loadImageFailed.emit();
@@ -154,7 +152,7 @@ export class ImageCropperComponent implements OnChanges {
         return /image\/(png|jpg|jpeg|bmp|gif|tiff)/.test(type);
     }
 
-    private loadBase64Image(imageBase64: string, callbackFn?: Function): void {
+    private loadBase64Image(imageBase64: string): void {
         this.originalBase64 = imageBase64;
         this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
         this.originalImage = new Image();
@@ -162,10 +160,6 @@ export class ImageCropperComponent implements OnChanges {
             this.originalSize.width = this.originalImage.width;
             this.originalSize.height = this.originalImage.height;
             this.cd.markForCheck();
-
-            if (callbackFn) {
-                callbackFn();
-            }
         };
         this.originalImage.src = imageBase64;
     }
