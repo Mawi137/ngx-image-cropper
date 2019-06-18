@@ -92,6 +92,7 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
 | `aspectRatio`          | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `resizeToWidth`        | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
+| `resizeToHeight`       | number    | 0 (disabled) | Cropped image will be resized to this height (in px) (will be ignored if resizeToWidth is set)  |
 | `cropperMinWidth`      | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
 | `cropperMinHeight`     | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
 | `onlyScaleDown`        | boolean   | false        | When the `resizeToWidth` is set, enabling this option will make sure smaller images are not scaled up |

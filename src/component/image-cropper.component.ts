@@ -58,6 +58,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
+    @Input() resizeToHeight = 0;
     @Input() cropperMinWidth = 0;
     @Input() cropperMinHeight = 0;
     @Input() roundCropper = false;
@@ -262,7 +263,7 @@ export class ImageCropperComponent implements OnChanges {
         this.moveStart = {
             active: true,
             type: moveType,
-            position: position,
+            position,
             clientX: this.getClientX(event),
             clientY: this.getClientY(event),
             ...this.cropper
@@ -311,7 +312,7 @@ export class ImageCropperComponent implements OnChanges {
 
     private setCropperScaledMinHeight(): void {
         if (this.maintainAspectRatio) {
-            this.cropperScaledMinHeight = Math.max(20, this.cropperScaledMinWidth / this.aspectRatio)
+            this.cropperScaledMinHeight = Math.max(20, this.cropperScaledMinWidth / this.aspectRatio);
         } else if (this.cropperMinHeight > 0) {
             this.cropperScaledMinHeight = Math.max(20, this.cropperMinHeight / this.originalImage.height * this.maxSize.height);
         } else {
@@ -495,7 +496,7 @@ export class ImageCropperComponent implements OnChanges {
                     height
                 );
                 const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
-                const resizeRatio = this.getResizeRatio(width);
+                const resizeRatio = this.getResizeRatio(width, height);
                 if (resizeRatio !== 1) {
                     output.width = Math.round(width * resizeRatio);
                     output.height = this.maintainAspectRatio
@@ -516,8 +517,8 @@ export class ImageCropperComponent implements OnChanges {
             x1: Math.round(this.cropper.x1 * ratio),
             y1: Math.round(this.cropper.y1 * ratio),
             x2: Math.min(Math.round(this.cropper.x2 * ratio), this.originalSize.width),
-            y2: Math.min(Math.round(this.cropper.y2  * ratio), this.originalSize.height)
-        }
+            y2: Math.min(Math.round(this.cropper.y2 * ratio), this.originalSize.height)
+        };
     }
 
     private cropToOutputType(outputType: OutputType, cropCanvas: HTMLCanvasElement, output: ImageCroppedEvent): ImageCroppedEvent | Promise<ImageCroppedEvent> {
@@ -574,10 +575,18 @@ export class ImageCropperComponent implements OnChanges {
         return Math.min(1, Math.max(0, this.imageQuality / 100));
     }
 
-    private getResizeRatio(width: number): number {
-        return this.resizeToWidth > 0 && (!this.onlyScaleDown || width > this.resizeToWidth)
-            ? this.resizeToWidth / width
-            : 1;
+    private getResizeRatio(width: number, height: number): number {
+        if (this.resizeToWidth > 0) {
+            if (!this.onlyScaleDown || width > this.resizeToWidth) {
+                return this.resizeToWidth / width;
+            }
+        } else if (this.resizeToHeight > 0) {
+            if (!this.onlyScaleDown || height > this.resizeToHeight) {
+                return this.resizeToHeight / height;
+            }
+        }
+        return 1;
+
     }
 
     private getClientX(event: any): number {
