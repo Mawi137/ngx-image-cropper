@@ -82,26 +82,27 @@ Everytime you release the mouse, the `imageCropped` event will be triggerd with 
 ## API
 All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should be set to load an image into the cropper.
 ### Inputs
-|  Name                  | Type      | Default      | Description     |
-| ---------------------- |---------- | ------------ | --------------- |
-| `imageChangedEvent`    | FileEvent |              | The change event from your file input (set to `null` to reset the cropper) |
-| `imageFileChanged`     | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
-| `imageBase64`          | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
-| `format`               | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
-| `outputType`           | string    | both         | Output type ('base64', 'file' or 'both'). Converting the image to a Blob can be quite a heavy operation. With this option, you could choose to only get the base64 which will improve the speed of cropping significantly |
-| `maintainAspectRatio`  | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
-| `aspectRatio`          | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
-| `resizeToWidth`        | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
-| `resizeToHeight`       | number    | 0 (disabled) | Cropped image will be resized to this height (in px) (will be ignored if resizeToWidth is set)  |
-| `cropperMinWidth`      | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
-| `cropperMinHeight`     | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
-| `onlyScaleDown`        | boolean   | false        | When the `resizeToWidth` is set, enabling this option will make sure smaller images are not scaled up |
-| `cropper`              | CropperPosition |  | To be able to overwrite the cropper coordinates, you can use this input. Create a new object of type `CropperPosition` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position and wait for the `cropperReady` event to have fired. |
-| `roundCropper`         | boolean   | false        | Set this to true for a round cropper. Resulting image will still be square, use `border-radius: 100%` on resulting image to show it as round. |
-| `imageQuality`         | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
-| `autoCrop`             | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to false, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
-| `alignImage`           | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
-| `backgroundColor`           | string | 'white' | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
+|  Name                    | Type      | Default      | Description     |
+| ------------------------ |---------- | ------------ | --------------- |
+| `imageChangedEvent`      | FileEvent |              | The change event from your file input (set to `null` to reset the cropper) |
+| `imageFileChanged`       | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
+| `imageBase64`            | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
+| `format`                 | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
+| `outputType`             | string    | both         | Output type ('base64', 'file' or 'both'). Converting the image to a Blob can be quite a heavy operation. With this option, you could choose to only get the base64 which will improve the speed of cropping significantly |
+| `aspectRatio`            | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
+| `maintainAspectRatio`    | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
+| `containWithAspectRatio` | boolean   | false        | When set to true, padding will be added around the image to make it fit to the aspect ratio |
+| `resizeToWidth`          | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
+| `resizeToHeight`         | number    | 0 (disabled) | Cropped image will be resized to this height (in px) (will be ignored if resizeToWidth is set)  |
+| `cropperMinWidth`        | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
+| `cropperMinHeight`       | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
+| `onlyScaleDown`          | boolean   | false        | When the `resizeToWidth` is set, enabling this option will make sure smaller images are not scaled up |
+| `cropper`                | CropperPosition |  | To be able to overwrite the cropper coordinates, you can use this input. Create a new object of type `CropperPosition` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position and wait for the `cropperReady` event to have fired. |
+| `roundCropper`           | boolean   | false        | Set this to true for a round cropper. Resulting image will still be square, use `border-radius: 100%` on resulting image to show it as round. |
+| `imageQuality`           | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
+| `autoCrop`               | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to false, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
+| `alignImage`             | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
+| `backgroundColor`        | string    | 'white'      | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
 
 ### Outputs
 | Name                    | Type              | Description |

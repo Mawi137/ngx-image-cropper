@@ -1,4 +1,4 @@
-<div [ngStyle]="(imageVisible && backgroundColor) ? {'background': backgroundColor} : {}">
+<div [style.background]="imageVisible && backgroundColor">
     <img
         #sourceImage
         class="source-image"
