@@ -6,6 +6,7 @@ import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
 import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
+import { transformCropperContainImage } from '../utils/cropper-contain-image.utils';
 
 export type OutputType = 'base64' | 'file' | 'both';
 
@@ -66,6 +67,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() imageQuality = 92;
     @Input() autoCrop = true;
     @Input() backgroundColor: string;
+    @Input() containWithinAspectRatio = false;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
@@ -153,6 +155,7 @@ export class ImageCropperComponent implements OnChanges {
 
     private checkExifAndLoadBase64Image(imageBase64: string): void {
         resetExifOrientation(imageBase64)
+            .then((resultBase64: string) => transformCropperContainImage(resultBase64, this.containWithinAspectRatio, this.aspectRatio))
             .then((resultBase64: string) => this.loadBase64Image(resultBase64))
             .catch(() => this.loadImageFailed.emit());
     }
@@ -220,6 +223,7 @@ export class ImageCropperComponent implements OnChanges {
     private transformBase64(exifOrientation: number): void {
         if (this.originalBase64) {
             transformBase64BasedOnExifRotation(this.originalBase64, exifOrientation)
+                .then((resultBase64: string) => transformCropperContainImage(resultBase64, this.containWithinAspectRatio, this.aspectRatio))
                 .then((rotatedBase64: string) => this.loadBase64Image(rotatedBase64));
         }
     }
