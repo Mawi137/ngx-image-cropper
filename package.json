@@ -1,6 +1,6 @@
 {
   "name": "ngx-image-cropper",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "An image cropper for Angular",
   "main": "./bundles/ngx-image-cropper.umd.js",
   "module": "./ngx-image-cropper/ngx-image-cropper.es5.js",
@@ -8,8 +8,8 @@
   "scripts": {
     "transpile": "ngc",
     "build": "ng-packagr -p ng-package.json",
-    "pack-lib": "npm pack ./dist",
-    "publish-lib": "npm publish ./dist"
+    "pack": "npm pack ./dist",
+    "publish": "npm publish ./dist"
   },
   "typings": "./ngx-image-cropper.d.ts",
   "author": "Martijn Willekens",
@@ -36,14 +36,14 @@
     "@angular/platform-browser": ">=2.4.0"
   },
   "devDependencies": {
-    "@angular/common": "^6.1.0",
-    "@angular/compiler": "^6.1.0",
-    "@angular/compiler-cli": "^6.1.0",
-    "@angular/core": "^6.1.0",
-    "@angular/platform-browser": "^6.1.0",
-    "ng-packagr": "^4.1.0",
-    "rxjs": "^6.0.0",
-    "typescript": "~2.7.2",
-    "zone.js": "~0.8.26"
+    "@angular/common": "^8.2.0",
+    "@angular/compiler": "^8.2.0",
+    "@angular/compiler-cli": "^8.2.0",
+    "@angular/core": "^8.2.0",
+    "@angular/platform-browser": "^8.2.0",
+    "ng-packagr": "^5.5.0",
+    "rxjs": "^6.5.0",
+    "typescript": "~3.4.5",
+    "zone.js": "~0.10.2"
   }
 }

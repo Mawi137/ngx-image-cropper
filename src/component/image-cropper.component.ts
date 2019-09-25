@@ -29,7 +29,7 @@ export class ImageCropperComponent implements OnChanges {
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
-    @ViewChild('sourceImage') sourceImage: ElementRef;
+    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
     @Input()
     set imageFileChanged(file: File) {
