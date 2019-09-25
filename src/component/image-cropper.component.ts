@@ -599,7 +599,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private getClientX(event: any): number {
-        return event.clientX || event.touches && event.touches[0] && event.touches[0].clientX;
+        return event.touches && event.touches[0] && event.touches[0].clientX || event.clientX;
     }
 
     private getClientY(event: any): number {
