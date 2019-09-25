@@ -1,6 +1,6 @@
 {
   "name": "ngx-image-cropper",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "An image cropper for Angular",
   "main": "./bundles/ngx-image-cropper.umd.js",
   "module": "./ngx-image-cropper/ngx-image-cropper.es5.js",
@@ -23,11 +23,9 @@
   "homepage": "https://github.com/Mawi137/ngx-image-cropper",
   "keywords": [
     "angular",
-    "angular 2",
-    "angular 4",
-    "angular 5",
     "angular 6",
     "angular 7",
+    "angular 8",
     "cropper",
     "image cropper"
   ],
