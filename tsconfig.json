@@ -1,31 +1,34 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "declaration": true,
-        "experimentalDecorators": true,
-        "strict": true,
-        "strictPropertyInitialization": false,
-        "module": "es2015",
-        "moduleResolution": "node",
-        "outDir": "dist",
-        "rootDir": ".",
-        "sourceMap": true,
-        "inlineSources": true,
-        "target": "es2015",
-        "skipLibCheck": true,
-        "lib": [
-            "es2015",
-            "dom"
-        ]
-    },
-    "files": [
-        "index.ts"
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "typeRoots": [
+      "node_modules/@types"
     ],
-    "angularCompilerOptions": {
-        "skipTemplateCodegen": true,
-        "annotateForClosureCompiler": true,
-        "strictMetadataEmit": true,
-        "flatModuleOutFile": "ngx-image-cropper.js",
-        "flatModuleId": "ngx-image-cropper"
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "ngx-image-cropper": [
+        "dist/ngx-image-cropper"
+      ],
+      "ngx-image-cropper/*": [
+        "dist/ngx-image-cropper/*"
+      ]
     }
+  },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true
+  }
 }

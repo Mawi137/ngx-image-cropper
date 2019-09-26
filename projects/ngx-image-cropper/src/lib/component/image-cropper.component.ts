@@ -495,7 +495,7 @@ export class ImageCropperComponent implements OnChanges {
                     ctx.fillStyle = this.backgroundColor;
                     ctx.fillRect(0, 0, width, height);
                 }
-                ctx.drawImage(                   
+                ctx.drawImage(
                     this.originalImage,
                     imagePosition.x1,
                     imagePosition.y1,
