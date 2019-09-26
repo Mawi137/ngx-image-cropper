@@ -1,3 +1,3 @@
-export { ImageCropperModule } from './lib/image-cropper.module';
-export { OutputType, ImageCropperComponent } from './lib/component/image-cropper.component';
-export { CropperPosition, ImageCroppedEvent } from './lib/interfaces';
+export * from './lib/image-cropper.module';
+export * from './lib/component/image-cropper.component';
+export * from './lib/interfaces';

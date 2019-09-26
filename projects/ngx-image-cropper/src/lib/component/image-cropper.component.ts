@@ -54,7 +54,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
-    @Input() outputType: OutputType = 'both';
+    @Input() outputType: OutputType = 'base64';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
@@ -77,10 +77,8 @@ export class ImageCropperComponent implements OnChanges {
     @Input() alignImage: 'left' | 'center' = 'center';
 
 
-    @Output() startCropImage = new EventEmitter<void>();
     @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
-    @Output() imageCroppedBase64 = new EventEmitter<string>();
-    @Output() imageCroppedFile = new EventEmitter<Blob>();
+    @Output() startCropImage = new EventEmitter<void>();
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() cropperReady = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
@@ -557,22 +555,10 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private cropToBase64(cropCanvas: HTMLCanvasElement): string {
-        const imageBase64 = cropCanvas.toDataURL('image/' + this.format, this.getQuality());
-        this.imageCroppedBase64.emit(imageBase64);
-        return imageBase64;
+        return cropCanvas.toDataURL('image/' + this.format, this.getQuality());
     }
 
     private cropToFile(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
-        return this.getCanvasBlob(cropCanvas)
-            .then((result: Blob | null) => {
-                if (result) {
-                    this.imageCroppedFile.emit(result);
-                }
-                return result;
-            });
-    }
-
-    private getCanvasBlob(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
         return new Promise((resolve) => {
             cropCanvas.toBlob(
                 (result: Blob | null) => this.zone.run(() => resolve(result)),
