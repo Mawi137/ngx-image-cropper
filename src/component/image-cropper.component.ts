@@ -29,7 +29,7 @@ export class ImageCropperComponent implements OnChanges {
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
-    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
+    @ViewChild('sourceImage', {static: true}) sourceImage: ElementRef;
 
     @Input()
     set imageFileChanged(file: File) {
@@ -297,10 +297,12 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private setMaxSize(): void {
-        const sourceImageElement = this.sourceImage.nativeElement;
-        this.maxSize.width = sourceImageElement.offsetWidth;
-        this.maxSize.height = sourceImageElement.offsetHeight;
-        this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
+        if (this.sourceImage) {
+            const sourceImageElement = this.sourceImage.nativeElement;
+            this.maxSize.width = sourceImageElement.offsetWidth;
+            this.maxSize.height = sourceImageElement.offsetHeight;
+            this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
+        }
     }
 
     private setCropperScaledMinSize(): void {
