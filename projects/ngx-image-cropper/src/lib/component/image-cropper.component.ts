@@ -32,14 +32,6 @@ export class ImageCropperComponent implements OnChanges {
     @ViewChild('sourceImage', {static: true}) sourceImage: ElementRef;
 
     @Input()
-    set imageFileChanged(file: File) {
-        this.initCropper();
-        if (file) {
-            this.loadImageFile(file);
-        }
-    }
-
-    @Input()
     set imageChangedEvent(event: any) {
         this.initCropper();
         if (event && event.target && event.target.files && event.target.files.length > 0) {
@@ -51,6 +43,14 @@ export class ImageCropperComponent implements OnChanges {
     set imageBase64(imageBase64: string) {
         this.initCropper();
         this.checkExifAndLoadBase64Image(imageBase64);
+    }
+
+    @Input()
+    set imageFile(file: File) {
+        this.initCropper();
+        if (file) {
+            this.loadImageFile(file);
+        }
     }
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
