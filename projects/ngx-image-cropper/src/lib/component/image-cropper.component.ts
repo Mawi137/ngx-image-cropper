@@ -32,14 +32,6 @@ export class ImageCropperComponent implements OnChanges {
     @ViewChild('sourceImage', {static: true}) sourceImage: ElementRef;
 
     @Input()
-    set imageFileChanged(file: File) {
-        this.initCropper();
-        if (file) {
-            this.loadImageFile(file);
-        }
-    }
-
-    @Input()
     set imageChangedEvent(event: any) {
         this.initCropper();
         if (event && event.target && event.target.files && event.target.files.length > 0) {
@@ -53,8 +45,16 @@ export class ImageCropperComponent implements OnChanges {
         this.checkExifAndLoadBase64Image(imageBase64);
     }
 
+    @Input()
+    set imageFile(file: File) {
+        this.initCropper();
+        if (file) {
+            this.loadImageFile(file);
+        }
+    }
+
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
-    @Input() outputType: OutputType = 'both';
+    @Input() outputType: OutputType = 'base64';
     @Input() maintainAspectRatio = true;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
@@ -77,10 +77,8 @@ export class ImageCropperComponent implements OnChanges {
     @Input() alignImage: 'left' | 'center' = 'center';
 
 
-    @Output() startCropImage = new EventEmitter<void>();
     @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
-    @Output() imageCroppedBase64 = new EventEmitter<string>();
-    @Output() imageCroppedFile = new EventEmitter<Blob>();
+    @Output() startCropImage = new EventEmitter<void>();
     @Output() imageLoaded = new EventEmitter<void>();
     @Output() cropperReady = new EventEmitter<void>();
     @Output() loadImageFailed = new EventEmitter<void>();
@@ -495,7 +493,7 @@ export class ImageCropperComponent implements OnChanges {
                     ctx.fillStyle = this.backgroundColor;
                     ctx.fillRect(0, 0, width, height);
                 }
-                ctx.drawImage(                   
+                ctx.drawImage(
                     this.originalImage,
                     imagePosition.x1,
                     imagePosition.y1,
@@ -557,22 +555,10 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private cropToBase64(cropCanvas: HTMLCanvasElement): string {
-        const imageBase64 = cropCanvas.toDataURL('image/' + this.format, this.getQuality());
-        this.imageCroppedBase64.emit(imageBase64);
-        return imageBase64;
+        return cropCanvas.toDataURL('image/' + this.format, this.getQuality());
     }
 
     private cropToFile(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
-        return this.getCanvasBlob(cropCanvas)
-            .then((result: Blob | null) => {
-                if (result) {
-                    this.imageCroppedFile.emit(result);
-                }
-                return result;
-            });
-    }
-
-    private getCanvasBlob(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
         return new Promise((resolve) => {
             cropCanvas.toBlob(
                 (result: Blob | null) => this.zone.run(() => resolve(result)),

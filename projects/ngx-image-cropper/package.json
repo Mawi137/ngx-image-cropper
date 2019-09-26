@@ -1,0 +1,28 @@
+{
+    "name": "ngx-image-cropper",
+    "version": "2.0.0",
+    "description": "An image cropper for Angular",
+    "author": "Martijn Willekens",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Mawi137/ngx-image-cropper.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Mawi137/ngx-image-cropper/issues"
+    },
+    "homepage": "https://github.com/Mawi137/ngx-image-cropper",
+    "keywords": [
+        "angular",
+        "angular 6",
+        "angular 7",
+        "angular 8",
+        "cropper",
+        "image cropper"
+    ],
+    "license": "MIT",
+    "peerDependencies": {
+        "@angular/common": ">=6.0.0",
+        "@angular/core": ">=6.0.0",
+        "@angular/platform-browser": ">=6.0.0"
+    }
+}

@@ -80,15 +80,15 @@ That event is then passed to the image cropper through `imageChangedEvent` which
 Everytime you release the mouse, the `imageCropped` event will be triggerd with the cropped image as a Base64 string in its payload.
 
 ## API
-All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should be set to load an image into the cropper.
+All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `imageFile` should be set to load an image into the cropper.
 ### Inputs
 |  Name                      | Type      | Default      | Description     |
 | -------------------------- |---------- | ------------ | --------------- |
 | `imageChangedEvent`        | FileEvent |              | The change event from your file input (set to `null` to reset the cropper) |
-| `imageFileChanged`         | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
+| `imageFile`                | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
 | `imageBase64`              | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
 | `format`                   | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
-| `outputType`               | string    | both         | Output type ('base64', 'file' or 'both'). Converting the image to a Blob can be quite a heavy operation. With this option, you could choose to only get the base64 which will improve the speed of cropping significantly |
+| `outputType`               | string    | base64       | Output type ('base64', 'file' or 'both'). Converting the image to a Blob can be quite a heavy operation. With this option, you could choose to only get the base64 which will improve the speed of cropping significantly |
 | `aspectRatio`              | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `maintainAspectRatio`      | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
 | `containWithinAspectRatio` | boolean   | false        | When set to true, padding will be added around the image to make it fit to the aspect ratio |
@@ -108,8 +108,6 @@ All inputs are optional. Either the `imageChangedEvent` or `imageBase64` should 
 | Name                    | Type              | Description |
 | ----------------------- | ----------------- | ----------- |
 | `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
-| **(DEPRECATED)** `imageCroppedBase64` | string            | Emits a Base64 string of the cropped image each time it is cropped |
-| **(DEPRECATED)** `imageCroppedFile`  | File              | Emits the cropped image as a file each time it is cropped |
 | `imageLoaded`           | void              | Emits when the image was loaded into the cropper |
 | `cropperReady`          | void              | Emits when the cropper is ready to be interacted |
 | `startCropImage`        | void              | Emits when the component started cropping the image |
