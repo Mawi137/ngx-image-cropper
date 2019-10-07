@@ -1,13 +1,17 @@
 <input type="file" (change)="fileChangeEvent($event)" />
+<br />
 <button (click)="rotateLeft()">Rotate left</button>
 <button (click)="rotateRight()">Rotate right</button>
 <button (click)="flipHorizontal()">Flip horizontal</button>
 <button (click)="flipVertical()">Flip vertical</button>
+<br />
+<button (click)="toggleContainWithinAspectRatio()">{{containWithinAspectRatio?'Fill Aspect Ratio':'Contain Within Aspect Ratio'}}</button>
 
 <div>
     <image-cropper
         [imageChangedEvent]="imageChangedEvent"
         [maintainAspectRatio]="true"
+        [containWithinAspectRatio]="containWithinAspectRatio"
         [aspectRatio]="4 / 3"
         [resizeToWidth]="128"
         [cropperMinWidth]="128"
@@ -23,4 +27,4 @@
         [alignImage]="'left'"
     ></image-cropper>
 </div>
-<img [src]="croppedImage" />
+<img [src]="croppedImage" style="border: 1px solid black" />

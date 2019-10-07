@@ -10,6 +10,7 @@ export class AppComponent {
     imageChangedEvent: any = '';
     croppedImage: any = '';
     showCropper = false;
+    containWithinAspectRatio = false;
 
     @ViewChild(ImageCropperComponent, {static: true}) imageCropper: ImageCropperComponent;
 
@@ -49,5 +50,9 @@ export class AppComponent {
 
     flipVertical() {
         this.imageCropper.flipVertical();
+    }
+
+    toggleContainWithinAspectRatio(){
+        this.containWithinAspectRatio = !this.containWithinAspectRatio;
     }
 }

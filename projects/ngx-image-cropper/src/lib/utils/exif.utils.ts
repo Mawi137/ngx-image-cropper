@@ -1,42 +1,20 @@
-export function resetExifOrientation(srcBase64: string): Promise<string> {
-    try {
-        const exifRotation = getExifRotation(srcBase64);
-        if (exifRotation > 1) {
-            return transformBase64BasedOnExifRotation(srcBase64, exifRotation);
-        } else {
-            return Promise.resolve(srcBase64);
-        }
-    } catch (ex) {
-        return Promise.reject(ex);
+import {Transformations} from '../interfaces';
+
+export function getTransformationsFromExifRotation(exifRotationOrBase64Image: number | string): Transformations {
+    if (typeof exifRotationOrBase64Image === 'string') {
+        exifRotationOrBase64Image = getExifRotation(exifRotationOrBase64Image);
     }
-}
-
-export function transformBase64BasedOnExifRotation(srcBase64: string, exifRotation: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = function () {
-            const width = img.width;
-            const height = img.height;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            if (ctx) {
-                if (4 < exifRotation && exifRotation < 9) {
-                    canvas.width = height;
-                    canvas.height = width;
-                } else {
-                    canvas.width = width;
-                    canvas.height = height;
-                }
-                transformCanvas(ctx, exifRotation, width, height);
-                ctx.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL());
-            } else {
-                reject(new Error('No context'));
-            }
-        };
-        img.src = srcBase64;
-    });
+    switch (exifRotationOrBase64Image) {
+        case 1: return {rotation: 0, flipH: false, flipV: false};
+        case 2: return {rotation: 0, flipH: true,  flipV: false};
+        case 3: return {rotation: 2, flipH: false, flipV: false};
+        case 4: return {rotation: 2, flipH: true,  flipV: false};
+        case 5: return {rotation: 1, flipH: false, flipV: false};
+        case 6: return {rotation: 1, flipH: true,  flipV: false};
+        case 7: return {rotation: 3, flipH: false, flipV: false};
+        case 8: return {rotation: 3, flipH: true,  flipV: false};
+    }
+    return {rotation: 0, flipH: false, flipV: false};
 }
 
 function getExifRotation(imageBase64: string): number {
@@ -84,30 +62,4 @@ function base64ToArrayBuffer(imageBase64: string) {
         bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes.buffer;
-}
-
-function transformCanvas(ctx: any, orientation: number, width: number, height: number) {
-    switch (orientation) {
-        case 2:
-            ctx.transform(-1, 0, 0, 1, width, 0);
-            break;
-        case 3:
-            ctx.transform(-1, 0, 0, -1, width, height);
-            break;
-        case 4:
-            ctx.transform(1, 0, 0, -1, 0, height);
-            break;
-        case 5:
-            ctx.transform(0, 1, 1, 0, 0, 0);
-            break;
-        case 6:
-            ctx.transform(0, 1, -1, 0, height, 0);
-            break;
-        case 7:
-            ctx.transform(0, -1, -1, 0, height, width);
-            break;
-        case 8:
-            ctx.transform(0, -1, 1, 0, 0, width);
-            break;
-    }
 }
