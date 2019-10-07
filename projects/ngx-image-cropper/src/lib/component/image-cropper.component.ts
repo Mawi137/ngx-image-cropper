@@ -94,7 +94,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.containWithinAspectRatio) {
+        if (this.originalImage && this.originalImage.complete && changes.containWithinAspectRatio) {
             this.transformOriginalImage();
         }
         if (changes.cropper) {
