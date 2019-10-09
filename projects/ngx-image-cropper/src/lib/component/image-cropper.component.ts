@@ -17,7 +17,7 @@ export type OutputType = 'base64' | 'file' | 'both';
 })
 export class ImageCropperComponent implements OnChanges {
     private originalImage: HTMLImageElement | null;
-    private transformedImage: any;
+    private transformedImage: HTMLImageElement;
     private originalBase64: string;
     private transformedBase64: string;
     private moveStart: MoveStart;
@@ -184,58 +184,74 @@ export class ImageCropperComponent implements OnChanges {
         });
     }
 
-    private transformOriginalImage(): Promise<void> {
-        if (!this.originalImage || !this.originalImage.complete ) {
-            return Promise.reject(new Error('No Image Loaded'));
+    private checkRotation(): void {
+        this.transformations.rotation = this.transformations.rotation % 4;
+        if (this.transformations.rotation < 0) {
+            this.transformations.rotation += 4;
         }
-        return new Promise<void>((resolve, reject) => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            this.transformations.rotation = this.transformations.rotation % 4;
-            if (this.transformations.rotation < 0) {
-                this.transformations.rotation += 4;
-            }
-            if (this.containWithinAspectRatio) {
-                if (this.transformations.rotation % 2) {
-                    const minWidthToContain = this.originalSize.width * this.aspectRatio;
-                    const minHeightToContain = this.originalSize.height / this.aspectRatio;
-                    canvas.width = Math.max(this.originalSize.height, minWidthToContain);
-                    canvas.height = Math.max(this.originalSize.width, minHeightToContain);
-                } else {
-                    const minWidthToContain = this.originalSize.height * this.aspectRatio;
-                    const minHeightToContain = this.originalSize.width / this.aspectRatio;
-                    canvas.width = Math.max(this.originalSize.width, minWidthToContain);
-                    canvas.height = Math.max(this.originalSize.height, minHeightToContain);
-                }
+    }
+
+    private getTransformedSize(): Dimensions {
+        if (this.containWithinAspectRatio) {
+            if (this.transformations.rotation % 2) {
+                const minWidthToContain = this.originalSize.width * this.aspectRatio;
+                const minHeightToContain = this.originalSize.height / this.aspectRatio;
+                return {
+                    width: Math.max(this.originalSize.height, minWidthToContain),
+                    height: Math.max(this.originalSize.width, minHeightToContain),
+                };
             } else {
-                if (this.transformations.rotation % 2) {
-                    canvas.height = this.originalSize.width;
-                    canvas.width = this.originalSize.height;
-                } else {
-                    canvas.width = this.originalSize.width;
-                    canvas.height = this.originalSize.height;
-                }
+                const minWidthToContain = this.originalSize.height * this.aspectRatio;
+                const minHeightToContain = this.originalSize.width / this.aspectRatio;
+                return {
+                    width: Math.max(this.originalSize.width, minWidthToContain),
+                    height: Math.max(this.originalSize.height, minHeightToContain),
+                };
             }
-            ctx.setTransform(
-                this.transformations.flipH ? -1 : 1,
-                0,
-                0,
-                this.transformations.flipV ? -1 : 1,
-                canvas.width / 2,
-                canvas.height / 2
-            );
-            ctx.rotate(Math.PI * (this.transformations.rotation / 2));
-            ctx.drawImage(
-                this.originalImage,
-                -this.originalSize.width / 2,
-                -this.originalSize.height / 2
-            );
-            this.transformedBase64 = canvas.toDataURL();
-            this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.transformedBase64);
+        }
+
+        if (this.transformations.rotation % 2) {
+            return {
+                height: this.originalSize.width,
+                width: this.originalSize.height,
+            };
+        }
+        return {
+            width: this.originalSize.width,
+            height: this.originalSize.height,
+        };
+    }
+    private transformImageBase64(): Promise<string> {
+        this.checkRotation();
+        const transformedSize = this.getTransformedSize();
+        const canvas = document.createElement('canvas');
+        canvas.width = transformedSize.width;
+        canvas.height = transformedSize.height;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(
+            this.transformations.flipH ? -1 : 1,
+            0,
+            0,
+            this.transformations.flipV ? -1 : 1,
+            canvas.width / 2,
+            canvas.height / 2
+        );
+        ctx.rotate(Math.PI * (this.transformations.rotation / 2));
+        ctx.drawImage(
+            this.originalImage,
+            -this.originalSize.width / 2,
+            -this.originalSize.height / 2
+        );
+        return Promise.resolve(canvas.toDataURL());
+    }
+    private setTransformedImage(transformedBase64): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.transformedBase64 = transformedBase64;
+            this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(transformedBase64);
             this.transformedImage = new Image();
             this.transformedImage.onload = () => {
-                this.transformedSize.width = this.transformedImage.width;
-                this.transformedSize.height = this.transformedImage.height;
+                this.transformedSize.width = this.transformedImage.naturalWidth;
+                this.transformedSize.height = this.transformedImage.naturalHeight;
                 resolve();
                 this.cd.markForCheck();
             };
@@ -245,6 +261,14 @@ export class ImageCropperComponent implements OnChanges {
             };
             this.transformedImage.src = this.transformedBase64;
         });
+    }
+
+    private transformOriginalImage(): Promise<void> {
+        if (!this.originalImage || !this.originalImage.complete ) {
+            return Promise.reject(new Error('No Image Loaded'));
+        }
+        return this.transformImageBase64()
+            .then(transformedBase64 => this.setTransformedImage(transformedBase64));
     }
 
     imageLoadedInView(): void {
@@ -607,8 +631,8 @@ export class ImageCropperComponent implements OnChanges {
         };
 
         if (!this.containWithinAspectRatio) {
-            out.x1 = Math.max(out.x1,0);
-            out.y1 = Math.max(out.y1,0);
+            out.x1 = Math.max(out.x1, 0);
+            out.y1 = Math.max(out.y1, 0);
             out.x2 = Math.min(out.x2, this.transformedSize.width);
             out.y2 = Math.min(out.y2, this.transformedSize.height);
         }
@@ -638,8 +662,8 @@ export class ImageCropperComponent implements OnChanges {
         };
 
         if (!this.containWithinAspectRatio) {
-            out.x1 = Math.max(out.x1,0);
-            out.y1 = Math.max(out.y1,0);
+            out.x1 = Math.max(out.x1, 0);
+            out.y1 = Math.max(out.y1, 0);
             out.x2 = Math.min(out.x2, this.transformedSize.width);
             out.y2 = Math.min(out.y2, this.transformedSize.height);
         }
