@@ -27,4 +27,4 @@
         [alignImage]="'left'"
     ></image-cropper>
 </div>
-<img [src]="croppedImage" style="border: 1px solid black" />
+<img [src]="croppedImage" [style.border]="croppedImage ? '1px solid black' : 'none'" />
