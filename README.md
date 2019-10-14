@@ -133,15 +133,24 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | x2       | number | X position of second coordinate (in px) |
 | y2       | number | Y position of second coordinate (in px) |
 
+#### Transformations
+| Property | Type    | Description |
+| -------- | ------- | ----------- |
+| rotation | number  | 0=No Rotation, 1=90&deg;, 2=180&deg;, 3=270&deg; |
+| flipH    | boolean | Flipped Horizontally |
+| flipV    | boolean | Flipped Vertically |
+
 #### ImageCroppedEvent
-| Property        | Type            | Description |
-| --------------- | ------          | ----------- |
-| base64          | string          | Base64 string of the cropped image |
-| file            | Blob(File)      | Blob of the cropped image |
-| width           | number          | Width of the cropped image |
-| height          | number          | Height of the cropped image |
-| cropperPosition | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
-| imagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
+| Property              | Type            | Description |
+| --------------------  | ------          | ----------- |
+| base64                | string          | Base64 string of the cropped image |
+| file                  | Blob(File)      | Blob of the cropped image |
+| width                 | number          | Width of the cropped image |
+| height                | number          | Height of the cropped image |
+| cropperPosition       | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
+| imagePosition         | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
+| offsetImagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
+| transform             | Transformations | Rotation and Flip State |
 
 
 ### Polyfill for IE and Edge

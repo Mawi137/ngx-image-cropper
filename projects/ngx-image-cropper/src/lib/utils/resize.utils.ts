@@ -85,27 +85,3 @@ export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: n
         ctx.putImageData(img2, 0, 0);
     }
 }
-
-export function fitImageToAspectRatio(srcBase64: string, aspectRatio: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = function () {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            if (ctx) {
-                const minWidthToContain = img.height * aspectRatio;
-                const minHeightToContain = img.width / aspectRatio;
-                canvas.width = Math.max(img.width, minWidthToContain);
-                canvas.height = Math.max(img.height, minHeightToContain);
-                const dx = (canvas.width - img.width) / 2;
-                const dy = (canvas.height - img.height) / 2;
-                ctx.drawImage(img, dx, dy);
-                resolve(canvas.toDataURL());
-            } else {
-                reject(new Error('No context'));
-            }
-        };
-        img.src = srcBase64;
-    });
-}

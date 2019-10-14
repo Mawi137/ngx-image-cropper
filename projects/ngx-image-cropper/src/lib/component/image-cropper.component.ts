@@ -3,9 +3,9 @@ import {
     SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
-import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent } from '../interfaces';
-import { resetExifOrientation, transformBase64BasedOnExifRotation } from '../utils/exif.utils';
-import { resizeCanvas, fitImageToAspectRatio } from '../utils/resize.utils';
+import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent, Transformations } from '../interfaces';
+import { getTransformationsFromExifRotation } from '../utils/exif.utils';
+import { resizeCanvas } from '../utils/resize.utils';
 
 export type OutputType = 'base64' | 'file' | 'both';
 
@@ -16,11 +16,15 @@ export type OutputType = 'base64' | 'file' | 'both';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageCropperComponent implements OnChanges {
-    private originalImage: any;
+    private originalImage: HTMLImageElement | null;
+    private transformedImage: HTMLImageElement;
     private originalBase64: string;
+    private transformedBase64: string;
     private moveStart: MoveStart;
     private maxSize: Dimensions;
     private originalSize: Dimensions;
+    private transformedSize: Dimensions;
+    private transformations: Transformations;
     private setImageMaxSizeRetries = 0;
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
@@ -90,6 +94,9 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        if (this.originalImage && this.originalImage.complete && changes.containWithinAspectRatio) {
+            this.transformOriginalImage();
+        }
         if (changes.cropper) {
             this.setMaxSize();
             this.setCropperScaledMinSize();
@@ -104,7 +111,7 @@ export class ImageCropperComponent implements OnChanges {
 
     private initCropper(): void {
         this.imageVisible = false;
-        this.originalImage = null;
+        this.transformedImage = null;
         this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
             + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
             + 'AAarVyFEAAAAASUVORK5CYII=';
@@ -127,6 +134,11 @@ export class ImageCropperComponent implements OnChanges {
             width: 0,
             height: 0
         };
+        this.transformedSize = {
+            width: 0,
+            height: 0
+        };
+        this.transformations = {rotation: 0, flipH: false, flipV: false};
         this.cropper.x1 = -100;
         this.cropper.y1 = -100;
         this.cropper.x2 = 10000;
@@ -150,33 +162,117 @@ export class ImageCropperComponent implements OnChanges {
         return /image\/(png|jpg|jpeg|bmp|gif|tiff)/.test(type);
     }
 
-    private checkExifAndLoadBase64Image(imageBase64: string): void {
-        resetExifOrientation(imageBase64)
-            .then((resultBase64: string) => this.fitImageToAspectRatio(resultBase64))
-            .then((resultBase64: string) => this.loadBase64Image(resultBase64))
-            .catch(() => this.loadImageFailed.emit());
+    private checkExifAndLoadBase64Image(imageBase64: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const fail = (ex?: any) => {
+                this.originalImage = null;
+                this.originalBase64 = null;
+                reject(ex);
+            };
+            this.originalImage = new Image();
+            this.originalImage.onload = () => {
+                this.originalBase64 = imageBase64;
+                this.transformations = getTransformationsFromExifRotation(imageBase64);
+                this.originalSize.width = this.originalImage.naturalWidth;
+                this.originalSize.height = this.originalImage.naturalHeight;
+                this.transformOriginalImage()
+                    .then(() => resolve())
+                    .catch(fail);
+            };
+            this.originalImage.onerror = fail;
+            this.originalImage.src = imageBase64;
+        });
     }
 
-    private fitImageToAspectRatio(imageBase64: string): Promise<string> {
-        return this.containWithinAspectRatio
-            ? fitImageToAspectRatio(imageBase64, this.aspectRatio)
-            : Promise.resolve(imageBase64);
+    private checkRotation(): void {
+        this.transformations.rotation = this.transformations.rotation % 4;
+        if (this.transformations.rotation < 0) {
+            this.transformations.rotation += 4;
+        }
     }
 
-    private loadBase64Image(imageBase64: string): void {
-        this.originalBase64 = imageBase64;
-        this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(imageBase64);
-        this.originalImage = new Image();
-        this.originalImage.onload = () => {
-            this.originalSize.width = this.originalImage.width;
-            this.originalSize.height = this.originalImage.height;
-            this.cd.markForCheck();
+    private getTransformedSize(): Dimensions {
+        if (this.containWithinAspectRatio) {
+            if (this.transformations.rotation % 2) {
+                const minWidthToContain = this.originalSize.width * this.aspectRatio;
+                const minHeightToContain = this.originalSize.height / this.aspectRatio;
+                return {
+                    width: Math.max(this.originalSize.height, minWidthToContain),
+                    height: Math.max(this.originalSize.width, minHeightToContain),
+                };
+            } else {
+                const minWidthToContain = this.originalSize.height * this.aspectRatio;
+                const minHeightToContain = this.originalSize.width / this.aspectRatio;
+                return {
+                    width: Math.max(this.originalSize.width, minWidthToContain),
+                    height: Math.max(this.originalSize.height, minHeightToContain),
+                };
+            }
+        }
+
+        if (this.transformations.rotation % 2) {
+            return {
+                height: this.originalSize.width,
+                width: this.originalSize.height,
+            };
+        }
+        return {
+            width: this.originalSize.width,
+            height: this.originalSize.height,
         };
-        this.originalImage.src = imageBase64;
+    }
+    private transformImageBase64(): Promise<string> {
+        this.checkRotation();
+        const transformedSize = this.getTransformedSize();
+        const canvas = document.createElement('canvas');
+        canvas.width = transformedSize.width;
+        canvas.height = transformedSize.height;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(
+            this.transformations.flipH ? -1 : 1,
+            0,
+            0,
+            this.transformations.flipV ? -1 : 1,
+            canvas.width / 2,
+            canvas.height / 2
+        );
+        ctx.rotate(Math.PI * (this.transformations.rotation / 2));
+        ctx.drawImage(
+            this.originalImage,
+            -this.originalSize.width / 2,
+            -this.originalSize.height / 2
+        );
+        return Promise.resolve(canvas.toDataURL());
+    }
+    private setTransformedImage(transformedBase64): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.transformedBase64 = transformedBase64;
+            this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(transformedBase64);
+            this.transformedImage = new Image();
+            this.transformedImage.onload = () => {
+                this.transformedSize.width = this.transformedImage.naturalWidth;
+                this.transformedSize.height = this.transformedImage.naturalHeight;
+                resolve();
+                this.cd.markForCheck();
+            };
+            this.transformedImage.onerror = () => {
+                this.transformedImage = null;
+                reject();
+            };
+            this.transformedImage.src = this.transformedBase64;
+        });
+    }
+
+    private transformOriginalImage(): Promise<void> {
+        if (!this.originalImage || !this.originalImage.complete ) {
+            return Promise.reject(new Error('No Image Loaded'));
+        }
+        return this.transformImageBase64()
+            .then(transformedBase64 => this.setTransformedImage(transformedBase64));
     }
 
     imageLoadedInView(): void {
-        if (this.originalImage != null) {
+        if (this.transformedImage != null) {
             this.imageLoaded.emit();
             this.setImageMaxSizeRetries = 0;
             setTimeout(() => this.checkImageMaxSizeRecursively());
@@ -208,27 +304,23 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     rotateLeft() {
-        this.transformBase64(8);
+        this.transformations.rotation--;
+        return this.transformOriginalImage();
     }
 
     rotateRight() {
-        this.transformBase64(6);
+        this.transformations.rotation++;
+        return this.transformOriginalImage();
     }
 
     flipHorizontal() {
-        this.transformBase64(2);
+        this.transformations.flipH = ! this.transformations.flipH;
+        return this.transformOriginalImage();
     }
 
     flipVertical() {
-        this.transformBase64(4);
-    }
-
-    private transformBase64(exifOrientation: number): void {
-        if (this.originalBase64) {
-            transformBase64BasedOnExifRotation(this.originalBase64, exifOrientation)
-                .then((resultBase64: string) => this.fitImageToAspectRatio(resultBase64))
-                .then((rotatedBase64: string) => this.loadBase64Image(rotatedBase64));
-        }
+        this.transformations.flipV = ! this.transformations.flipV;
+        return this.transformOriginalImage();
     }
 
     private resizeCropperPosition(): void {
@@ -304,7 +396,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private setCropperScaledMinSize(): void {
-        if (this.originalImage) {
+        if (this.transformedImage) {
             this.setCropperScaledMinWidth();
             this.setCropperScaledMinHeight();
         } else {
@@ -315,7 +407,7 @@ export class ImageCropperComponent implements OnChanges {
 
     private setCropperScaledMinWidth(): void {
         this.cropperScaledMinWidth = this.cropperMinWidth > 0
-            ? Math.max(20, this.cropperMinWidth / this.originalImage.width * this.maxSize.width)
+            ? Math.max(20, this.cropperMinWidth / this.transformedImage.width * this.maxSize.width)
             : 20;
     }
 
@@ -323,7 +415,7 @@ export class ImageCropperComponent implements OnChanges {
         if (this.maintainAspectRatio) {
             this.cropperScaledMinHeight = Math.max(20, this.cropperScaledMinWidth / this.aspectRatio);
         } else if (this.cropperMinHeight > 0) {
-            this.cropperScaledMinHeight = Math.max(20, this.cropperMinHeight / this.originalImage.height * this.maxSize.height);
+            this.cropperScaledMinHeight = Math.max(20, this.cropperMinHeight / this.transformedImage.height * this.maxSize.height);
         } else {
             this.cropperScaledMinHeight = 20;
         }
@@ -477,7 +569,7 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     crop(outputType: OutputType = this.outputType): ImageCroppedEvent | Promise<ImageCroppedEvent> | null {
-        if (this.sourceImage.nativeElement && this.originalImage != null) {
+        if (this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
             const width = imagePosition.x2 - imagePosition.x1;
@@ -494,7 +586,7 @@ export class ImageCropperComponent implements OnChanges {
                     ctx.fillRect(0, 0, width, height);
                 }
                 ctx.drawImage(
-                    this.originalImage,
+                    this.transformedImage,
                     imagePosition.x1,
                     imagePosition.y1,
                     width,
@@ -504,7 +596,15 @@ export class ImageCropperComponent implements OnChanges {
                     width,
                     height
                 );
-                const output = {width, height, imagePosition, cropperPosition: {...this.cropper}};
+                const output: ImageCroppedEvent = {
+                    width, height,
+                    imagePosition,
+                    cropperPosition: {...this.cropper},
+                    transform: {...this.transformations}
+                };
+                if (this.containWithinAspectRatio) {
+                    output.offsetImagePosition = this.getOffsetImagePosition();
+                }
                 const resizeRatio = this.getResizeRatio(width, height);
                 if (resizeRatio !== 1) {
                     output.width = Math.round(width * resizeRatio);
@@ -521,13 +621,54 @@ export class ImageCropperComponent implements OnChanges {
 
     private getImagePosition(): CropperPosition {
         const sourceImageElement = this.sourceImage.nativeElement;
-        const ratio = this.originalSize.width / sourceImageElement.offsetWidth;
-        return {
+        const ratio = this.transformedSize.width / sourceImageElement.offsetWidth;
+
+        const out: CropperPosition = {
             x1: Math.round(this.cropper.x1 * ratio),
             y1: Math.round(this.cropper.y1 * ratio),
-            x2: Math.min(Math.round(this.cropper.x2 * ratio), this.originalSize.width),
-            y2: Math.min(Math.round(this.cropper.y2 * ratio), this.originalSize.height)
+            x2: Math.round(this.cropper.x2 * ratio),
+            y2: Math.round(this.cropper.y2 * ratio)
         };
+
+        if (!this.containWithinAspectRatio) {
+            out.x1 = Math.max(out.x1, 0);
+            out.y1 = Math.max(out.y1, 0);
+            out.x2 = Math.min(out.x2, this.transformedSize.width);
+            out.y2 = Math.min(out.y2, this.transformedSize.height);
+        }
+
+        return out;
+    }
+
+    private getOffsetImagePosition(): CropperPosition {
+        const sourceImageElement = this.sourceImage.nativeElement;
+        const ratio = this.transformedSize.width / sourceImageElement.offsetWidth;
+        let offsetX: number;
+        let offsetY: number;
+
+        if (this.transformations.rotation % 2) {
+            offsetX = (this.transformedSize.width - this.originalSize.height) / 2;
+            offsetY = (this.transformedSize.height - this.originalSize.width) / 2;
+        } else {
+            offsetX = (this.transformedSize.width - this.originalSize.width) / 2;
+            offsetY = (this.transformedSize.height - this.originalSize.height) / 2;
+        }
+
+        const out: CropperPosition = {
+            x1: Math.round(this.cropper.x1 * ratio) - offsetX,
+            y1: Math.round(this.cropper.y1 * ratio) - offsetY,
+            x2: Math.round(this.cropper.x2 * ratio) - offsetX,
+            y2: Math.round(this.cropper.y2 * ratio) - offsetY
+        };
+
+        if (!this.containWithinAspectRatio) {
+            out.x1 = Math.max(out.x1, 0);
+            out.y1 = Math.max(out.y1, 0);
+            out.x2 = Math.min(out.x2, this.transformedSize.width);
+            out.y2 = Math.min(out.y2, this.transformedSize.height);
+        }
+
+        return out;
     }
 
     private cropToOutputType(outputType: OutputType, cropCanvas: HTMLCanvasElement, output: ImageCroppedEvent): ImageCroppedEvent | Promise<ImageCroppedEvent> {
