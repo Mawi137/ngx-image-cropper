@@ -52,6 +52,10 @@ export class AppComponent {
         this.imageCropper.flipVertical();
     }
 
+    resetImage() {
+        this.imageCropper.resetImage();
+    }
+
     toggleContainWithinAspectRatio(){
         this.containWithinAspectRatio = !this.containWithinAspectRatio;
     }

@@ -323,6 +323,10 @@ export class ImageCropperComponent implements OnChanges {
         return this.transformOriginalImage();
     }
 
+    resetImage() {
+        this.imageBase64 = this.originalBase64;
+    }
+
     private resizeCropperPosition(): void {
         const sourceImageElement = this.sourceImage.nativeElement;
         if (this.maxSize.width !== sourceImageElement.offsetWidth || this.maxSize.height !== sourceImageElement.offsetHeight) {

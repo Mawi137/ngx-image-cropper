@@ -122,6 +122,7 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | `rotateRight`           | void              | Rotates the image to the right |
 | `flipHorizontal`        | void              | Flips the image horizontally |
 | `flipVertical`          | void              | Flips the image vertically |
+| `resetImage`            | void              | Reset the image to the original |
 | `crop`                  | ImageCroppedEvent (when `outputType` is `base64`) or Promise&lt;ImageCroppedEvent&gt; (when `outputType` is `file` or `both`)) | Crops the source image to the current cropper position. Accepts an output type as an argument, default is the one given in the `outputType` input (`base64`, `file` or `both`). Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
 
 ### Interfaces
