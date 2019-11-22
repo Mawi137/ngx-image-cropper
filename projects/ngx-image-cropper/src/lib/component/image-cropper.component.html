@@ -5,6 +5,8 @@
         [src]="safeImgDataUrl"
         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
         (load)="imageLoadedInView()"
+        tabindex='0'
+        (keydown)="keyboardAccess($event)"
     />
     <div class="cropper"
          *ngIf="imageVisible"

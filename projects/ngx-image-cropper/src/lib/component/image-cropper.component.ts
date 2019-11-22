@@ -28,6 +28,8 @@ export class ImageCropperComponent implements OnChanges {
     private setImageMaxSizeRetries = 0;
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
+    private keyboardResizeIncrement = 3;
+    private keyboardMoveIncrement = 5;
 
     safeImgDataUrl: SafeUrl | string;
     marginLeft: SafeStyle | string = '0px';
@@ -501,6 +503,121 @@ export class ImageCropperComponent implements OnChanges {
             this.checkAspectRatio();
         }
     }
+
+    keyboardAccess(event: any) {
+        const keyboardWhiteList: string[] = ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'];
+        if (!(keyboardWhiteList.includes(event.key))) {
+            return;
+        }
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.shiftKey) {
+            this.keyboardResize(event.key);
+        } else {
+            this.keyboardMove(event.key);
+        }
+        this.doAutoCrop();
+    }
+
+    private keyboardMove(key) {
+        if (key === 'ArrowUp') {
+            this.cropper.y1 -= this.keyboardMoveIncrement * this.aspectRatio;
+            this.cropper.y2 -= this.keyboardMoveIncrement * this.aspectRatio;
+        } else if (key === 'ArrowDown') {
+            this.cropper.y1 += this.keyboardMoveIncrement * this.aspectRatio;
+            this.cropper.y2 += this.keyboardMoveIncrement * this.aspectRatio;
+        } else if (key === 'ArrowRight') {
+            this.cropper.x1 += this.keyboardMoveIncrement;
+            this.cropper.x2 += this.keyboardMoveIncrement;
+        } else if (key === 'ArrowLeft') {
+            this.cropper.x1 -= this.keyboardMoveIncrement;
+            this.cropper.x2 -= this.keyboardMoveIncrement;
+        }
+        this.checkCropperPosition(true);
+    }
+
+    private keyboardResize(key) {
+        if (key === 'ArrowUp' || key === 'ArrowRight') {
+            let newX1;
+            let newY1;
+            let newX2;
+            let newY2;
+            let adjustedRatio;
+            const xIncrement = this.keyboardResizeIncrement;
+            const yIncrement = this.keyboardResizeIncrement / this.aspectRatio;
+            const overflowX = this.cropper.x1 + this.maxSize.width - this.cropper.x2 < 2 * xIncrement;
+            const overflowY = this.cropper.y1 + this.maxSize.width - this.cropper.y2 < 2 * yIncrement;
+
+            if (!overflowX && !overflowY) {
+                [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement, this.maxSize.width);
+                [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement, this.maxSize.height);
+
+            } else if (overflowX && !overflowY) {
+                newX1 = 0;
+                newX2 = this.maxSize.width;
+                adjustedRatio = (this.cropper.x1 + this.maxSize.width - this.cropper.x2) / (xIncrement * 2);
+                [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement * adjustedRatio, this.maxSize.height);
+
+            } else if (overflowY && !overflowX) {
+                newY1 = 0;
+                newY2 = this.maxSize.height;
+                adjustedRatio = (this.cropper.y1 + this.maxSize.height - this.cropper.y2) / (yIncrement * 2);
+                [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement * adjustedRatio, this.maxSize.width);
+
+            } else if (overflowX && overflowY) {
+                // determine which dimension should be adjusted first
+                const pixelRemainingX = this.cropper.x1 + this.maxSize.width - this.cropper.x2;
+                const pixelRemainingY = this.cropper.y1 + this.maxSize.height - this.cropper.y2;
+                if (pixelRemainingX / xIncrement < pixelRemainingY / yIncrement) {
+                    newX1 = 0;
+                    newX2 = this.maxSize.width;
+                    adjustedRatio = (this.cropper.x1 + this.maxSize.width - this.cropper.x2) / (xIncrement * 2);
+                    [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement * adjustedRatio, this.maxSize.height);
+                } else {
+                    newY1 = 0;
+                    newY2 = this.maxSize.height;
+                    adjustedRatio = (this.cropper.y1 + this.maxSize.height - this.cropper.y2) / (yIncrement * 2);
+                    [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement * adjustedRatio, this.maxSize.width);
+                }
+            }
+            this.cropper.x1 = newX1;
+            this.cropper.x2 = newX2;
+            this.cropper.y1 = newY1;
+            this.cropper.y2 = newY2;
+
+        } else if (key === 'ArrowDown' || key === 'ArrowLeft') {
+            this.cropper.x1 = Math.min(
+                this.cropper.x1 + this.keyboardResizeIncrement,
+                this.cropper.x2 - this.cropperScaledMinWidth
+            );
+            this.cropper.y1 = Math.min(
+                this.cropper.y1 + this.keyboardResizeIncrement / this.aspectRatio,
+                this.cropper.y2 - this.cropperScaledMinWidth / this.aspectRatio
+            );
+            this.cropper.x2 = Math.max(
+                this.cropper.x2 - this.keyboardResizeIncrement,
+                this.cropper.x1 + this.cropperScaledMinWidth
+            );
+            this.cropper.y2 = Math.max(
+                this.cropper.y2 - this.keyboardResizeIncrement / this.aspectRatio,
+                this.cropper.y1 + this.cropperScaledMinWidth / this.aspectRatio
+            );
+        }
+    }
+
+    private findNewCoordinates(p1: number, p2: number, increment: number, max: number): number[] {
+        let newP1 = p1 - increment;
+        let newP2 = p2 + increment;
+        if (newP1 < 0 && newP2 < max) {
+            newP2 += Math.abs(newP1);
+            newP1 = 0;
+        } else if (newP2 > max && newP1 > 0) {
+            newP1 -= Math.abs(newP2 - max);
+            newP2 = max;
+        }
+        return [newP1, newP2];
+    }
+
 
     private checkAspectRatio(): void {
         let overflowX = 0;
