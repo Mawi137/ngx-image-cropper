@@ -1,5 +1,5 @@
-import { CropperPosition } from "./cropper-position.interface";
-import { Transformations } from './transformations.interfaces';
+import { CropperPosition } from './cropper-position.interface';
+import { Transformations } from './transformations.interface';
 
 export interface ImageCroppedEvent {
     base64?: string | null;
