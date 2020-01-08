@@ -29,7 +29,7 @@ export class ImageCropperComponent implements OnChanges {
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
     private keyboardResizeIncrement = 3;
-    private keyboardMoveIncrement = 5;
+    private keyboardMoveIncrement = 3;
 
     safeImgDataUrl: SafeUrl | string;
     marginLeft: SafeStyle | string = '0px';
@@ -456,8 +456,21 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private move(event: any) {
-        if (this.moveStart.position === 'keyboard'){
-            this.keyboardMove(event);
+        if (event.key) {
+            const key = event.key;
+            if (key === 'ArrowUp') {
+                this.cropper.y1 -= this.keyboardMoveIncrement;
+                this.cropper.y2 -= this.keyboardMoveIncrement;
+            } else if (key === 'ArrowDown') {
+                this.cropper.y1 += this.keyboardMoveIncrement;
+                this.cropper.y2 += this.keyboardMoveIncrement;
+            } else if (key === 'ArrowRight') {
+                this.cropper.x1 += this.keyboardMoveIncrement;
+                this.cropper.x2 += this.keyboardMoveIncrement;
+            } else if (key === 'ArrowLeft') {
+                this.cropper.x1 -= this.keyboardMoveIncrement;
+                this.cropper.x2 -= this.keyboardMoveIncrement;
+            }
         } else {
             const diffX = this.getClientX(event) - this.moveStart.clientX;
             const diffY = this.getClientY(event) - this.moveStart.clientY;
@@ -470,8 +483,23 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private resize(event: any): void {
-        const diffX = this.getClientX(event) - this.moveStart.clientX;
-        const diffY = this.getClientY(event) - this.moveStart.clientY;
+        let diffX = this.getClientX(event) - this.moveStart.clientX;
+        let diffY = this.getClientY(event) - this.moveStart.clientY;
+
+        if (event.shiftKey) {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                diffX = - this.keyboardResizeIncrement;
+                diffY = - this.keyboardResizeIncrement;
+            } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                diffX = this.keyboardResizeIncrement;
+                diffY = this.keyboardResizeIncrement;
+            }
+            if (event.altKey) {
+                diffX = - diffX;
+                diffY = - diffY;
+            }
+        }
+
         switch (this.moveStart.position) {
             case 'left':
                 this.cropper.x1 = Math.min(this.moveStart.x1 + diffX, this.cropper.x2 - this.cropperScaledMinWidth);
@@ -501,10 +529,6 @@ export class ImageCropperComponent implements OnChanges {
                 this.cropper.x1 = Math.min(this.moveStart.x1 + diffX, this.cropper.x2 - this.cropperScaledMinWidth);
                 this.cropper.y2 = Math.max(this.moveStart.y2 + diffY, this.cropper.y1 + this.cropperScaledMinHeight);
                 break;
-            case 'keyboard':
-                this.keyboardResize(event);
-                break;
-
         }
 
         if (this.maintainAspectRatio) {
@@ -517,128 +541,24 @@ export class ImageCropperComponent implements OnChanges {
         if (!(keyboardWhiteList.includes(event.key))) {
             return;
         }
+
         if (event.shiftKey) {
-            this.startMove(event, 'resize', 'keyboard')
-            this.moveImg(event)
+            if (event.key === 'ArrowUp') {
+                this.startMove(event, 'resize', 'top');
+            } else if (event.key === 'ArrowDown') {
+                this.startMove(event, 'resize', 'bottom');
+            } else if (event.key === 'ArrowLeft') {
+                this.startMove(event, 'resize', 'left');
+            } else if (event.key === 'ArrowRight') {
+                this.startMove(event, 'resize', 'right');
+            }
         } else {
-            this.startMove(event, 'move', 'keyboard')
-            this.moveImg(event)
+            this.startMove(event, 'move');
         }
+
+        this.moveImg(event);
         this.moveStop();
     }
-
-    private keyboardMove(event) {
-        let key = event.key;
-        if (key === 'ArrowUp') {
-            this.cropper.y1 -= this.keyboardMoveIncrement * this.aspectRatio;
-            this.cropper.y2 -= this.keyboardMoveIncrement * this.aspectRatio;
-        } else if (key === 'ArrowDown') {
-            this.cropper.y1 += this.keyboardMoveIncrement * this.aspectRatio;
-            this.cropper.y2 += this.keyboardMoveIncrement * this.aspectRatio;
-        } else if (key === 'ArrowRight') {
-            this.cropper.x1 += this.keyboardMoveIncrement;
-            this.cropper.x2 += this.keyboardMoveIncrement;
-        } else if (key === 'ArrowLeft') {
-            this.cropper.x1 -= this.keyboardMoveIncrement;
-            this.cropper.x2 -= this.keyboardMoveIncrement;
-        }
-    }
-
-    private keyboardResize(event) {
-        let key = event.key;
-        if (key === 'ArrowUp' || key === 'ArrowRight') {
-            let newX1;
-            let newY1;
-            let newX2;
-            let newY2;
-            let adjustedRatio;
-            const xIncrement = this.keyboardResizeIncrement;
-            const yIncrement = this.keyboardResizeIncrement / this.aspectRatio;
-            const overflowX = this.cropper.x1 + this.maxSize.width - this.cropper.x2 < 2 * xIncrement;
-            const overflowY = this.cropper.y1 + this.maxSize.height - this.cropper.y2 < 2 * yIncrement;
-
-            if ((!overflowX && !overflowY)) {
-                [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement, this.maxSize.width);
-                [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement, this.maxSize.height);
-            } else if (overflowX && !overflowY) {
-                newX1 = 0;
-                newX2 = this.maxSize.width;
-                if (this.maintainAspectRatio){
-                    adjustedRatio = (this.cropper.x1 + this.maxSize.width - this.cropper.x2) / (xIncrement * 2);
-                    [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement * adjustedRatio, this.maxSize.height);
-                } else {
-                    [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement, this.maxSize.height);
-                }
-            } else if (overflowY && !overflowX) {
-                newY1 = 0;
-                newY2 = this.maxSize.height;
-                if (this.maintainAspectRatio){
-                    adjustedRatio = (this.cropper.y1 + this.maxSize.height - this.cropper.y2) / (yIncrement * 2);
-                    [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement * adjustedRatio, this.maxSize.width);
-                } else{
-                    [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement, this.maxSize.width);
-                }
-            } else if (overflowX && overflowY) {
-                // determine which dimension should be adjusted first
-                const pixelRemainingX = this.cropper.x1 + this.maxSize.width - this.cropper.x2;
-                const pixelRemainingY = this.cropper.y1 + this.maxSize.height - this.cropper.y2;
-                if(!this.maintainAspectRatio){
-                    newX1 = 0;
-                    newX2 = this.maxSize.width;
-                    newY1 = 0;
-                    newY2 = this.maxSize.height;
-                } else {
-                    if (pixelRemainingX / xIncrement < pixelRemainingY / yIncrement) {
-                        newX1 = 0;
-                        newX2 = this.maxSize.width;
-                        adjustedRatio = (this.cropper.x1 + this.maxSize.width - this.cropper.x2) / (xIncrement * 2);
-                        [newY1, newY2] = this.findNewCoordinates(this.cropper.y1, this.cropper.y2, yIncrement * adjustedRatio, this.maxSize.height);
-                    } else {
-                        newY1 = 0;
-                        newY2 = this.maxSize.height;
-                        adjustedRatio = (this.cropper.y1 + this.maxSize.height - this.cropper.y2) / (yIncrement * 2);
-                        [newX1, newX2] = this.findNewCoordinates(this.cropper.x1, this.cropper.x2, xIncrement * adjustedRatio, this.maxSize.width);
-                    }
-                }
-            }
-            this.cropper.x1 = newX1;
-            this.cropper.x2 = newX2;
-            this.cropper.y1 = newY1;
-            this.cropper.y2 = newY2;
-
-        } else if (key === 'ArrowDown' || key === 'ArrowLeft') {
-            this.cropper.x1 = Math.min(
-                this.cropper.x1 + this.keyboardResizeIncrement,
-                this.cropper.x2 - this.cropperScaledMinWidth
-            );
-            this.cropper.y1 = Math.min(
-                this.cropper.y1 + this.keyboardResizeIncrement / this.aspectRatio,
-                this.cropper.y2 - this.cropperScaledMinWidth / this.aspectRatio
-            );
-            this.cropper.x2 = Math.max(
-                this.cropper.x2 - this.keyboardResizeIncrement,
-                this.cropper.x1 + this.cropperScaledMinWidth
-            );
-            this.cropper.y2 = Math.max(
-                this.cropper.y2 - this.keyboardResizeIncrement / this.aspectRatio,
-                this.cropper.y1 + this.cropperScaledMinWidth / this.aspectRatio
-            );
-        }
-    }
-
-    private findNewCoordinates(p1: number, p2: number, increment: number, max: number): number[] {
-        let newP1 = p1 - increment;
-        let newP2 = p2 + increment;
-        if (newP1 < 0 && newP2 < max) {
-            newP2 += Math.abs(newP1);
-            newP1 = 0;
-        } else if (newP2 > max && newP1 > 0) {
-            newP1 -= Math.abs(newP2 - max);
-            newP2 = max;
-        }
-        return [newP1, newP2];
-    }
-
 
     private checkAspectRatio(): void {
         let overflowX = 0;
