@@ -361,8 +361,65 @@ export class ImageCropperComponent implements OnChanges {
         this.imageVisible = true;
     }
 
-    startMove(event: any, moveType: string, position: string | null = null): void {
+    keyboardAccess(event: any) {
+        const keyboardWhiteList: string[] = ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'];
+        if (!(keyboardWhiteList.includes(event.key))) {
+            return;
+        }
+        const moveType = event.ctrlKey || event.metaKey ? 'resize' : 'move';
+        const position = event.altKey ? this.getInvertedPositionForKey(event.key) : this.getPositionForKey(event.key);
+        const moveEvent = this.getEventForKey(event.key, event.shiftKey ? 10 : 1);
         event.preventDefault();
+        event.stopPropagation();
+        this.startMove({clientX: 0, clientY: 0}, moveType, position);
+        this.moveImg(moveEvent);
+        this.moveStop();
+    }
+
+    private getPositionForKey(key: string): string {
+        switch (key) {
+            case 'ArrowUp':
+                return 'top';
+            case 'ArrowRight':
+                return 'right';
+            case 'ArrowDown':
+                return 'bottom';
+            case 'ArrowLeft':
+            default:
+                return 'left';
+        }
+    }
+
+    private getInvertedPositionForKey(key: string): string {
+        switch (key) {
+            case 'ArrowUp':
+                return 'bottom';
+            case 'ArrowRight':
+                return 'left';
+            case 'ArrowDown':
+                return 'top';
+            case 'ArrowLeft':
+            default:
+                return 'right';
+        }
+    }
+
+    private getEventForKey(key: string, stepSize: number): any {
+        switch (key) {
+            case 'ArrowUp':
+                return {clientX: 0, clientY: stepSize * -1};
+            case 'ArrowRight':
+                return {clientX: stepSize, clientY: 0};
+            case 'ArrowDown':
+                return {clientX: 0, clientY: stepSize};
+            case 'ArrowLeft':
+            default:
+                return {clientX: stepSize * -1, clientY: 0};
+        }
+    }
+
+    startMove(event: any, moveType: string, position: string | null = null): void {
+        if (event.preventDefault) { event.preventDefault(); }
         this.moveStart = {
             active: true,
             type: moveType,
@@ -377,8 +434,8 @@ export class ImageCropperComponent implements OnChanges {
     @HostListener('document:touchmove', ['$event'])
     moveImg(event: any): void {
         if (this.moveStart.active) {
-            event.stopPropagation();
-            event.preventDefault();
+            if (event.stopPropagation) { event.stopPropagation(); }
+            if (event.preventDefault) { event.preventDefault(); }
             if (this.moveStart.type === 'move') {
                 this.move(event);
                 this.checkCropperPosition(true);

@@ -15,6 +15,8 @@
          [style.height.px]="cropper.y2 - cropper.y1"
          [style.margin-left]="alignImage === 'center' ? marginLeft : null"
          [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+         tabindex="0"
+         (keydown)="keyboardAccess($event)"
     >
         <div
                 (mousedown)="startMove($event, 'move')"

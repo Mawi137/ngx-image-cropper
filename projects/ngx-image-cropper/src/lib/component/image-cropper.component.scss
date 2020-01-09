@@ -32,6 +32,7 @@
         outline-style: solid;
         touch-action: none;
 
+
         @media (orientation: portrait) {
             outline-width: 100vh;
         }
@@ -54,6 +55,13 @@
             width: 100%;
             cursor: move;
             border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        &:focus {
+            .move {
+                border-color: dodgerblue;
+                border-width: 2px;
+            }
         }
 
         .resize {
