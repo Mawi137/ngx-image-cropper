@@ -366,7 +366,7 @@ export class ImageCropperComponent implements OnChanges {
         if (!(keyboardWhiteList.includes(event.key))) {
             return;
         }
-        const moveType = event.ctrlKey || event.metaKey ? 'resize' : 'move';
+        const moveType = event.ctrlKey || event.metaKey ? 'move' : 'resize';
         const position = event.altKey ? this.getInvertedPositionForKey(event.key) : this.getPositionForKey(event.key);
         const moveEvent = this.getEventForKey(event.key, event.shiftKey ? 10 : 1);
         event.preventDefault();
