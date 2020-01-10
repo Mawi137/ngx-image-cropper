@@ -7,7 +7,7 @@
     "start:lib": "ng build ngx-image-cropper --watch",
     "build": "ng build",
     "build:lib": "ng build ngx-image-cropper",
-    "publish:lib": "npm run copy:files && npm publish ./dist/ngx-image-cropper",
+    "publish:lib": "npm run build:lib && npm run copy:files && npm publish ./dist/ngx-image-cropper",
     "test": "ng test",
     "lint": "ng lint",
     "copy:files": "cp ./README.md ./dist/ngx-image-cropper && cp ./LICENSE ./dist/ngx-image-cropper"
