@@ -103,6 +103,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `autoCrop`                 | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to false, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
 | `alignImage`               | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
 | `backgroundColor`          | string    |              | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
+| `disabled`                 | boolean   | false        | Disables the component and prevents changing the cropper position |
 
 ### Outputs
 | Name                    | Type              | Description |

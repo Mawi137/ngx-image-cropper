@@ -79,7 +79,8 @@ export class ImageCropperComponent implements OnChanges {
     };
     @HostBinding('style.text-align')
     @Input() alignImage: 'left' | 'center' = 'center';
-
+    @HostBinding('class.disabled')
+    @Input() disabled = false;
 
     @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
     @Output() startCropImage = new EventEmitter<void>();

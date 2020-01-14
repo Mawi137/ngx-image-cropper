@@ -173,4 +173,12 @@
             }
         }
     }
+
+    &.disabled {
+        .cropper {
+            .resize, .resize-bar, .move {
+                display: none;
+            }
+        }
+    }
 }
