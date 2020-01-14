@@ -1,6 +1,6 @@
 import {
     Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output,
-    SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild
+    SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild, OnInit
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent, Transformations } from '../interfaces';
@@ -15,7 +15,7 @@ export type OutputType = 'base64' | 'file' | 'both';
     styleUrls: ['./image-cropper.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ImageCropperComponent implements OnChanges {
+export class ImageCropperComponent implements OnChanges, OnInit {
     private originalImage: HTMLImageElement | null;
     private transformedImage: HTMLImageElement;
     private originalBase64: string;
@@ -28,6 +28,7 @@ export class ImageCropperComponent implements OnChanges {
     private setImageMaxSizeRetries = 0;
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
+    private stepSize = 3;
 
     safeImgDataUrl: SafeUrl | string;
     marginLeft: SafeStyle | string = '0px';
@@ -65,6 +66,7 @@ export class ImageCropperComponent implements OnChanges {
     @Input() resizeToHeight = 0;
     @Input() cropperMinWidth = 0;
     @Input() cropperMinHeight = 0;
+    @Input() initialStepSize = 3;
     @Input() roundCropper = false;
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
@@ -108,6 +110,10 @@ export class ImageCropperComponent implements OnChanges {
         if (changes.aspectRatio && this.imageVisible) {
             this.resetCropperPosition();
         }
+    }
+
+    ngOnInit(): void {
+        this.stepSize = this.initialStepSize;
     }
 
     private initCropper(): void {
@@ -186,10 +192,10 @@ export class ImageCropperComponent implements OnChanges {
     }
 
     private checkRotation(): void {
-        this.transformations.rotation = this.transformations.rotation % 4;
         if (this.transformations.rotation < 0) {
             this.transformations.rotation += 4;
         }
+        this.transformations.rotation = this.transformations.rotation % 4;
     }
 
     private getTransformedSize(): Dimensions {
@@ -306,21 +312,30 @@ export class ImageCropperComponent implements OnChanges {
 
     rotateLeft() {
         this.transformations.rotation--;
+        this.flipAfterRotate();
         return this.transformOriginalImage();
     }
 
     rotateRight() {
         this.transformations.rotation++;
+        this.flipAfterRotate();
         return this.transformOriginalImage();
     }
 
+    private flipAfterRotate() {
+        const flippedH = this.transformations.flipH;
+        const flippedV = this.transformations.flipV;
+        this.transformations.flipH = flippedV;
+        this.transformations.flipV = flippedH;
+    }
+
     flipHorizontal() {
-        this.transformations.flipH = ! this.transformations.flipH;
+        this.transformations.flipH = !this.transformations.flipH;
         return this.transformOriginalImage();
     }
 
     flipVertical() {
-        this.transformations.flipV = ! this.transformations.flipV;
+        this.transformations.flipV = !this.transformations.flipV;
         return this.transformOriginalImage();
     }
 
@@ -362,8 +377,77 @@ export class ImageCropperComponent implements OnChanges {
         this.imageVisible = true;
     }
 
-    startMove(event: any, moveType: string, position: string | null = null): void {
+    keyboardAccess(event: any) {
+        this.changeKeyboardStepSize(event);
+        this.keyboardMoveCropper(event);
+    }
+
+    private changeKeyboardStepSize(event: any): void {
+        if (event.key >= '1' && event.key <= '9') {
+            this.stepSize = +event.key;
+            return;
+        }
+    }
+
+    private keyboardMoveCropper(event) {
+        const keyboardWhiteList: string[] = ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'];
+        if (!(keyboardWhiteList.includes(event.key))) {
+            return;
+        }
+        const moveType = event.shiftKey ? 'resize' : 'move';
+        const position = event.altKey ? this.getInvertedPositionForKey(event.key) : this.getPositionForKey(event.key);
+        const moveEvent = this.getEventForKey(event.key, this.stepSize);
         event.preventDefault();
+        event.stopPropagation();
+        this.startMove({clientX: 0, clientY: 0}, moveType, position);
+        this.moveImg(moveEvent);
+        this.moveStop();
+    }
+
+    private getPositionForKey(key: string): string {
+        switch (key) {
+            case 'ArrowUp':
+                return 'top';
+            case 'ArrowRight':
+                return 'right';
+            case 'ArrowDown':
+                return 'bottom';
+            case 'ArrowLeft':
+            default:
+                return 'left';
+        }
+    }
+
+    private getInvertedPositionForKey(key: string): string {
+        switch (key) {
+            case 'ArrowUp':
+                return 'bottom';
+            case 'ArrowRight':
+                return 'left';
+            case 'ArrowDown':
+                return 'top';
+            case 'ArrowLeft':
+            default:
+                return 'right';
+        }
+    }
+
+    private getEventForKey(key: string, stepSize: number): any {
+        switch (key) {
+            case 'ArrowUp':
+                return {clientX: 0, clientY: stepSize * -1};
+            case 'ArrowRight':
+                return {clientX: stepSize, clientY: 0};
+            case 'ArrowDown':
+                return {clientX: 0, clientY: stepSize};
+            case 'ArrowLeft':
+            default:
+                return {clientX: stepSize * -1, clientY: 0};
+        }
+    }
+
+    startMove(event: any, moveType: string, position: string | null = null): void {
+        if (event.preventDefault) { event.preventDefault(); }
         this.moveStart = {
             active: true,
             type: moveType,
@@ -378,8 +462,8 @@ export class ImageCropperComponent implements OnChanges {
     @HostListener('document:touchmove', ['$event'])
     moveImg(event: any): void {
         if (this.moveStart.active) {
-            event.stopPropagation();
-            event.preventDefault();
+            if (event.stopPropagation) { event.stopPropagation(); }
+            if (event.preventDefault) { event.preventDefault(); }
             if (this.moveStart.type === 'move') {
                 this.move(event);
                 this.checkCropperPosition(true);
