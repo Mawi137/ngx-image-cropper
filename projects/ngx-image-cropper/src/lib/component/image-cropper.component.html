@@ -2,6 +2,7 @@
     <img
         #sourceImage
         class="source-image"
+        *ngIf="safeImgDataUrl"
         [src]="safeImgDataUrl"
         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
         (load)="imageLoadedInView()"

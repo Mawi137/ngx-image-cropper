@@ -34,7 +34,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
-    @ViewChild('sourceImage', {static: true}) sourceImage: ElementRef;
+    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
     @Input()
     set imageChangedEvent(event: any) {
@@ -817,10 +817,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private getClientX(event: any): number {
-        return event.touches && event.touches[0] && event.touches[0].clientX || event.clientX;
+        return (event.touches && event.touches[0] ? event.touches[0].clientX : event.clientX) || 0;
     }
 
     private getClientY(event: any): number {
-        return event.touches && event.touches[0] && event.touches[0].clientY || event.clientY;
+        return (event.touches && event.touches[0] ? event.touches[0].clientY : event.clientY) || 0;
     }
 }
