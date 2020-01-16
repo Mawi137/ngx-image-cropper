@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
+import { Dimensions, ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 
 @Component({
     selector: 'app-root',
@@ -11,6 +11,10 @@ export class AppComponent {
     croppedImage: any = '';
     showCropper = false;
     containWithinAspectRatio = false;
+    transform = {
+        scale: 1.5,
+        rotate: 45
+    };
 
     @ViewChild(ImageCropperComponent, {static: true}) imageCropper: ImageCropperComponent;
 
@@ -28,8 +32,8 @@ export class AppComponent {
         console.log('Image loaded');
     }
 
-    cropperReady() {
-        console.log('Cropper ready');
+    cropperReady(sourceImageDimensions: Dimensions) {
+        console.log('Cropper ready', sourceImageDimensions);
     }
 
     loadImageFailed() {

@@ -31,6 +31,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private stepSize = 3;
 
     safeImgDataUrl: SafeUrl | string;
+    safeTransformStyle: SafeStyle | string;
     marginLeft: SafeStyle | string = '0px';
     imageVisible = false;
 
@@ -61,6 +62,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
     @Input() outputType: OutputType = 'base64';
     @Input() maintainAspectRatio = true;
+    @Input() transform: any;
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
     @Input() resizeToHeight = 0;
@@ -87,7 +89,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
     @Output() startCropImage = new EventEmitter<void>();
     @Output() imageLoaded = new EventEmitter<void>();
-    @Output() cropperReady = new EventEmitter<void>();
+    @Output() cropperReady = new EventEmitter<Dimensions>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
@@ -109,6 +111,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
         if (changes.aspectRatio && this.imageVisible) {
             this.resetCropperPosition();
+        }
+        if (changes.transform && this.transform) {
+            this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
+                'scale(' + (this.transform.scale || 1) + ')' +
+                'rotate(' + (this.transform.rotate || 0) + 'deg)'
+            );
         }
     }
 
@@ -293,7 +301,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             this.setMaxSize();
             this.setCropperScaledMinSize();
             this.resetCropperPosition();
-            this.cropperReady.emit();
+            this.cropperReady.emit({...this.maxSize});
             this.cd.markForCheck();
         } else {
             this.setImageMaxSizeRetries++;
@@ -664,6 +672,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             const width = imagePosition.x2 - imagePosition.x1;
             const height = imagePosition.y2 - imagePosition.y1;
 
+            console.log(this.cropper, imagePosition, this.transformedSize);
+
             const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
             cropCanvas.width = width;
             cropCanvas.height = height;
@@ -674,17 +684,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                     ctx.fillStyle = this.backgroundColor;
                     ctx.fillRect(0, 0, width, height);
                 }
-                ctx.drawImage(
-                    this.transformedImage,
-                    imagePosition.x1,
-                    imagePosition.y1,
-                    width,
-                    height,
-                    0,
-                    0,
-                    width,
-                    height
-                );
+
+                ctx.setTransform(this.transform.scale, 0, 0, this.transform.scale, this.transformedSize.width / 2, this.transformedSize.height / 2);
+                ctx.translate(-imagePosition.x1 / this.transform.scale, -imagePosition.y1 / this.transform.scale);
+                ctx.rotate(this.transform.rotate * Math.PI / 180);
+                ctx.drawImage(this.transformedImage, -this.transformedSize.width / 2, -this.transformedSize.height / 2);
+
                 const output: ImageCroppedEvent = {
                     width, height,
                     imagePosition,

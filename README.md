@@ -111,7 +111,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | ----------------------- | ----------------- | ----------- |
 | `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
 | `imageLoaded`           | void              | Emits when the image was loaded into the cropper |
-| `cropperReady`          | void              | Emits when the cropper is ready to be interacted |
+| `cropperReady`          | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size |
 | `startCropImage`        | void              | Emits when the component started cropping the image |
 | `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
 
