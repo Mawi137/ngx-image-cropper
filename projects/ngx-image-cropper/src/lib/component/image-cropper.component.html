@@ -8,6 +8,11 @@
         [style.transform]="safeTransformStyle"
         (load)="imageLoadedInView()"
     />
+    <div
+        class="overlay"
+        [style.width.px]="maxSize.width"
+        [style.height.px]="maxSize.height"
+    ></div>
     <div class="cropper"
          *ngIf="imageVisible"
          [class.rounded]="roundCropper"

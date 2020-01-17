@@ -23,6 +23,17 @@
         }
     }
 
+    .overlay {
+        position: absolute;
+        pointer-events: none;
+        touch-action: none;
+        outline-width: 100vw;
+        outline-style: solid;
+        outline-color: white;
+        top: 0;
+        left: 0;
+    }
+
     .cropper {
         position: absolute;
         display: flex;

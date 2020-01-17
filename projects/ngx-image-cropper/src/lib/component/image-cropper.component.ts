@@ -21,7 +21,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private originalBase64: string;
     private transformedBase64: string;
     private moveStart: MoveStart;
-    private maxSize: Dimensions;
     private originalSize: Dimensions;
     private transformedSize: Dimensions;
     private transformations: Transformations;
@@ -33,6 +32,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     safeImgDataUrl: SafeUrl | string;
     safeTransformStyle: SafeStyle | string;
     marginLeft: SafeStyle | string = '0px';
+    maxSize: Dimensions;
     imageVisible = false;
 
     @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
@@ -117,6 +117,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                 'scale(' + (this.transform.scale || 1) + ')' +
                 'rotate(' + (this.transform.rotate || 0) + 'deg)'
             );
+            this.doAutoCrop();
         }
     }
 
@@ -666,13 +667,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     crop(outputType: OutputType = this.outputType): ImageCroppedEvent | Promise<ImageCroppedEvent> | null {
-        if (this.sourceImage.nativeElement && this.transformedImage != null) {
+        if (this.sourceImage && this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
             const width = imagePosition.x2 - imagePosition.x1;
             const height = imagePosition.y2 - imagePosition.y1;
-
-            console.log(this.cropper, imagePosition, this.transformedSize);
 
             const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
             cropCanvas.width = width;
