@@ -1,8 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Dimensions, ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
-import { FormControl } from '@angular/forms';
-import { map, startWith } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { Dimensions, ImageCroppedEvent, ImageCropperComponent, Transformations } from 'ngx-image-cropper';
 
 @Component({
     selector: 'app-root',
@@ -10,22 +7,14 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    rotateCtrl = new FormControl(0);
     imageChangedEvent: any = '';
     croppedImage: any = '';
-    zoom$ = new BehaviorSubject(1);
-    zoom = 1;
+    canvasRotation = 0;
+    rotation = 0;
+    scale = 1;
     showCropper = false;
     containWithinAspectRatio = false;
-
-    transform$ = combineLatest([
-        this.rotateCtrl.valueChanges.pipe(startWith(this.rotateCtrl.value)),
-        this.zoom$
-    ]).pipe(map(([rotate, scale]: [number, number]) => ({
-            rotate,
-            scale
-        }))
-    );
+    transform: Transformations;
 
     @ViewChild(ImageCropperComponent, {static: true}) imageCropper: ImageCropperComponent;
 
@@ -52,36 +41,57 @@ export class AppComponent {
     }
 
     rotateLeft() {
-        this.imageCropper.rotateLeft();
+        this.canvasRotation--;
     }
 
     rotateRight() {
-        this.imageCropper.rotateRight();
+        this.canvasRotation++;
     }
 
     flipHorizontal() {
-        this.imageCropper.flipHorizontal();
+        this.transform = {
+            ...this.transform,
+            flipH: !this.transform.flipH
+        };
     }
 
     flipVertical() {
-        this.imageCropper.flipVertical();
+        this.transform = {
+            ...this.transform,
+            flipV: !this.transform.flipV
+        };
     }
 
     resetImage() {
-        this.imageCropper.resetImage();
+        this.scale = 1;
+        this.rotation = 0;
+        this.transform = {};
     }
 
     zoomOut() {
-        this.zoom -= .1;
-        this.zoom$.next(this.zoom);
+        this.scale -= .1;
+        this.transform = {
+            ...this.transform,
+            scale: this.scale
+        };
     }
 
     zoomIn() {
-        this.zoom += .1;
-        this.zoom$.next(this.zoom);
+        this.scale += .1;
+        this.transform = {
+            ...this.transform,
+            scale: this.scale
+        };
     }
 
-    toggleContainWithinAspectRatio(){
+    toggleContainWithinAspectRatio() {
         this.containWithinAspectRatio = !this.containWithinAspectRatio;
+    }
+
+    updateRotation() {
+        this.transform = {
+            ...this.transform,
+            rotate: this.rotation
+        };
     }
 }

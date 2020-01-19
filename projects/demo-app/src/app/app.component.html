@@ -11,7 +11,7 @@
 <button (click)="resetImage()">Reset image</button>
 <br />
 <br />
-<input [formControl]="rotateCtrl" placeholder="Rotation" type="number" /> <button (click)="zoomOut()">Zoom -</button> <button (click)="zoomIn()">Zoom +</button>
+<input [(ngModel)]="rotation" placeholder="Rotation" type="number" (keyup)="updateRotation()" /> <button (click)="zoomOut()">Zoom -</button> <button (click)="zoomIn()">Zoom +</button>
 
 <div>
     <image-cropper
@@ -23,7 +23,8 @@
         [cropperMinWidth]="128"
         [onlyScaleDown]="true"
         [roundCropper]="false"
-        [transform]="transform$ | async"
+        [canvasRotation]="canvasRotation"
+        [transformations]="transform"
         format="png"
         outputType="base64"
         (imageCropped)="imageCropped($event)"

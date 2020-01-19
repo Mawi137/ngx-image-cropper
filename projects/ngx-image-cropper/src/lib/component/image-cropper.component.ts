@@ -1,11 +1,24 @@
 import {
-    Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, Output,
-    SimpleChanges, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, ViewChild, OnInit
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostBinding,
+    HostListener,
+    Input,
+    NgZone,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewChild
 } from '@angular/core';
-import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
-import { MoveStart, Dimensions, CropperPosition, ImageCroppedEvent, Transformations } from '../interfaces';
-import { getTransformationsFromExifRotation } from '../utils/exif.utils';
+import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, Transformations } from '../interfaces';
+import { getTransformationsFromExifData } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
+import { ExifTransform } from '../interfaces/exif-transform.interface';
 
 export type OutputType = 'base64' | 'file' | 'both';
 
@@ -23,10 +36,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private moveStart: MoveStart;
     private originalSize: Dimensions;
     private transformedSize: Dimensions;
-    private transformations: Transformations;
     private setImageMaxSizeRetries = 0;
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
+    private exifTransform: ExifTransform;
     private stepSize = 3;
 
     safeImgDataUrl: SafeUrl | string;
@@ -62,12 +75,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
     @Input() outputType: OutputType = 'base64';
     @Input() maintainAspectRatio = true;
-    @Input() transform: any;
+    @Input() transformations: Transformations = {};
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
     @Input() resizeToHeight = 0;
     @Input() cropperMinWidth = 0;
     @Input() cropperMinHeight = 0;
+    @Input() canvasRotation = 0;
     @Input() initialStepSize = 3;
     @Input() roundCropper = false;
     @Input() onlyScaleDown = false;
@@ -99,7 +113,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (this.originalImage && this.originalImage.complete && changes.containWithinAspectRatio) {
+        if (this.originalImage && this.originalImage.complete && (changes.containWithinAspectRatio || changes.canvasRotation)) {
             this.transformOriginalImage();
         }
         if (changes.cropper) {
@@ -112,10 +126,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (changes.aspectRatio && this.imageVisible) {
             this.resetCropperPosition();
         }
-        if (changes.transform && this.transform) {
+        if (changes.transformations) {
+            this.transformations = this.transformations || {};
             this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
-                'scale(' + (this.transform.scale || 1) + ')' +
-                'rotate(' + (this.transform.rotate || 0) + 'deg)'
+                'scaleX(' + (this.transformations.scale || 1) * (this.transformations.flipH ? -1 : 1) + ')' +
+                'scaleY(' + (this.transformations.scale || 1) * (this.transformations.flipV ? -1 : 1) + ')' +
+                'rotate(' + (this.transformations.rotate || 0) + 'deg)'
             );
             this.doAutoCrop();
         }
@@ -154,7 +170,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             width: 0,
             height: 0
         };
-        this.transformations = {rotation: 0, flipH: false, flipV: false};
         this.cropper.x1 = -100;
         this.cropper.y1 = -100;
         this.cropper.x2 = 10000;
@@ -188,7 +203,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             this.originalImage = new Image();
             this.originalImage.onload = () => {
                 this.originalBase64 = imageBase64;
-                this.transformations = getTransformationsFromExifRotation(imageBase64);
+                this.exifTransform = getTransformationsFromExifData(imageBase64);
                 this.originalSize.width = this.originalImage.naturalWidth;
                 this.originalSize.height = this.originalImage.naturalHeight;
                 this.transformOriginalImage()
@@ -200,16 +215,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         });
     }
 
-    private checkRotation(): void {
-        if (this.transformations.rotation < 0) {
-            this.transformations.rotation += 4;
-        }
-        this.transformations.rotation = this.transformations.rotation % 4;
-    }
-
     private getTransformedSize(): Dimensions {
+        const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
         if (this.containWithinAspectRatio) {
-            if (this.transformations.rotation % 2) {
+            if (canvasRotation % 2) {
                 const minWidthToContain = this.originalSize.width * this.aspectRatio;
                 const minHeightToContain = this.originalSize.height / this.aspectRatio;
                 return {
@@ -226,7 +235,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             }
         }
 
-        if (this.transformations.rotation % 2) {
+        if (canvasRotation % 2) {
             return {
                 height: this.originalSize.width,
                 width: this.originalSize.height,
@@ -238,21 +247,21 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         };
     }
     private transformImageBase64(): Promise<string> {
-        this.checkRotation();
+        const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
         const transformedSize = this.getTransformedSize();
         const canvas = document.createElement('canvas');
         canvas.width = transformedSize.width;
         canvas.height = transformedSize.height;
         const ctx = canvas.getContext('2d');
         ctx.setTransform(
-            this.transformations.flipH ? -1 : 1,
+            this.exifTransform.flip ? -1 : 1,
             0,
             0,
-            this.transformations.flipV ? -1 : 1,
+            1,
             canvas.width / 2,
             canvas.height / 2
         );
-        ctx.rotate(Math.PI * (this.transformations.rotation / 2));
+        ctx.rotate(Math.PI * (canvasRotation / 2));
         ctx.drawImage(
             this.originalImage,
             -this.originalSize.width / 2,
@@ -260,6 +269,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         );
         return Promise.resolve(canvas.toDataURL());
     }
+
     private setTransformedImage(transformedBase64): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.transformedBase64 = transformedBase64;
@@ -317,39 +327,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.resizeCropperPosition();
         this.setMaxSize();
         this.setCropperScaledMinSize();
-    }
-
-    rotateLeft() {
-        this.transformations.rotation--;
-        this.flipAfterRotate();
-        return this.transformOriginalImage();
-    }
-
-    rotateRight() {
-        this.transformations.rotation++;
-        this.flipAfterRotate();
-        return this.transformOriginalImage();
-    }
-
-    private flipAfterRotate() {
-        const flippedH = this.transformations.flipH;
-        const flippedV = this.transformations.flipV;
-        this.transformations.flipH = flippedV;
-        this.transformations.flipV = flippedH;
-    }
-
-    flipHorizontal() {
-        this.transformations.flipH = !this.transformations.flipH;
-        return this.transformOriginalImage();
-    }
-
-    flipVertical() {
-        this.transformations.flipV = !this.transformations.flipV;
-        return this.transformOriginalImage();
-    }
-
-    resetImage() {
-        this.imageBase64 = this.originalBase64;
     }
 
     private resizeCropperPosition(): void {
@@ -684,16 +661,19 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                     ctx.fillRect(0, 0, width, height);
                 }
 
-                ctx.setTransform(this.transform.scale, 0, 0, this.transform.scale, this.transformedSize.width / 2, this.transformedSize.height / 2);
-                ctx.translate(-imagePosition.x1 / this.transform.scale, -imagePosition.y1 / this.transform.scale);
-                ctx.rotate(this.transform.rotate * Math.PI / 180);
+                const scaleX = (this.transformations.scale || 1) * (this.transformations.flipH ? -1 : 1);
+                const scaleY = (this.transformations.scale || 1) * (this.transformations.flipV ? -1 : 1);
+
+                ctx.setTransform(scaleX, 0, 0, scaleY, this.transformedSize.width / 2, this.transformedSize.height / 2);
+                ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
+                ctx.rotate((this.transformations.rotate || 0) * Math.PI / 180);
                 ctx.drawImage(this.transformedImage, -this.transformedSize.width / 2, -this.transformedSize.height / 2);
 
                 const output: ImageCroppedEvent = {
                     width, height,
                     imagePosition,
                     cropperPosition: {...this.cropper},
-                    transform: {...this.transformations}
+                    exifTransform: {...this.exifTransform}
                 };
                 if (this.containWithinAspectRatio) {
                     output.offsetImagePosition = this.getOffsetImagePosition();
@@ -734,12 +714,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private getOffsetImagePosition(): CropperPosition {
+        const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
         const sourceImageElement = this.sourceImage.nativeElement;
         const ratio = this.transformedSize.width / sourceImageElement.offsetWidth;
         let offsetX: number;
         let offsetY: number;
 
-        if (this.transformations.rotation % 2) {
+        if (canvasRotation % 2) {
             offsetX = (this.transformedSize.width - this.originalSize.height) / 2;
             offsetY = (this.transformedSize.height - this.originalSize.width) / 2;
         } else {

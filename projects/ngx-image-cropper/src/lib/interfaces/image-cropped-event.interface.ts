@@ -1,5 +1,5 @@
 import { CropperPosition } from './cropper-position.interface';
-import { Transformations } from './transformations.interface';
+import { ExifTransform } from './exif-transform.interface';
 
 export interface ImageCroppedEvent {
     base64?: string | null;
@@ -9,5 +9,5 @@ export interface ImageCroppedEvent {
     cropperPosition: CropperPosition;
     imagePosition: CropperPosition;
     offsetImagePosition?: CropperPosition;
-    transform: Transformations;
+    exifTransform: ExifTransform;
 }
