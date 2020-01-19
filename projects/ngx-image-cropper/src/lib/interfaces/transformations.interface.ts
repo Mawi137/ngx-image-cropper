@@ -1,4 +1,4 @@
-export interface Transformations {
+export interface ImageTransform {
     scale?: number;
     rotate?: number;
     flipH?: boolean;

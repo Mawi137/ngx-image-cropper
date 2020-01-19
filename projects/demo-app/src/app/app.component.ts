@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Dimensions, ImageCroppedEvent, ImageCropperComponent, Transformations } from 'ngx-image-cropper';
+import { Dimensions, ImageCroppedEvent, ImageCropperComponent, ImageTransform } from 'ngx-image-cropper';
 
 @Component({
     selector: 'app-root',
@@ -14,7 +14,7 @@ export class AppComponent {
     scale = 1;
     showCropper = false;
     containWithinAspectRatio = false;
-    transform: Transformations;
+    transform: ImageTransform = {};
 
     @ViewChild(ImageCropperComponent, {static: true}) imageCropper: ImageCropperComponent;
 
@@ -42,11 +42,24 @@ export class AppComponent {
 
     rotateLeft() {
         this.canvasRotation--;
+        this.flipAfterRotate();
     }
 
     rotateRight() {
         this.canvasRotation++;
+        this.flipAfterRotate();
     }
+
+    private flipAfterRotate() {
+        const flippedH = this.transform.flipH;
+        const flippedV = this.transform.flipV;
+        this.transform = {
+            ...this.transform,
+            flipH: flippedV,
+            flipV: flippedH
+        };
+    }
+
 
     flipHorizontal() {
         this.transform = {
@@ -65,6 +78,7 @@ export class AppComponent {
     resetImage() {
         this.scale = 1;
         this.rotation = 0;
+        this.canvasRotation = 0;
         this.transform = {};
     }
 

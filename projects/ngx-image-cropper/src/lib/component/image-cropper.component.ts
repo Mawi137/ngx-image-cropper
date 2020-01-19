@@ -15,7 +15,7 @@ import {
     ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, Transformations } from '../interfaces';
+import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, ImageTransform } from '../interfaces';
 import { getTransformationsFromExifData } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
@@ -75,7 +75,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
     @Input() outputType: OutputType = 'base64';
     @Input() maintainAspectRatio = true;
-    @Input() transformations: Transformations = {};
+    @Input() transform: ImageTransform = {};
     @Input() aspectRatio = 1;
     @Input() resizeToWidth = 0;
     @Input() resizeToHeight = 0;
@@ -126,12 +126,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (changes.aspectRatio && this.imageVisible) {
             this.resetCropperPosition();
         }
-        if (changes.transformations) {
-            this.transformations = this.transformations || {};
+        if (changes.transform) {
+            this.transform = this.transform || {};
             this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
-                'scaleX(' + (this.transformations.scale || 1) * (this.transformations.flipH ? -1 : 1) + ')' +
-                'scaleY(' + (this.transformations.scale || 1) * (this.transformations.flipV ? -1 : 1) + ')' +
-                'rotate(' + (this.transformations.rotate || 0) + 'deg)'
+                'scaleX(' + (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1) + ')' +
+                'scaleY(' + (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1) + ')' +
+                'rotate(' + (this.transform.rotate || 0) + 'deg)'
             );
             this.doAutoCrop();
         }
@@ -661,19 +661,18 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                     ctx.fillRect(0, 0, width, height);
                 }
 
-                const scaleX = (this.transformations.scale || 1) * (this.transformations.flipH ? -1 : 1);
-                const scaleY = (this.transformations.scale || 1) * (this.transformations.flipV ? -1 : 1);
+                const scaleX = (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1);
+                const scaleY = (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1);
 
                 ctx.setTransform(scaleX, 0, 0, scaleY, this.transformedSize.width / 2, this.transformedSize.height / 2);
                 ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
-                ctx.rotate((this.transformations.rotate || 0) * Math.PI / 180);
+                ctx.rotate((this.transform.rotate || 0) * Math.PI / 180);
                 ctx.drawImage(this.transformedImage, -this.transformedSize.width / 2, -this.transformedSize.height / 2);
 
                 const output: ImageCroppedEvent = {
                     width, height,
                     imagePosition,
-                    cropperPosition: {...this.cropper},
-                    exifTransform: {...this.exifTransform}
+                    cropperPosition: {...this.cropper}
                 };
                 if (this.containWithinAspectRatio) {
                     output.offsetImagePosition = this.getOffsetImagePosition();
