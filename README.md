@@ -105,6 +105,8 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `alignImage`               | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
 | `backgroundColor`          | string    |              | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
 | `disabled`                 | boolean   | false        | Disables the component and prevents changing the cropper position |
+| `canvasRotation`           | number    | 0            | Rotate the canvas (1 = 90deg, 2 = 180deg...) |
+| `transform`                | ImageTransform   | {}    | Flip, rotate and scale image |
 
 ### Outputs
 | Name                    | Type              | Description |
@@ -120,11 +122,6 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 
 | Name                    | Returns           | Description |
 | ----------------------- | ----------------- | ----------- |
-| `rotateLeft`            | void              | Rotates the image to the left |
-| `rotateRight`           | void              | Rotates the image to the right |
-| `flipHorizontal`        | void              | Flips the image horizontally |
-| `flipVertical`          | void              | Flips the image vertically |
-| `resetImage`            | void              | Reset the image to the original |
 | `crop`                  | ImageCroppedEvent (when `outputType` is `base64`) or Promise&lt;ImageCroppedEvent&gt; (when `outputType` is `file` or `both`)) | Crops the source image to the current cropper position. Accepts an output type as an argument, default is the one given in the `outputType` input (`base64`, `file` or `both`). Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
 
 ### Interfaces
@@ -136,24 +133,23 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | x2       | number | X position of second coordinate (in px) |
 | y2       | number | Y position of second coordinate (in px) |
 
-#### Transformations
+#### ImageTransform
 | Property | Type    | Description |
 | -------- | ------- | ----------- |
-| rotation | number  | 0=No Rotation, 1=90&deg;, 2=180&deg;, 3=270&deg; |
-| flipH    | boolean | Flipped Horizontally |
-| flipV    | boolean | Flipped Vertically |
+| scale    | number  | Scale image (1=normal, 2=2x zoom...) |
+| rotate   | number  | Rotation in degrees |
+| flipH    | boolean | Flipped horizontally |
+| flipV    | boolean | Flipped vertically |
 
 #### ImageCroppedEvent
 | Property              | Type            | Description |
 | --------------------  | ------          | ----------- |
 | base64                | string          | Base64 string of the cropped image |
-| file                  | Blob(File)      | Blob of the cropped image |
 | width                 | number          | Width of the cropped image |
 | height                | number          | Height of the cropped image |
 | cropperPosition       | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
 | imagePosition         | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
 | offsetImagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
-| transform             | Transformations | Rotation and Flip State |
 
 
 ### Polyfill for IE and Edge
