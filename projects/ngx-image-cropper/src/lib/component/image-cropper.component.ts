@@ -20,8 +20,6 @@ import { getTransformationsFromExifData } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 
-export type OutputType = 'base64' | 'file' | 'both';
-
 @Component({
     selector: 'image-cropper',
     templateUrl: './image-cropper.component.html',
@@ -73,7 +71,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
-    @Input() outputType: OutputType = 'base64';
     @Input() maintainAspectRatio = true;
     @Input() transform: ImageTransform = {};
     @Input() aspectRatio = 1;
@@ -643,7 +640,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    crop(outputType: OutputType = this.outputType): ImageCroppedEvent | Promise<ImageCroppedEvent> | null {
+    crop(): ImageCroppedEvent | null {
         if (this.sourceImage && this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
@@ -685,7 +682,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                         : Math.round(height * resizeRatio);
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
-                return this.cropToOutputType(outputType, cropCanvas, output);
+                output.base64 = this.cropToBase64(cropCanvas);
+                this.imageCropped.emit(output);
+                return output;
             }
         }
         return null;
@@ -744,42 +743,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         return out;
     }
 
-    private cropToOutputType(outputType: OutputType, cropCanvas: HTMLCanvasElement, output: ImageCroppedEvent): ImageCroppedEvent | Promise<ImageCroppedEvent> {
-        switch (outputType) {
-            case 'file':
-                return this.cropToFile(cropCanvas)
-                    .then((result: Blob | null) => {
-                        output.file = result;
-                        this.imageCropped.emit(output);
-                        return output;
-                    });
-            case 'both':
-                output.base64 = this.cropToBase64(cropCanvas);
-                return this.cropToFile(cropCanvas)
-                    .then((result: Blob | null) => {
-                        output.file = result;
-                        this.imageCropped.emit(output);
-                        return output;
-                    });
-            default:
-                output.base64 = this.cropToBase64(cropCanvas);
-                this.imageCropped.emit(output);
-                return output;
-        }
-    }
-
     private cropToBase64(cropCanvas: HTMLCanvasElement): string {
         return cropCanvas.toDataURL('image/' + this.format, this.getQuality());
-    }
-
-    private cropToFile(cropCanvas: HTMLCanvasElement): Promise<Blob | null> {
-        return new Promise((resolve) => {
-            cropCanvas.toBlob(
-                (result: Blob | null) => this.zone.run(() => resolve(result)),
-                'image/' + this.format,
-                this.getQuality()
-            );
-        });
     }
 
     private getQuality(): number {
@@ -797,7 +762,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             }
         }
         return 1;
-
     }
 
     private getClientX(event: any): number {

@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Dimensions, ImageCroppedEvent, ImageCropperComponent, ImageTransform } from 'ngx-image-cropper';
+import { base64ToFile } from 'ngx-image-cropper';
 
 @Component({
     selector: 'app-root',
@@ -24,7 +25,7 @@ export class AppComponent {
 
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
-        console.log(event);
+        console.log(event, base64ToFile(event.base64));
     }
 
     imageLoaded() {

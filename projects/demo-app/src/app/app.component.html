@@ -28,7 +28,6 @@
         [alignImage]="'left'"
         [style.display]="showCropper ? null : 'none'"
         format="png"
-        outputType="base64"
         (imageCropped)="imageCropped($event)"
         (imageLoaded)="imageLoaded()"
         (cropperReady)="cropperReady($event)"
