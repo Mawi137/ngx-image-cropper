@@ -1,18 +1,18 @@
-import { Transformations } from '../interfaces';
+import { ExifTransform } from '../interfaces/exif-transform.interface';
 
-export function getTransformationsFromExifRotation(exifRotationOrBase64Image: number | string): Transformations {
+export function getTransformationsFromExifData(exifRotationOrBase64Image: number | string): ExifTransform {
     if (typeof exifRotationOrBase64Image === 'string') {
         exifRotationOrBase64Image = getExifRotation(exifRotationOrBase64Image);
     }
     switch (exifRotationOrBase64Image) {
-        case 2: return {rotation: 0, flipH: true,  flipV: false};
-        case 3: return {rotation: 2, flipH: false, flipV: false};
-        case 4: return {rotation: 2, flipH: true,  flipV: false};
-        case 5: return {rotation: 1, flipH: true, flipV: false};
-        case 6: return {rotation: 1, flipH: false, flipV: false};
-        case 7: return {rotation: 3, flipH: true, flipV: false};
-        case 8: return {rotation: 3, flipH: false, flipV: false};
-        default: return {rotation: 0, flipH: false, flipV: false};
+        case 2: return {rotate: 0, flip: true};
+        case 3: return {rotate: 2, flip: false};
+        case 4: return {rotate: 2, flip: true};
+        case 5: return {rotate: 1, flip: true};
+        case 6: return {rotate: 1, flip: false};
+        case 7: return {rotate: 3, flip: true};
+        case 8: return {rotate: 3, flip: false};
+        default: return {rotate: 0, flip: false};
     }
 }
 
@@ -41,11 +41,9 @@ function getExifRotation(imageBase64: string): number {
                     return view.getUint16(offset + (i * 12) + 8, little);
                 }
             }
-        }
-        else if ((marker & 0xFF00) != 0xFF00) {
+        } else if ((marker & 0xFF00) != 0xFF00) {
             break;
-        }
-        else {
+        } else {
             offset += view.getUint16(offset, false);
         }
     }
