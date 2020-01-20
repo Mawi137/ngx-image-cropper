@@ -1,5 +1,5 @@
-export function base64ToFile(image): Blob {
-    const split = image.split(',');
+export function base64ToFile(base64Image: string): Blob {
+    const split = base64Image.split(',');
     const type = split[0].replace('data:', '').replace(';base64', '');
     const byteString = atob(split[1]);
     const ab = new ArrayBuffer(byteString.length);

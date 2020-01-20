@@ -336,7 +336,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    private resetCropperPosition(): void {
+    resetCropperPosition(): void {
         const sourceImageElement = this.sourceImage.nativeElement;
         if (!this.maintainAspectRatio) {
             this.cropper.x1 = 0;
