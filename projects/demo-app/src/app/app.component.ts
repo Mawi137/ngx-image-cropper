@@ -1,6 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
-import { Dimensions, ImageCroppedEvent, ImageCropperComponent, ImageTransform } from 'ngx-image-cropper';
-import { base64ToFile } from 'ngx-image-cropper';
+import { Component } from '@angular/core';
+import { Dimensions, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
 
 @Component({
     selector: 'app-root',
@@ -16,16 +15,14 @@ export class AppComponent {
     showCropper = false;
     containWithinAspectRatio = false;
     transform: ImageTransform = {};
-
-    @ViewChild(ImageCropperComponent, {static: true}) imageCropper: ImageCropperComponent;
-
+    
     fileChangeEvent(event: any): void {
         this.imageChangedEvent = event;
     }
 
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
-        console.log(event, base64ToFile(event.base64));
+        console.log(event);
     }
 
     imageLoaded() {

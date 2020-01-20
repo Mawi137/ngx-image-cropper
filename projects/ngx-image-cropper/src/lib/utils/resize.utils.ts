@@ -3,7 +3,7 @@
  * https://github.com/viliusle/Hermite-resize
  */
 
-export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number, resizeCanvas = true) {
+export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
     const width_source = canvas.width;
     const height_source = canvas.height;
     width = Math.round(width);
@@ -72,14 +72,10 @@ export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: n
                 data2[x2 + 3] = gx_a / weights_alpha;
             }
         }
-        //clear and resize canvas
-        if (resizeCanvas) {
-            canvas.width = width;
-            canvas.height = height;
-        }
-        else {
-            ctx.clearRect(0, 0, width_source, height_source);
-        }
+
+
+        canvas.width = width;
+        canvas.height = height;
 
         //draw
         ctx.putImageData(img2, 0, 0);

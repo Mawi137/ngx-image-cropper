@@ -243,6 +243,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             height: this.originalSize.height,
         };
     }
+    
     private transformImageBase64(): Promise<string> {
         const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
         const transformedSize = this.getTransformedSize();
