@@ -1,13 +1,13 @@
 <div [style.background]="imageVisible && backgroundColor">
     <img
-      #sourceImage
-      class="source-image"
-      *ngIf="safeImgDataUrl"
-      [src]="safeImgDataUrl"
-      [style.visibility]="imageVisible ? 'visible' : 'hidden'"
-      [style.transform]="safeTransformStyle"
-      (load)="imageLoadedInView()"
-      (pinchstart)="startMove($event, 'pinch', 'center')"
+        #sourceImage
+        class="source-image"
+        *ngIf="safeImgDataUrl"
+        [src]="safeImgDataUrl"
+        [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+        [style.transform]="safeTransformStyle"
+        (load)="imageLoadedInView()"
+        (pinchstart)="startMove($event, 'pinch', 'center')"
     />
     <div
         class="overlay"

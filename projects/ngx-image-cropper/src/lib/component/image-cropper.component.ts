@@ -14,11 +14,11 @@ import {
     SimpleChanges,
     ViewChild
 } from '@angular/core';
-import {DomSanitizer, SafeStyle, SafeUrl} from '@angular/platform-browser';
-import {CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart} from '../interfaces';
-import {getTransformationsFromExifData} from '../utils/exif.utils';
-import {resizeCanvas} from '../utils/resize.utils';
-import {ExifTransform} from '../interfaces/exif-transform.interface';
+import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, ImageTransform } from '../interfaces';
+import { getTransformationsFromExifData } from '../utils/exif.utils';
+import { resizeCanvas } from '../utils/resize.utils';
+import { ExifTransform } from '../interfaces/exif-transform.interface';
 import * as Hammer from 'hammerjs';
 
 @Component({
@@ -293,7 +293,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private transformOriginalImage(): Promise<void> {
-        if (!this.originalImage || !this.originalImage.complete) {
+        if (!this.originalImage || !this.originalImage.complete ) {
             return Promise.reject(new Error('No Image Loaded'));
         }
         return this.transformImageBase64()
@@ -443,9 +443,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     startMove(event: any, moveType: string, position: string | null = null): void {
-        if (event.preventDefault) {
-            event.preventDefault();
-        }
+        if (event.preventDefault) { event.preventDefault(); }
         this.moveStart = {
             active: true,
             type: moveType,
@@ -454,19 +452,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             clientY: moveType === 'pinch' ? this.cropper.y1 + (this.cropper.y2 - this.cropper.y1) / 2 : this.getClientY(event),
             ...this.cropper
         };
-
     }
 
     @HostListener('document:mousemove', ['$event'])
     @HostListener('document:touchmove', ['$event'])
     moveImg(event: any): void {
         if (this.moveStart.active) {
-            if (event.stopPropagation) {
-                event.stopPropagation();
-            }
-            if (event.preventDefault) {
-                event.preventDefault();
-            }
+            if (event.stopPropagation) { event.stopPropagation(); }
+            if (event.preventDefault) { event.preventDefault(); }
             if (this.moveStart.type === 'move') {
                 this.move(event);
                 this.checkCropperPosition(true);
