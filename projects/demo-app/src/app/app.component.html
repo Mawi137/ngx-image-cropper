@@ -27,6 +27,8 @@
         [transform]="transform"
         [alignImage]="'left'"
         [style.display]="showCropper ? null : 'none'"
+        [hideResizeSquares]="true"
+        [cropperBackgroundColor]="'rgba(0,0,0,0.6)'"
         format="png"
         (imageCropped)="imageCropped($event)"
         (imageLoaded)="imageLoaded()"
