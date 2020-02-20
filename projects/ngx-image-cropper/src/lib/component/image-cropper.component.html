@@ -1,89 +1,93 @@
-<div [style.background]="imageVisible && backgroundColor">
-    <img
-        #sourceImage
-        class="source-image"
-        *ngIf="safeImgDataUrl"
-        [src]="safeImgDataUrl"
-        [style.visibility]="imageVisible ? 'visible' : 'hidden'"
-        [style.transform]="safeTransformStyle"
-        (load)="imageLoadedInView()"
-        (pinchstart)="startMove($event, 'pinch', 'center')"
-    />
-    <div
-        class="overlay"
-        [style.width.px]="maxSize.width"
-        [style.height.px]="maxSize.height"
-    ></div>
-    <div class="cropper"
-         *ngIf="imageVisible"
-         [class.rounded]="roundCropper"
-         [style.top.px]="cropper.y1"
-         [style.left.px]="cropper.x1"
-         [style.width.px]="cropper.x2 - cropper.x1"
-         [style.height.px]="cropper.y2 - cropper.y1"
-         [style.margin-left]="alignImage === 'center' ? marginLeft : null"
-         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
-         [style.outline-color]="cropperOutlineColor"
-         (keydown)="keyboardAccess($event)"
-         tabindex="0">
+<div [style.background]="imageVisible && backgroundColor"
+     [style.width.px]="maxSize.width || '100%'">
+    <div [style]="sanitizedCropperOutlineColor">
+        <img
+          #sourceImage
+          class="source-image"
+          *ngIf="safeImgDataUrl"
+          [src]="safeImgDataUrl"
+          [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+          [style.transform]="safeTransformStyle"
+          (load)="imageLoadedInView()"
+          (pinchstart)="startMove($event, 'pinch', 'center')"
+        />
         <div
-            (mousedown)="startMove($event, 'move')"
-            (touchstart)="startMove($event, 'move')"
-            (pinchstart)="startMove($event, 'pinch', 'center')"
-            class="move"
-            #move>
+            class="overlay"
+            [style.width.px]="maxSize.width"
+            [style.height.px]="maxSize.height"
+        ></div>
+        <div class="cropper"
+             *ngIf="imageVisible"
+             [class.rounded]="roundCropper"
+             [ngStyle]="{
+         'top': cropper.y1 + 'px',
+         'left': cropper.x1 + 'px',
+         'width': cropper.x2 - cropper.x1 + 'px',
+         'height' : cropper.y2 - cropper.y1 + 'px',
+         'margin-left': alignImage === 'center' ? marginLeft : null,
+         'visibility': imageVisible ? 'visible' : 'hidden'
+         }"
+             (keydown)="keyboardAccess($event)"
+             tabindex="0">
+            <div
+                (mousedown)="startMove($event, 'move')"
+                (touchstart)="startMove($event, 'move')"
+                (pinchstart)="startMove($event, 'pinch', 'center')"
+                class="move"
+                #move>
+            </div>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize topleft"
+                  (mousedown)="startMove($event, 'resize', 'topleft')"
+                  (touchstart)="startMove($event, 'resize', 'topleft')"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize top"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize topright"
+                  (mousedown)="startMove($event, 'resize', 'topright')"
+                  (touchstart)="startMove($event, 'resize', 'topright')"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize right"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize bottomright"
+                  (mousedown)="startMove($event, 'resize', 'bottomright')"
+                  (touchstart)="startMove($event, 'resize', 'bottomright')"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize bottom"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize bottomleft"
+                  (mousedown)="startMove($event, 'resize', 'bottomleft')"
+                  (touchstart)="startMove($event, 'resize', 'bottomleft')"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize left"
+            ><span class="square"></span></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize-bar top"
+                  (mousedown)="startMove($event, 'resize', 'top')"
+                  (touchstart)="startMove($event, 'resize', 'top')"
+            ></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize-bar right"
+                  (mousedown)="startMove($event, 'resize', 'right')"
+                  (touchstart)="startMove($event, 'resize', 'right')"
+            ></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize-bar bottom"
+                  (mousedown)="startMove($event, 'resize', 'bottom')"
+                  (touchstart)="startMove($event, 'resize', 'bottom')"
+            ></span>
+            <span *ngIf="!hideResizeSquares"
+                  class="resize-bar left"
+                  (mousedown)="startMove($event, 'resize', 'left')"
+                  (touchstart)="startMove($event, 'resize', 'left')"
+            ></span>
         </div>
-        <span *ngIf="!hideResizeSquares"
-              class="resize topleft"
-              (mousedown)="startMove($event, 'resize', 'topleft')"
-              (touchstart)="startMove($event, 'resize', 'topleft')"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize top"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize topright"
-              (mousedown)="startMove($event, 'resize', 'topright')"
-              (touchstart)="startMove($event, 'resize', 'topright')"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize right"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize bottomright"
-              (mousedown)="startMove($event, 'resize', 'bottomright')"
-              (touchstart)="startMove($event, 'resize', 'bottomright')"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize bottom"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize bottomleft"
-              (mousedown)="startMove($event, 'resize', 'bottomleft')"
-              (touchstart)="startMove($event, 'resize', 'bottomleft')"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize left"
-        ><span class="square"></span></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize-bar top"
-              (mousedown)="startMove($event, 'resize', 'top')"
-              (touchstart)="startMove($event, 'resize', 'top')"
-        ></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize-bar right"
-              (mousedown)="startMove($event, 'resize', 'right')"
-              (touchstart)="startMove($event, 'resize', 'right')"
-        ></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize-bar bottom"
-              (mousedown)="startMove($event, 'resize', 'bottom')"
-              (touchstart)="startMove($event, 'resize', 'bottom')"
-        ></span>
-        <span *ngIf="!hideResizeSquares"
-              class="resize-bar left"
-              (mousedown)="startMove($event, 'resize', 'left')"
-              (touchstart)="startMove($event, 'resize', 'left')"
-        ></span>
     </div>
 </div>

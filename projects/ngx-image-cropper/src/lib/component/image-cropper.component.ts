@@ -40,7 +40,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private cropperScaledMinHeight = 20;
     private exifTransform: ExifTransform;
     private stepSize = 3;
+    private defaultCropperOutlineColor = 'rgba(255,255,255,0.3)';
 
+    sanitizedCropperOutlineColor: SafeStyle;
     safeImgDataUrl: SafeUrl | string;
     safeTransformStyle: SafeStyle | string;
     marginLeft: SafeStyle | string = '0px';
@@ -88,7 +90,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Input() imageQuality = 92;
     @Input() autoCrop = true;
     @Input() backgroundColor: string;
-    @Input() cropperOutlineColor = 'rgba(255,255,255,0.3)';
+    @Input() cropperOutlineColor;
     @Input() containWithinAspectRatio = false;
     @Input() hideResizeSquares = false;
     @Input() cropper: CropperPosition = {
@@ -137,6 +139,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             );
             this.doAutoCrop();
         }
+        if (changes.cropperOutlineColor) {
+            this.setCropperOutlineColor();
+        }
     }
 
     ngOnInit(): void {
@@ -149,6 +154,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
             + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
             + 'AAarVyFEAAAAASUVORK5CYII=';
+        this.setCropperOutlineColor();
         this.moveStart = {
             active: false,
             type: null,
@@ -176,6 +182,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.cropper.y1 = -100;
         this.cropper.x2 = 10000;
         this.cropper.y2 = 10000;
+    }
+
+    private setCropperOutlineColor() {
+        this.sanitizedCropperOutlineColor = this.sanitizer.bypassSecurityTrustStyle(
+            '--cropperOutlineColor: ' + (this.cropperOutlineColor || this.defaultCropperOutlineColor));
     }
 
     private loadImageFile(file: File): void {
@@ -293,7 +304,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private transformOriginalImage(): Promise<void> {
-        if (!this.originalImage || !this.originalImage.complete ) {
+        if (!this.originalImage || !this.originalImage.complete) {
             return Promise.reject(new Error('No Image Loaded'));
         }
         return this.transformImageBase64()
@@ -443,7 +454,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     startMove(event: any, moveType: string, position: string | null = null): void {
-        if (event.preventDefault) { event.preventDefault(); }
+        if (event.preventDefault) {
+            event.preventDefault();
+        }
         this.moveStart = {
             active: true,
             type: moveType,
@@ -458,8 +471,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @HostListener('document:touchmove', ['$event'])
     moveImg(event: any): void {
         if (this.moveStart.active) {
-            if (event.stopPropagation) { event.stopPropagation(); }
-            if (event.preventDefault) { event.preventDefault(); }
+            if (event.stopPropagation) {
+                event.stopPropagation();
+            }
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
             if (this.moveStart.type === 'move') {
                 this.move(event);
                 this.checkCropperPosition(true);

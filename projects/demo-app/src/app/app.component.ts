@@ -15,7 +15,8 @@ export class AppComponent {
     showCropper = false;
     containWithinAspectRatio = false;
     transform: ImageTransform = {};
-    
+    cropperOutlineColor: string;
+
     fileChangeEvent(event: any): void {
         this.imageChangedEvent = event;
     }
