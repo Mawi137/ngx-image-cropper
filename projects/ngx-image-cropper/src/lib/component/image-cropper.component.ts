@@ -329,11 +329,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             this.cropperReady.emit({...this.maxSize});
             this.cd.markForCheck();
             setTimeout(() => {
-                // Activate the Pinch Gesture
-                const hammers = [new Hammer(this.sourceImage.nativeElement), new Hammer(this.moveElem.nativeElement)];
-                hammers.forEach(hammer => {
-                    hammer.get('pinch').set({enable: true});
-                });
+                this.activatePinchGesture();
             });
         } else {
             this.setImageMaxSizeRetries++;
@@ -348,6 +344,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.resizeCropperPosition();
         this.setMaxSize();
         this.setCropperScaledMinSize();
+    }
+
+    private activatePinchGesture() {
+        const hammers = [new Hammer(this.sourceImage.nativeElement), new Hammer(this.moveElem.nativeElement)];
+        hammers.forEach(hammer => {
+            hammer.get('pinch').set({enable: true});
+        });
     }
 
     private resizeCropperPosition(): void {
