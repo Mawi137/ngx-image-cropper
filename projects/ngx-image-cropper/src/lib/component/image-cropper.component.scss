@@ -42,7 +42,7 @@
         display: flex;
         color: #53535C;
         background: transparent;
-        outline: var(--cropperOutlineColor) solid 100vw;
+        outline: var(--cropper-outline-color) solid 100vw;
         touch-action: none;
 
 
@@ -186,10 +186,10 @@
 
             &:after {
                 border-radius: 100%;
-                box-shadow: 0 0 0 100vw var(--cropperOutlineColor);
+                box-shadow: 0 0 0 100vw var(--cropper-outline-color);
 
                 @media (orientation: portrait) {
-                    box-shadow: 0 0 0 100vh var(--cropperOutlineColor);
+                    box-shadow: 0 0 0 100vh var(--cropper-outline-color);
                 }
             }
 

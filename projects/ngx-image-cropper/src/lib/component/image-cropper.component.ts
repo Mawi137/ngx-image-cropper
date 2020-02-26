@@ -186,7 +186,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private setCropperOutlineColor() {
         this.sanitizedCropperOutlineColor = this.sanitizer.bypassSecurityTrustStyle(
-            '--cropperOutlineColor: ' + (this.cropperOutlineColor || this.defaultCropperOutlineColor));
+            '--cropper-outline-color: ' + (this.cropperOutlineColor || this.defaultCropperOutlineColor));
     }
 
     private loadImageFile(file: File): void {
