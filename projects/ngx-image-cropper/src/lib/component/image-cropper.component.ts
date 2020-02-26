@@ -464,8 +464,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             active: true,
             type: moveType,
             position,
-            clientX: moveType === 'pinch' ? this.cropper.x1 + (this.cropper.x2 - this.cropper.x1) / 2 : this.getClientX(event),
-            clientY: moveType === 'pinch' ? this.cropper.y1 + (this.cropper.y2 - this.cropper.y1) / 2 : this.getClientY(event),
+            clientX: this.calculateClientX(moveType, event),
+            clientY: this.calculateClientY(moveType, event),
             ...this.cropper
         };
     }
@@ -843,6 +843,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             }
         }
         return 1;
+    }
+
+    private calculateClientX(moveType: string, event: any): number {
+        return moveType === 'pinch' ? this.cropper.x1 + (this.cropper.x2 - this.cropper.x1) / 2 : this.getClientX(event);
+    }
+
+    private calculateClientY(moveType: string, event: any): number {
+        return moveType === 'pinch' ? this.cropper.y1 + (this.cropper.y2 - this.cropper.y1) / 2 : this.getClientY(event);
     }
 
     private getClientX(event: any): number {
