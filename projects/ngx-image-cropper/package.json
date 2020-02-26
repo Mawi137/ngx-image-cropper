@@ -22,6 +22,9 @@
         "image cropper"
     ],
     "license": "MIT",
+    "optionalDependencies": {
+        "hammerjs": "^2.0.8"
+    },
     "peerDependencies": {
         "@angular/common": ">=6.0.0",
         "@angular/core": ">=6.0.0",

@@ -7,6 +7,7 @@ import {
     HostBinding,
     HostListener,
     Input,
+    isDevMode,
     NgZone,
     OnChanges,
     OnInit,
@@ -14,12 +15,12 @@ import {
     SimpleChanges,
     ViewChild
 } from '@angular/core';
-import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, ImageTransform } from '../interfaces';
-import { getTransformationsFromExifData } from '../utils/exif.utils';
-import { resizeCanvas } from '../utils/resize.utils';
-import { ExifTransform } from '../interfaces/exif-transform.interface';
-import * as Hammer from 'hammerjs';
+import {DomSanitizer, SafeStyle, SafeUrl} from '@angular/platform-browser';
+import {CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart} from '../interfaces';
+import {getTransformationsFromExifData} from '../utils/exif.utils';
+import {resizeCanvas} from '../utils/resize.utils';
+import {ExifTransform} from '../interfaces/exif-transform.interface';
+import {HammerStatic} from '../utils/hammer.utils';
 
 @Component({
     selector: 'image-cropper',
@@ -28,6 +29,8 @@ import * as Hammer from 'hammerjs';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageCropperComponent implements OnChanges, OnInit {
+    private Hammer: HammerStatic = typeof window !== 'undefined' ? (window as any).Hammer as HammerStatic : null;
+
     private originalImage: HTMLImageElement | null;
     private transformedImage: HTMLImageElement;
     private originalBase64: string;
@@ -347,10 +350,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private activatePinchGesture() {
-        const hammers = [new Hammer(this.sourceImage.nativeElement), new Hammer(this.moveElem.nativeElement)];
-        hammers.forEach(hammer => {
-            hammer.get('pinch').set({enable: true});
-        });
+        if (this.Hammer) {
+            const hammers = [new this.Hammer(this.sourceImage.nativeElement), new this.Hammer(this.moveElem.nativeElement)];
+            hammers.forEach(hammer => {
+                hammer.get('pinch').set({enable: true});
+            });
+        } else if (isDevMode()) {
+            console.warn('[NgxImageCropper] Could not find HammerJS - Pinch Gesture won\'t work');
+        }
     }
 
     private resizeCropperPosition(): void {
