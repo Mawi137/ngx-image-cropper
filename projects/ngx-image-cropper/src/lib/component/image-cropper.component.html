@@ -36,58 +36,56 @@
                 class="move"
                 #move>
             </div>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize topleft"
-                  (mousedown)="startMove($event, 'resize', 'topleft')"
-                  (touchstart)="startMove($event, 'resize', 'topleft')"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize top"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize topright"
-                  (mousedown)="startMove($event, 'resize', 'topright')"
-                  (touchstart)="startMove($event, 'resize', 'topright')"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize right"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize bottomright"
-                  (mousedown)="startMove($event, 'resize', 'bottomright')"
-                  (touchstart)="startMove($event, 'resize', 'bottomright')"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize bottom"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize bottomleft"
-                  (mousedown)="startMove($event, 'resize', 'bottomleft')"
-                  (touchstart)="startMove($event, 'resize', 'bottomleft')"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize left"
-            ><span class="square"></span></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize-bar top"
-                  (mousedown)="startMove($event, 'resize', 'top')"
-                  (touchstart)="startMove($event, 'resize', 'top')"
-            ></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize-bar right"
-                  (mousedown)="startMove($event, 'resize', 'right')"
-                  (touchstart)="startMove($event, 'resize', 'right')"
-            ></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize-bar bottom"
-                  (mousedown)="startMove($event, 'resize', 'bottom')"
-                  (touchstart)="startMove($event, 'resize', 'bottom')"
-            ></span>
-            <span *ngIf="!hideResizeSquares"
-                  class="resize-bar left"
-                  (mousedown)="startMove($event, 'resize', 'left')"
-                  (touchstart)="startMove($event, 'resize', 'left')"
-            ></span>
+            <span *ngIf="!hideResizeSquares">
+                <span class="resize topleft"
+                      (mousedown)="startMove($event, 'resize', 'topleft')"
+                      (touchstart)="startMove($event, 'resize', 'topleft')">
+                    <span class="square"></span>
+                </span>
+                <span class="resize top">
+                    <span class="square"></span>
+                </span>
+                <span class="resize topright"
+                      (mousedown)="startMove($event, 'resize', 'topright')"
+                      (touchstart)="startMove($event, 'resize', 'topright')">
+                    <span class="square"></span>
+                </span>
+                <span class="resize right">
+                    <span class="square"></span>
+                </span>
+                <span class="resize bottomright"
+                      (mousedown)="startMove($event, 'resize', 'bottomright')"
+                      (touchstart)="startMove($event, 'resize', 'bottomright')">
+                    <span class="square"></span>
+                </span>
+                <span class="resize bottom">
+                    <span class="square"></span>
+                </span>
+                <span class="resize bottomleft"
+                      (mousedown)="startMove($event, 'resize', 'bottomleft')"
+                      (touchstart)="startMove($event, 'resize', 'bottomleft')">
+                    <span class="square"></span>
+                </span>
+                <span class="resize left">
+                    <span class="square"></span>
+                </span>
+                <span class="resize-bar top"
+                      (mousedown)="startMove($event, 'resize', 'top')"
+                      (touchstart)="startMove($event, 'resize', 'top')">
+                </span>
+                <span class="resize-bar right"
+                      (mousedown)="startMove($event, 'resize', 'right')"
+                      (touchstart)="startMove($event, 'resize', 'right')">
+                </span>
+                <span class="resize-bar bottom"
+                      (mousedown)="startMove($event, 'resize', 'bottom')"
+                      (touchstart)="startMove($event, 'resize', 'bottom')">
+                </span>
+                <span class="resize-bar left"
+                      (mousedown)="startMove($event, 'resize', 'left')"
+                      (touchstart)="startMove($event, 'resize', 'left')">
+                </span>
+            </span>
         </div>
     </div>
 </div>
