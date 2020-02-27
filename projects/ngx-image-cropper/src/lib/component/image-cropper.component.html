@@ -1,5 +1,7 @@
 <div [style.background]="imageVisible && backgroundColor"
-     [style.width.px]="maxSize.width || '100%'">
+     [style.width.px]="maxSize.width || '100%'"
+     (pinchstart)="startMove($event, 'pinch', 'center')"
+     #wrapper>
     <img
       #sourceImage
       class="source-image"
@@ -8,7 +10,6 @@
       [style.visibility]="imageVisible ? 'visible' : 'hidden'"
       [style.transform]="safeTransformStyle"
       (load)="imageLoadedInView()"
-      (pinchstart)="startMove($event, 'pinch', 'center')"
     />
     <div
         class="overlay"
@@ -31,9 +32,7 @@
         <div
             (mousedown)="startMove($event, 'move')"
             (touchstart)="startMove($event, 'move')"
-            (pinchstart)="startMove($event, 'pinch', 'center')"
-            class="move"
-            #move>
+            class="move">
         </div>
         <span *ngIf="!hideResizeSquares">
                 <span class="resize topleft"

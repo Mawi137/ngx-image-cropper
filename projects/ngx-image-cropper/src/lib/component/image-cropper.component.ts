@@ -52,7 +52,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
-    @ViewChild('move', {static: false}) moveElem: ElementRef;
+    @ViewChild('wrapper', {static: false}) wrapper: ElementRef;
 
     @Input()
     set imageChangedEvent(event: any) {
@@ -339,10 +339,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private activatePinchGesture() {
         if (this.Hammer) {
-            const hammers = [new this.Hammer(this.sourceImage.nativeElement), new this.Hammer(this.moveElem.nativeElement)];
-            hammers.forEach(hammer => {
-                hammer.get('pinch').set({enable: true});
-            });
+            const hammer = new this.Hammer(this.wrapper.nativeElement);
+            hammer.get('pinch').set({enable: true});
         } else if (isDevMode()) {
             console.warn('[NgxImageCropper] Could not find HammerJS - Pinch Gesture won\'t work');
         }
@@ -452,6 +450,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     startMove(event: any, moveType: string, position: string | null = null): void {
+        if (!this.safeImgDataUrl) {
+            return;
+        }
         if (event.preventDefault) {
             event.preventDefault();
         }
