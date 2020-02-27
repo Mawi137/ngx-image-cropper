@@ -102,11 +102,15 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `autoCrop`                 | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to false, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
 | `alignImage`               | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
 | `backgroundColor`          | string    |              | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
-| `cropperOutlineColor`      | string    | rgba(255,255,255,0.3) | Use this to set the outline Color of the Cropper. This is the Overlay-Color over the Image which is not part of the Cropper. |
 | `hideResizeSquares`        | boolean   | false        | Disables the resize-squares at the border of the cropper. This is mostly useful for Touch Devices where you can change the Size of the Cropper via Pinch-To-Zoom|
 | `disabled`                 | boolean   | false        | Disables the component and prevents changing the cropper position |
 | `canvasRotation`           | number    | 0            | Rotate the canvas (1 = 90deg, 2 = 180deg...) |
 | `transform`                | ImageTransform   | {}    | Flip, rotate and scale image |
+
+### CSS Variables
+|  Name                      | Type      | Default      | Description     |
+| -------------------------- |---------- | ------------ | --------------- |
+| `--cropper-outline-color`      | string    | rgba(255,255,255,0.3) | Use this to set the outline Color of the Cropper. This is the Overlay-Color over the Image which is not part of the Cropper. |
 
 ### Outputs
 | Name                    | Type              | Description |

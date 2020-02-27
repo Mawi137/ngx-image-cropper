@@ -1,25 +1,24 @@
 <div [style.background]="imageVisible && backgroundColor"
      [style.width.px]="maxSize.width || '100%'">
-    <div [style]="sanitizedCropperOutlineColor">
-        <img
-          #sourceImage
-          class="source-image"
-          *ngIf="safeImgDataUrl"
-          [src]="safeImgDataUrl"
-          [style.visibility]="imageVisible ? 'visible' : 'hidden'"
-          [style.transform]="safeTransformStyle"
-          (load)="imageLoadedInView()"
-          (pinchstart)="startMove($event, 'pinch', 'center')"
-        />
-        <div
-            class="overlay"
-            [style.width.px]="maxSize.width"
-            [style.height.px]="maxSize.height"
-        ></div>
-        <div class="cropper"
-             *ngIf="imageVisible"
-             [class.rounded]="roundCropper"
-             [ngStyle]="{
+    <img
+      #sourceImage
+      class="source-image"
+      *ngIf="safeImgDataUrl"
+      [src]="safeImgDataUrl"
+      [style.visibility]="imageVisible ? 'visible' : 'hidden'"
+      [style.transform]="safeTransformStyle"
+      (load)="imageLoadedInView()"
+      (pinchstart)="startMove($event, 'pinch', 'center')"
+    />
+    <div
+        class="overlay"
+        [style.width.px]="maxSize.width"
+        [style.height.px]="maxSize.height"
+    ></div>
+    <div class="cropper"
+         *ngIf="imageVisible"
+         [class.rounded]="roundCropper"
+         [ngStyle]="{
          'top': cropper.y1 + 'px',
          'left': cropper.x1 + 'px',
          'width': cropper.x2 - cropper.x1 + 'px',
@@ -27,16 +26,16 @@
          'margin-left': alignImage === 'center' ? marginLeft : null,
          'visibility': imageVisible ? 'visible' : 'hidden'
          }"
-             (keydown)="keyboardAccess($event)"
-             tabindex="0">
-            <div
-                (mousedown)="startMove($event, 'move')"
-                (touchstart)="startMove($event, 'move')"
-                (pinchstart)="startMove($event, 'pinch', 'center')"
-                class="move"
-                #move>
-            </div>
-            <span *ngIf="!hideResizeSquares">
+         (keydown)="keyboardAccess($event)"
+         tabindex="0">
+        <div
+            (mousedown)="startMove($event, 'move')"
+            (touchstart)="startMove($event, 'move')"
+            (pinchstart)="startMove($event, 'pinch', 'center')"
+            class="move"
+            #move>
+        </div>
+        <span *ngIf="!hideResizeSquares">
                 <span class="resize topleft"
                       (mousedown)="startMove($event, 'resize', 'topleft')"
                       (touchstart)="startMove($event, 'resize', 'topleft')">
@@ -86,6 +85,5 @@
                       (touchstart)="startMove($event, 'resize', 'left')">
                 </span>
             </span>
-        </div>
     </div>
 </div>

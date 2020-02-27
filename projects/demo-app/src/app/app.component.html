@@ -13,8 +13,6 @@
 <br />
 <input [(ngModel)]="rotation" placeholder="Rotation" type="number" (keyup)="updateRotation()" /> <button (click)="zoomOut()">Zoom -</button> <button (click)="zoomIn()">Zoom +</button>
 <br />
-<br />
-<input [(ngModel)]="cropperOutlineColor" placeholder="Cropper Outline Color" type="text" />
 
 <div>
     <image-cropper
@@ -30,7 +28,6 @@
         [transform]="transform"
         [alignImage]="'left'"
         [style.display]="showCropper ? null : 'none'"
-        [cropperOutlineColor]="cropperOutlineColor"
         format="png"
         (imageCropped)="imageCropped($event)"
         (imageLoaded)="imageLoaded()"
