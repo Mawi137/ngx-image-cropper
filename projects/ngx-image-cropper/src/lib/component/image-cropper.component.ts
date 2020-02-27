@@ -54,7 +54,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
-    @ViewChild('wrapper', {static: false}) wrapper: ElementRef;
+    @ViewChild('wrapper', {static: true}) wrapper: ElementRef;
 
     @Input()
     set imageChangedEvent(event: any) {
