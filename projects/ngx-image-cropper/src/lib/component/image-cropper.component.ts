@@ -452,7 +452,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     startMove(event: any, moveType: MoveTypes, position: string | null = null): void {
-        console.log('Start Move');
         if (this.moveStart && this.moveStart.active && this.moveStart.type === MoveTypes.Pinch) {
             return;
         }
@@ -470,7 +469,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     startPinch(event: any) {
-        console.log('Start Pinch');
         if (!this.safeImgDataUrl) {
             return;
         }
