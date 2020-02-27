@@ -1,6 +1,6 @@
 export interface MoveStart {
     active: boolean;
-    type: string | null;
+    type: MoveTypes | null;
     position: string | null;
     x1: number;
     y1: number;
@@ -8,4 +8,10 @@ export interface MoveStart {
     y2: number;
     clientX: number;
     clientY: number;
+}
+
+export enum MoveTypes {
+    Move = 'move',
+    Resize = 'resize',
+    Pinch = 'pinch'
 }

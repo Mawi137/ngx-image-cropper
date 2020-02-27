@@ -21,6 +21,7 @@ import {getTransformationsFromExifData} from '../utils/exif.utils';
 import {resizeCanvas} from '../utils/resize.utils';
 import {ExifTransform} from '../interfaces/exif-transform.interface';
 import {HammerStatic} from '../utils/hammer.utils';
+import {MoveTypes} from '../interfaces/move-start.interface';
 
 @Component({
     selector: 'image-cropper',
@@ -49,6 +50,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     marginLeft: SafeStyle | string = '0px';
     maxSize: Dimensions;
     imageVisible = false;
+    moveTypes = MoveTypes;
 
     @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
@@ -397,7 +399,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (!(keyboardWhiteList.includes(event.key))) {
             return;
         }
-        const moveType = event.shiftKey ? 'resize' : 'move';
+        const moveType = event.shiftKey ? MoveTypes.Resize : MoveTypes.Move;
         const position = event.altKey ? this.getInvertedPositionForKey(event.key) : this.getPositionForKey(event.key);
         const moveEvent = this.getEventForKey(event.key, this.stepSize);
         event.preventDefault();
@@ -449,8 +451,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    startMove(event: any, moveType: string, position: string | null = null): void {
-        if (!this.safeImgDataUrl) {
+    startMove(event: any, moveType: MoveTypes, position: string | null = null): void {
+        console.log('Start Move');
+        if (this.moveStart && this.moveStart.active && this.moveStart.type === MoveTypes.Pinch) {
             return;
         }
         if (event.preventDefault) {
@@ -460,8 +463,26 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             active: true,
             type: moveType,
             position,
-            clientX: this.calculateClientX(moveType, event),
-            clientY: this.calculateClientY(moveType, event),
+            clientX: this.getClientX(event),
+            clientY: this.getClientY(event),
+            ...this.cropper
+        };
+    }
+
+    startPinch(event: any) {
+        console.log('Start Pinch');
+        if (!this.safeImgDataUrl) {
+            return;
+        }
+        if (event.preventDefault) {
+            event.preventDefault();
+        }
+        this.moveStart = {
+            active: true,
+            type: MoveTypes.Pinch,
+            position: 'center',
+            clientX: this.cropper.x1 + (this.cropper.x2 - this.cropper.x1) / 2,
+            clientY: this.cropper.y1 + (this.cropper.y2 - this.cropper.y1) / 2,
             ...this.cropper
         };
     }
@@ -476,10 +497,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             if (event.preventDefault) {
                 event.preventDefault();
             }
-            if (this.moveStart.type === 'move') {
+            if (this.moveStart.type === MoveTypes.Move) {
                 this.move(event);
                 this.checkCropperPosition(true);
-            } else if (this.moveStart.type === 'resize') {
+            } else if (this.moveStart.type === MoveTypes.Resize) {
                 this.resize(event);
                 this.checkCropperPosition(false);
             }
@@ -496,8 +517,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             if (event.preventDefault) {
                 event.preventDefault();
             }
-            this.resize(event);
-            this.checkCropperPosition(false);
+            if (this.moveStart.type === MoveTypes.Pinch) {
+                this.resize(event);
+                this.checkCropperPosition(false);
+            }
             this.cd.detectChanges();
         }
     }
@@ -839,14 +862,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             }
         }
         return 1;
-    }
-
-    private calculateClientX(moveType: string, event: any): number {
-        return moveType === 'pinch' ? this.cropper.x1 + (this.cropper.x2 - this.cropper.x1) / 2 : this.getClientX(event);
-    }
-
-    private calculateClientY(moveType: string, event: any): number {
-        return moveType === 'pinch' ? this.cropper.y1 + (this.cropper.y2 - this.cropper.y1) / 2 : this.getClientY(event);
     }
 
     private getClientX(event: any): number {
