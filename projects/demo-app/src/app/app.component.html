@@ -12,6 +12,7 @@
 <br />
 <br />
 <input [(ngModel)]="rotation" placeholder="Rotation" type="number" (keyup)="updateRotation()" /> <button (click)="zoomOut()">Zoom -</button> <button (click)="zoomIn()">Zoom +</button>
+<br />
 
 <div>
     <image-cropper
@@ -22,7 +23,7 @@
         [resizeToWidth]="128"
         [cropperMinWidth]="128"
         [onlyScaleDown]="true"
-        [roundCropper]="false"
+        [roundCropper]="true"
         [canvasRotation]="canvasRotation"
         [transform]="transform"
         [alignImage]="'left'"
