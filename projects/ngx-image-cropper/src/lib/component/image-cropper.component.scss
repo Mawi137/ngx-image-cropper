@@ -34,7 +34,7 @@
         color: #53535C;
         background: transparent;
         outline: rgba(255, 255, 255, 0.3) solid 100vw;
-        outline: var(--cropper-outline-color, rgba(255, 255, 255, 0.3)) solid 100vw !important;
+        outline: var(--cropper-outline-color, rgba(255, 255, 255, 0.3)) solid 100vw;
         touch-action: none;
 
 
@@ -174,16 +174,16 @@
         }
 
         &.rounded {
-            outline-color: transparent !important;
+            outline-color: transparent;
 
             &:after {
                 border-radius: 100%;
                 box-shadow: 0 0 0 100vw rgba(255, 255, 255, 0.3);
-                box-shadow: 0 0 0 100vw (var(--cropper-outline-color, rgba(255, 255, 255, 0.3))) !important;
+                box-shadow: 0 0 0 100vw (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
 
                 @media (orientation: portrait) {
                     box-shadow: 0 0 0 100vh rgba(255, 255, 255, 0.3);
-                    box-shadow: 0 0 0 100vh (var(--cropper-outline-color, rgba(255, 255, 255, 0.3))) !important;
+                    box-shadow: 0 0 0 100vh (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
                 }
             }
 

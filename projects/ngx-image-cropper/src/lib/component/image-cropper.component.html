@@ -1,6 +1,7 @@
 <div [style.background]="imageVisible && backgroundColor"
      (pinchstart)="startPinch($event)"
-     #wrapper>
+     #wrapper
+>
     <img
       #sourceImage
       class="source-image"
@@ -19,12 +20,12 @@
          *ngIf="imageVisible"
          [class.rounded]="roundCropper"
          [ngStyle]="{
-         'top': cropper.y1 + 'px',
-         'left': cropper.x1 + 'px',
-         'width': cropper.x2 - cropper.x1 + 'px',
-         'height' : cropper.y2 - cropper.y1 + 'px',
-         'margin-left': alignImage === 'center' ? marginLeft : null,
-         'visibility': imageVisible ? 'visible' : 'hidden'
+             'top': cropper.y1 + 'px',
+             'left': cropper.x1 + 'px',
+             'width': cropper.x2 - cropper.x1 + 'px',
+             'height' : cropper.y2 - cropper.y1 + 'px',
+             'margin-left': alignImage === 'center' ? marginLeft : null,
+             'visibility': imageVisible ? 'visible' : 'hidden'
          }"
          (keydown)="keyboardAccess($event)"
          tabindex="0">
@@ -33,55 +34,55 @@
             (touchstart)="startMove($event, moveTypes.Move)"
             class="move">
         </div>
-        <span *ngIf="!hideResizeSquares">
-                <span class="resize topleft"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'topleft')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'topleft')">
-                    <span class="square"></span>
-                </span>
-                <span class="resize top">
-                    <span class="square"></span>
-                </span>
-                <span class="resize topright"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'topright')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'topright')">
-                    <span class="square"></span>
-                </span>
-                <span class="resize right">
-                    <span class="square"></span>
-                </span>
-                <span class="resize bottomright"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'bottomright')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'bottomright')">
-                    <span class="square"></span>
-                </span>
-                <span class="resize bottom">
-                    <span class="square"></span>
-                </span>
-                <span class="resize bottomleft"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'bottomleft')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'bottomleft')">
-                    <span class="square"></span>
-                </span>
-                <span class="resize left">
-                    <span class="square"></span>
-                </span>
-                <span class="resize-bar top"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'top')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'top')">
-                </span>
-                <span class="resize-bar right"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'right')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'right')">
-                </span>
-                <span class="resize-bar bottom"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'bottom')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'bottom')">
-                </span>
-                <span class="resize-bar left"
-                      (mousedown)="startMove($event, moveTypes.Resize, 'left')"
-                      (touchstart)="startMove($event, moveTypes.Resize, 'left')">
-                </span>
+        <ng-container *ngIf="!hideResizeSquares">
+            <span class="resize topleft"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'topleft')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'topleft')">
+                <span class="square"></span>
             </span>
+            <span class="resize top">
+                <span class="square"></span>
+            </span>
+            <span class="resize topright"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'topright')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'topright')">
+                <span class="square"></span>
+            </span>
+            <span class="resize right">
+                <span class="square"></span>
+            </span>
+            <span class="resize bottomright"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'bottomright')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'bottomright')">
+                <span class="square"></span>
+            </span>
+            <span class="resize bottom">
+                <span class="square"></span>
+            </span>
+            <span class="resize bottomleft"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'bottomleft')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'bottomleft')">
+                <span class="square"></span>
+            </span>
+            <span class="resize left">
+                <span class="square"></span>
+            </span>
+            <span class="resize-bar top"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'top')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'top')">
+            </span>
+            <span class="resize-bar right"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'right')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'right')">
+            </span>
+            <span class="resize-bar bottom"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'bottom')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'bottom')">
+            </span>
+            <span class="resize-bar left"
+                  (mousedown)="startMove($event, moveTypes.Resize, 'left')"
+                  (touchstart)="startMove($event, moveTypes.Resize, 'left')">
+            </span>
+        </ng-container>
     </div>
 </div>

@@ -30,8 +30,9 @@ import {MoveTypes} from '../interfaces/move-start.interface';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageCropperComponent implements OnChanges, OnInit {
-    private Hammer: HammerStatic = typeof window !== 'undefined' ? (window as any).Hammer as HammerStatic : null;
-
+    private Hammer: HammerStatic = typeof window !== 'undefined'
+        ? (window as any).Hammer as HammerStatic
+        : null;
     private originalImage: HTMLImageElement | null;
     private transformedImage: HTMLImageElement;
     private originalBase64: string;
@@ -52,9 +53,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     imageVisible = false;
     moveTypes = MoveTypes;
 
-    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
-
     @ViewChild('wrapper', {static: true}) wrapper: ElementRef;
+    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
     @Input()
     set imageChangedEvent(event: any) {
@@ -145,6 +145,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     ngOnInit(): void {
         this.stepSize = this.initialStepSize;
+        this.activatePinchGesture();
     }
 
     private initCropper(): void {
@@ -321,9 +322,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             this.resetCropperPosition();
             this.cropperReady.emit({...this.maxSize});
             this.cd.markForCheck();
-            setTimeout(() => {
-                this.activatePinchGesture();
-            });
         } else {
             this.setImageMaxSizeRetries++;
             setTimeout(() => {
