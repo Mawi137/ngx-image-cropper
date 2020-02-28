@@ -15,6 +15,7 @@
         class="overlay"
         [style.width.px]="maxSize.width"
         [style.height.px]="maxSize.height"
+        [style.margin-left]="alignImage === 'center' ? marginLeft : null"
     ></div>
     <div class="cropper"
          *ngIf="imageVisible"
