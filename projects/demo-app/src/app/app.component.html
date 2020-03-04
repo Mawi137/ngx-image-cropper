@@ -1,6 +1,9 @@
 <input type="file" (change)="fileChangeEvent($event)" />
 <br />
 <br />
+<input [(ngModel)]="imageURL" placeholder="URL to load image" type="text" />
+<br />
+<br />
 <button (click)="rotateLeft()">Rotate left</button>
 <button (click)="rotateRight()">Rotate right</button>
 <button (click)="flipHorizontal()">Flip horizontal</button>
@@ -17,6 +20,7 @@
 <div>
     <image-cropper
         [imageChangedEvent]="imageChangedEvent"
+        [imageURL]="imageURL"
         [maintainAspectRatio]="true"
         [containWithinAspectRatio]="containWithinAspectRatio"
         [aspectRatio]="4 / 3"

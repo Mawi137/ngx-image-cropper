@@ -12,10 +12,12 @@ import {
     OnInit,
     Output,
     SimpleChanges,
-    ViewChild
+    ViewChild,
+    Optional
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart } from '../interfaces';
+import { HttpClient } from '@angular/common/http';
+import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, ImageTransform } from '../interfaces';
 import { getTransformationsFromExifData } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
@@ -61,6 +63,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (event && event.target && event.target.files && event.target.files.length > 0) {
             this.loadImageFile(event.target.files[0]);
         }
+    }
+
+    @Input()
+    set imageURL(url: string) {
+        this.initCropper();
+        this.loadImageFromURL(url);
     }
 
     @Input()
@@ -112,7 +120,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
-                private cd: ChangeDetectorRef) {
+                private cd: ChangeDetectorRef,
+                @Optional()
+                private http: HttpClient) {
         this.initCropper();
     }
 
@@ -185,16 +195,17 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.cropper.y2 = 10000;
     }
 
+    private loadImage(imageBase64: string, imageType: string) {
+        if (this.isValidImageType(imageType)) {
+            this.checkExifAndLoadBase64Image(imageBase64);
+        } else {
+            this.loadImageFailed.emit();
+        }
+    }
+
     private loadImageFile(file: File): void {
         const fileReader = new FileReader();
-        fileReader.onload = (event: any) => {
-            const imageType = file.type;
-            if (this.isValidImageType(imageType)) {
-                this.checkExifAndLoadBase64Image(event.target.result);
-            } else {
-                this.loadImageFailed.emit();
-            }
-        };
+        fileReader.onload = (event: any) => this.loadImage(file.type, event.target.result);
         fileReader.readAsDataURL(file);
     }
 
@@ -221,6 +232,17 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         };
         this.originalImage.onerror = fail;
         this.originalImage.src = imageBase64;
+    }
+
+    private loadImageFromURL(url: string): void {
+        const load = (blob: Blob) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onload = _ => this.loadImage(<string>reader.result, blob.type);
+        };
+        const error = _ => this.loadImageFailed.emit();
+
+        this.http.get(url, { responseType: 'blob' }).toPromise().then(load).catch(error);
     }
 
     private getTransformedSize(): Dimensions {
