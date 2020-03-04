@@ -86,7 +86,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `imageChangedEvent`        | FileEvent |              | The change event from your file input (set to `null` to reset the cropper) |
 | `imageFile`                | Blob(File)|              | The file you want to change (set to `null` to reset the cropper)           |
 | `imageBase64`              | string    |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper |
-| `imageURL`                 | string    |              | If you don't want to use a file input or a base64 you can set an URL to get the image from. If requesting an image from a different domain make sure Cross-Origin Resource Sharing (CORS) is allowed or the image will fail to load. |
+| `imageURL`                 | string    |              | If you don't want to use a file input or a base64 you can set an URL to get the image from. This feature requires `HttpClientModule` to be imported in your main app module so `HttpClient` instance can be injected into the component. If requesting an image from a different domain make sure Cross-Origin Resource Sharing (CORS) is allowed or the image will fail to load. |
 | `format`                   | string    | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional) |
 | `aspectRatio`              | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `maintainAspectRatio`      | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |

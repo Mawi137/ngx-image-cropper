@@ -12,7 +12,8 @@ import {
     OnInit,
     Output,
     SimpleChanges,
-    ViewChild
+    ViewChild,
+    Optional
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
@@ -113,6 +114,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     constructor(private sanitizer: DomSanitizer,
                 private cd: ChangeDetectorRef,
                 private zone: NgZone,
+                @Optional()
                 private http: HttpClient) {
         this.initCropper();
     }
