@@ -67,8 +67,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     @Input()
     set imageURL(url: string) {
-        this.initCropper();
-        this.loadImageFromURL(url);
+        if (url) {
+            this.initCropper();
+            this.loadImageFromURL(url);
+        }
     }
 
     @Input()
@@ -127,7 +129,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (this.originalImage && this.originalImage.complete && this.exifTransform && (changes.containWithinAspectRatio || changes.canvasRotation)) {
+        if (this.originalImage && this.originalImage.complete && this.exifTransform
+            && (changes.containWithinAspectRatio || changes.canvasRotation)) {
             this.transformOriginalImage();
         }
         if (changes.cropper) {
@@ -205,7 +208,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private loadImageFile(file: File): void {
         const fileReader = new FileReader();
-        fileReader.onload = (event: any) => this.loadImage(file.type, event.target.result);
+        fileReader.onload = (event: any) => this.loadImage(event.target.result, file.type);
         fileReader.readAsDataURL(file);
     }
 
@@ -238,9 +241,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         const load = (blob: Blob) => {
             const reader = new FileReader();
             reader.readAsDataURL(blob);
-            reader.onload = _ => this.loadImage(<string>reader.result, blob.type);
+            reader.onload = () => this.loadImage(reader.result as string, blob.type);
         };
-        const error = _ => this.loadImageFailed.emit();
+        const error = () => this.loadImageFailed.emit();
 
         this.http.get(url, { responseType: 'blob' }).toPromise().then(load).catch(error);
     }

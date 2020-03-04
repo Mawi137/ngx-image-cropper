@@ -15,8 +15,8 @@ export class AppComponent {
     showCropper = false;
     containWithinAspectRatio = false;
     transform: ImageTransform = {};
-    imageURL = '';
-    
+    imageURL: string;
+
     fileChangeEvent(event: any): void {
         this.imageChangedEvent = event;
     }

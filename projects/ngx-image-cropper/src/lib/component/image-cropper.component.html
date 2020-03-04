@@ -20,16 +20,15 @@
     <div class="cropper"
          *ngIf="imageVisible"
          [class.rounded]="roundCropper"
-         [ngStyle]="{
-             'top': cropper.y1 + 'px',
-             'left': cropper.x1 + 'px',
-             'width': cropper.x2 - cropper.x1 + 'px',
-             'height' : cropper.y2 - cropper.y1 + 'px',
-             'margin-left': alignImage === 'center' ? marginLeft : null,
-             'visibility': imageVisible ? 'visible' : 'hidden'
-         }"
+         [style.top.px]="cropper.y1"
+         [style.left.px]="cropper.x1"
+         [style.width.px]="cropper.x2 - cropper.x1"
+         [style.height.px]="cropper.y2 - cropper.y1"
+         [style.margin-left]="alignImage === 'center' ? marginLeft : null"
+         [style.visibility]="imageVisible ? 'visible' : 'hidden'"
          (keydown)="keyboardAccess($event)"
-         tabindex="0">
+         tabindex="0"
+    >
         <div
             (mousedown)="startMove($event, moveTypes.Move)"
             (touchstart)="startMove($event, moveTypes.Move)"
