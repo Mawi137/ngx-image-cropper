@@ -7,14 +7,10 @@
     overflow: hidden;
     padding: 5px;
     text-align: center;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 
     > div {
-        position: relative;
         width: 100%;
+        position: relative;
 
         img.source-image {
             max-width: 100%;
@@ -27,9 +23,7 @@
         position: absolute;
         pointer-events: none;
         touch-action: none;
-        outline-width: 100vw;
-        outline-style: solid;
-        outline-color: white;
+        outline: white solid 100vw;
         top: 0;
         left: 0;
     }
@@ -39,9 +33,8 @@
         display: flex;
         color: #53535C;
         background: transparent;
-        outline-color: rgba(255,255,255,0.3);
-        outline-width: 100vw;
-        outline-style: solid;
+        outline: rgba(255, 255, 255, 0.3) solid 100vw;
+        outline: var(--cropper-outline-color, rgba(255, 255, 255, 0.3)) solid 100vw;
         touch-action: none;
 
 
@@ -66,7 +59,7 @@
         .move {
             width: 100%;
             cursor: move;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         &:focus {
@@ -98,36 +91,43 @@
                 left: -12px;
                 cursor: nwse-resize;
             }
+
             &.top {
                 top: -12px;
                 left: calc(50% - 12px);
                 cursor: ns-resize;
             }
+
             &.topright {
                 top: -12px;
                 right: -12px;
                 cursor: nesw-resize;
             }
+
             &.right {
                 top: calc(50% - 12px);
                 right: -12px;
                 cursor: ew-resize;
             }
+
             &.bottomright {
                 bottom: -12px;
                 right: -12px;
                 cursor: nwse-resize;
             }
+
             &.bottom {
                 bottom: -12px;
                 left: calc(50% - 12px);
                 cursor: ns-resize;
             }
+
             &.bottomleft {
                 bottom: -12px;
                 left: -12px;
                 cursor: nesw-resize;
             }
+
             &.left {
                 top: calc(50% - 12px);
                 left: -12px;
@@ -135,6 +135,7 @@
             }
 
         }
+
         .resize-bar {
             position: absolute;
             z-index: 1;
@@ -146,6 +147,7 @@
                 height: 22px;
                 cursor: ns-resize;
             }
+
             &.right {
                 top: 11px;
                 right: -11px;
@@ -153,6 +155,7 @@
                 width: 22px;
                 cursor: ew-resize;
             }
+
             &.bottom {
                 bottom: -11px;
                 left: 11px;
@@ -160,6 +163,7 @@
                 height: 22px;
                 cursor: ns-resize;
             }
+
             &.left {
                 top: 11px;
                 left: -11px;
@@ -174,12 +178,15 @@
 
             &:after {
                 border-radius: 100%;
-                box-shadow: 0 0 0 100vw rgba(255,255,255,0.3);
+                box-shadow: 0 0 0 100vw rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 0 100vw (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
 
                 @media (orientation: portrait) {
-                    box-shadow: 0 0 0 100vh rgba(255,255,255,0.3);
+                    box-shadow: 0 0 0 100vh rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 0 0 100vh (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
                 }
             }
+
             .move {
                 border-radius: 100%;
             }
