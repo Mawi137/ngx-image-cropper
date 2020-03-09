@@ -313,7 +313,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private setTransformedImage(transformedBase64): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             this.transformedBase64 = transformedBase64;
             this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(transformedBase64);
             this.transformedImage = new Image();
@@ -322,10 +322,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                 this.transformedSize.height = this.transformedImage.naturalHeight;
                 this.cd.markForCheck();
                 resolve();
-            };
-            this.transformedImage.onerror = () => {
-                this.transformedImage = null;
-                reject();
             };
             this.transformedImage.src = this.transformedBase64;
         });
