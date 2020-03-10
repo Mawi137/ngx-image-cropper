@@ -238,14 +238,21 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private loadImageFromURL(url: string): void {
-        const load = (blob: Blob) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onload = () => this.loadImage(reader.result as string, blob.type);
+        const img = new Image();
+        const error = _ => this.loadImageFailed.emit();
+        const load = _ => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context.drawImage(img, 0, 0);
+            this.checkExifAndLoadBase64Image(canvas.toDataURL());
         };
-        const error = () => this.loadImageFailed.emit();
 
-        this.http.get(url, { responseType: 'blob' }).toPromise().then(load).catch(error);
+        img.crossOrigin = 'anonymous';
+        img.onload = load;
+        img.onerror = error;
+        img.src = url;
     }
 
     private getTransformedSize(): Dimensions {
