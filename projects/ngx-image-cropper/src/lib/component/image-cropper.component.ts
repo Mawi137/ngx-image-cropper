@@ -239,8 +239,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private loadImageFromURL(url: string): void {
         const img = new Image();
-        const error = _ => this.loadImageFailed.emit();
-        const load = _ => {
+        img.onerror = () => this.loadImageFailed.emit();
+        img.onload = () => {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             canvas.width = img.width;
@@ -248,10 +248,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             context.drawImage(img, 0, 0);
             this.checkExifAndLoadBase64Image(canvas.toDataURL());
         };
-
         img.crossOrigin = 'anonymous';
-        img.onload = load;
-        img.onerror = error;
         img.src = url;
     }
 
