@@ -10,14 +10,14 @@ import {
     isDevMode,
     OnChanges,
     OnInit,
+    Optional,
     Output,
     SimpleChanges,
-    ViewChild,
-    Optional
+    ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
-import { CropperPosition, Dimensions, ImageCroppedEvent, MoveStart, ImageTransform } from '../interfaces';
+import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart } from '../interfaces';
 import { getTransformationsFromExifData } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
@@ -57,35 +57,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @ViewChild('wrapper', {static: true}) wrapper: ElementRef;
     @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
 
-    @Input()
-    set imageChangedEvent(event: any) {
-        this.initCropper();
-        if (event && event.target && event.target.files && event.target.files.length > 0) {
-            this.loadImageFile(event.target.files[0]);
-        }
-    }
-
-    @Input()
-    set imageURL(url: string) {
-        if (url) {
-            this.initCropper();
-            this.loadImageFromURL(url);
-        }
-    }
-
-    @Input()
-    set imageBase64(imageBase64: string) {
-        this.initCropper();
-        this.checkExifAndLoadBase64Image(imageBase64);
-    }
-
-    @Input()
-    set imageFile(file: File) {
-        this.initCropper();
-        if (file) {
-            this.loadImageFile(file);
-        }
-    }
+    @Input() imageChangedEvent: any;
+    @Input() imageURL: string;
+    @Input() imageBase64: string;
+    @Input() imageFile: File;
 
     @Input() format: 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico' = 'png';
     @Input() maintainAspectRatio = true;
@@ -129,6 +104,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        this.loadImageOnChanges(changes);
+
         if (this.originalImage && this.originalImage.complete && this.exifTransform
             && (changes.containWithinAspectRatio || changes.canvasRotation)) {
             this.transformOriginalImage();
@@ -147,6 +124,24 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             this.transform = this.transform || {};
             this.setCssTransform();
             this.doAutoCrop();
+        }
+    }
+
+    private loadImageOnChanges(changes: SimpleChanges) {
+        if (changes.imageChangedEvent || changes.imageURL || changes.imageBase64 || changes.imageFile) {
+            this.initCropper();
+        }
+        if (changes.imageChangedEvent && this.imageChangedEvent.target && this.imageChangedEvent.target.files && this.imageChangedEvent.target.files.length > 0) {
+            this.loadImageFile(this.imageChangedEvent.target.files[0]);
+        }
+        if (changes.imageUrl && this.imageURL) {
+            this.loadImageFromURL(this.imageURL);
+        }
+        if (changes.imageBase64 && this.imageBase64) {
+            this.checkExifAndLoadBase64Image(this.imageBase64);
+        }
+        if (changes.imageFile && this.imageFile) {
+            this.loadImageFile(this.imageFile);
         }
     }
 
