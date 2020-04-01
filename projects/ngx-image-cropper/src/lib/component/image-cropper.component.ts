@@ -134,7 +134,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (changes.imageChangedEvent && this.imageChangedEvent.target && this.imageChangedEvent.target.files && this.imageChangedEvent.target.files.length > 0) {
             this.loadImageFile(this.imageChangedEvent.target.files[0]);
         }
-        if (changes.imageUrl && this.imageURL) {
+        if (changes.imageURL && this.imageURL) {
             this.loadImageFromURL(this.imageURL);
         }
         if (changes.imageBase64 && this.imageBase64) {
