@@ -1,5 +1,28 @@
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 
+// Black 2x1 JPEG, with the following meta information set:
+// - EXIF Orientation: 6 (Rotated 90° CCW)
+// Source: https://github.com/blueimp/JavaScript-Load-Image
+const testAutoOrientationImageURL =
+    'data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
+    'AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA' +
+    'QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' +
+    'BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x' +
+    'ABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAA' +
+    'AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q==';
+
+export function supportsAutomaticRotation(): Promise<boolean> {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            // Check if browser supports automatic image orientation:
+            const supported = img.width === 1 && img.height === 2;
+            resolve(supported);
+        };
+        img.src = testAutoOrientationImageURL;
+    });
+}
+
 export function getTransformationsFromExifData(exifRotationOrBase64Image: number | string): ExifTransform {
     if (typeof exifRotationOrBase64Image === 'string') {
         exifRotationOrBase64Image = getExifRotation(exifRotationOrBase64Image);

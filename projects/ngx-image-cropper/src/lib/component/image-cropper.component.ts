@@ -10,15 +10,13 @@ import {
     isDevMode,
     OnChanges,
     OnInit,
-    Optional,
     Output,
     SimpleChanges,
     ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
 import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart } from '../interfaces';
-import { getTransformationsFromExifData } from '../utils/exif.utils';
+import { getTransformationsFromExifData, supportsAutomaticRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { HammerStatic } from '../utils/hammer.utils';
@@ -45,6 +43,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private cropperScaledMinWidth = 20;
     private cropperScaledMinHeight = 20;
     private exifTransform: ExifTransform = {rotate: 0, flip: false};
+    private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
     private stepSize = 3;
 
     safeImgDataUrl: SafeUrl | string;
@@ -97,14 +96,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Output() loadImageFailed = new EventEmitter<void>();
 
     constructor(private sanitizer: DomSanitizer,
-                private cd: ChangeDetectorRef,
-                @Optional()
-                private http: HttpClient) {
+                private cd: ChangeDetectorRef) {
         this.initCropper();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        this.loadImageOnChanges(changes);
+        this.onChangesInputImage(changes);
 
         if (this.originalImage && this.originalImage.complete && this.exifTransform
             && (changes.containWithinAspectRatio || changes.canvasRotation)) {
@@ -127,22 +124,29 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    private loadImageOnChanges(changes: SimpleChanges) {
+    private onChangesInputImage(changes: SimpleChanges) {
         if (changes.imageChangedEvent || changes.imageURL || changes.imageBase64 || changes.imageFile) {
             this.initCropper();
         }
-        if (changes.imageChangedEvent && this.imageChangedEvent && this.imageChangedEvent.target && this.imageChangedEvent.target.files && this.imageChangedEvent.target.files.length > 0) {
+        if (changes.imageChangedEvent && this.isValidImageChangedEvent()) {
             this.loadImageFile(this.imageChangedEvent.target.files[0]);
         }
         if (changes.imageURL && this.imageURL) {
             this.loadImageFromURL(this.imageURL);
         }
         if (changes.imageBase64 && this.imageBase64) {
-            this.checkExifAndLoadBase64Image(this.imageBase64);
+            this.loadBase64Image(this.imageBase64);
         }
         if (changes.imageFile && this.imageFile) {
             this.loadImageFile(this.imageFile);
         }
+    }
+
+    private isValidImageChangedEvent(): boolean {
+        return this.imageChangedEvent
+            && this.imageChangedEvent.target
+            && this.imageChangedEvent.target.files
+            && this.imageChangedEvent.target.files.length > 0;
     }
 
     private setCssTransform() {
@@ -195,7 +199,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private loadImage(imageBase64: string, imageType: string) {
         if (this.isValidImageType(imageType)) {
-            this.checkExifAndLoadBase64Image(imageBase64);
+            this.loadBase64Image(imageBase64);
         } else {
             this.loadImageFailed.emit();
         }
@@ -211,25 +215,31 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         return /image\/(png|jpg|jpeg|bmp|gif|tiff|webp)/.test(type);
     }
 
-    private checkExifAndLoadBase64Image(imageBase64: string): void {
-        const fail = (error) => {
-            this.loadImageFailed.emit();
-            this.originalImage = null;
-            this.originalBase64 = null;
-            console.error(error);
-        };
-        this.originalImage = new Image();
-        this.originalImage.onload = () => {
-            this.originalBase64 = imageBase64;
-            this.exifTransform = getTransformationsFromExifData(imageBase64);
-            this.originalSize.width = this.originalImage.naturalWidth;
-            this.originalSize.height = this.originalImage.naturalHeight;
-            this.transformOriginalImage()
-                .then(() => {})
-                .catch(fail);
-        };
-        this.originalImage.onerror = fail;
-        this.originalImage.src = imageBase64;
+    private loadBase64Image(imageBase64: string): void {
+        this.autoRotateSupported
+            .then((supported: boolean) => this.checkExifAndLoadBase64Image(imageBase64, supported))
+            .then(() => this.transformOriginalImage())
+            .catch((error) => {
+                this.loadImageFailed.emit();
+                this.originalImage = null;
+                this.originalBase64 = null;
+                console.error(error);
+            });
+    }
+
+    private checkExifAndLoadBase64Image(imageBase64: string, autoRotateSupported: boolean): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.originalImage = new Image();
+            this.originalImage.onload = () => {
+                this.originalBase64 = imageBase64;
+                this.exifTransform = getTransformationsFromExifData(autoRotateSupported ? -1 : imageBase64);
+                this.originalSize.width = this.originalImage.naturalWidth;
+                this.originalSize.height = this.originalImage.naturalHeight;
+                resolve();
+            };
+            this.originalImage.onerror = reject;
+            this.originalImage.src = imageBase64;
+        });
     }
 
     private loadImageFromURL(url: string): void {
@@ -241,7 +251,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             canvas.width = img.width;
             canvas.height = img.height;
             context.drawImage(img, 0, 0);
-            this.checkExifAndLoadBase64Image(canvas.toDataURL());
+            this.loadBase64Image(canvas.toDataURL());
         };
         img.crossOrigin = 'anonymous';
         img.src = url;
