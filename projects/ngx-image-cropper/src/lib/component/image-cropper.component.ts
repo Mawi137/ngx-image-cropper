@@ -75,6 +75,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Input() onlyScaleDown = false;
     @Input() imageQuality = 92;
     @Input() autoCrop = true;
+    @Input() includeBlob = false;
     @Input() backgroundColor: string;
     @Input() containWithinAspectRatio = false;
     @Input() hideResizeSquares = false;
@@ -765,6 +766,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private doAutoCrop(): void {
         if (this.autoCrop) {
+            if (this.includeBlob) {
+                this.cropWithBlob();
+                return;
+            }
             this.crop();
         }
     }
