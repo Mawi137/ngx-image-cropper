@@ -769,7 +769,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    crop(): ImageCroppedEvent | null {
+    async crop(): Promise<ImageCroppedEvent | null> {
         if (this.sourceImage && this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
@@ -812,6 +812,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
                 output.base64 = this.cropToBase64(cropCanvas);
+                output.blob = await new Promise((resolve, reject) => {
+                    ctx.canvas.toBlob(blob => {
+                        if (!blob) {
+                            return resolve(undefined);
+                        }
+                        return resolve(blob);
+                    });
+                });
                 this.imageCropped.emit(output);
                 return output;
             }
