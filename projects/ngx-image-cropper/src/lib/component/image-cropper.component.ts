@@ -838,10 +838,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
                 output.base64 = this.cropToBase64(cropCanvas);
-                this.imageCropped.emit(output);
                 if (internal) {
                     return {output, ctx};
                 }
+                this.imageCropped.emit(output);
                 return output;
             }
         }
