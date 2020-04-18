@@ -525,6 +525,7 @@
             this.onlyScaleDown = false;
             this.imageQuality = 92;
             this.autoCrop = true;
+            this.includeBlob = false;
             this.containWithinAspectRatio = false;
             this.hideResizeSquares = false;
             this.cropper = {
@@ -1608,6 +1609,10 @@
          */
         function () {
             if (this.autoCrop) {
+                if (this.includeBlob) {
+                    this.cropWithBlob();
+                    return;
+                }
                 this.crop();
             }
         };
@@ -1896,6 +1901,7 @@
             onlyScaleDown: [{ type: core.Input }],
             imageQuality: [{ type: core.Input }],
             autoCrop: [{ type: core.Input }],
+            includeBlob: [{ type: core.Input }],
             backgroundColor: [{ type: core.Input }],
             containWithinAspectRatio: [{ type: core.Input }],
             hideResizeSquares: [{ type: core.Input }],
@@ -2038,6 +2044,8 @@
         ImageCropperComponent.prototype.imageQuality;
         /** @type {?} */
         ImageCropperComponent.prototype.autoCrop;
+        /** @type {?} */
+        ImageCropperComponent.prototype.includeBlob;
         /** @type {?} */
         ImageCropperComponent.prototype.backgroundColor;
         /** @type {?} */

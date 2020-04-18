@@ -314,6 +314,7 @@ class ImageCropperComponent {
         this.onlyScaleDown = false;
         this.imageQuality = 92;
         this.autoCrop = true;
+        this.includeBlob = false;
         this.containWithinAspectRatio = false;
         this.hideResizeSquares = false;
         this.cropper = {
@@ -1197,6 +1198,10 @@ class ImageCropperComponent {
      */
     doAutoCrop() {
         if (this.autoCrop) {
+            if (this.includeBlob) {
+                this.cropWithBlob();
+                return;
+            }
             this.crop();
         }
     }
@@ -1436,6 +1441,7 @@ ImageCropperComponent.propDecorators = {
     onlyScaleDown: [{ type: Input }],
     imageQuality: [{ type: Input }],
     autoCrop: [{ type: Input }],
+    includeBlob: [{ type: Input }],
     backgroundColor: [{ type: Input }],
     containWithinAspectRatio: [{ type: Input }],
     hideResizeSquares: [{ type: Input }],
@@ -1576,6 +1582,8 @@ if (false) {
     ImageCropperComponent.prototype.imageQuality;
     /** @type {?} */
     ImageCropperComponent.prototype.autoCrop;
+    /** @type {?} */
+    ImageCropperComponent.prototype.includeBlob;
     /** @type {?} */
     ImageCropperComponent.prototype.backgroundColor;
     /** @type {?} */

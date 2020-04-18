@@ -45,6 +45,7 @@ export declare class ImageCropperComponent implements OnChanges, OnInit {
     onlyScaleDown: boolean;
     imageQuality: number;
     autoCrop: boolean;
+    includeBlob: boolean;
     backgroundColor: string;
     containWithinAspectRatio: boolean;
     hideResizeSquares: boolean;
