@@ -125,9 +125,10 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 ### Methods
 To gain access to the image cropper's methods use `@ViewChild(ImageCropperComponent) imageCropper: ImageCropperComponent;`
 
-| Name                    | Returns           | Description |
-| ----------------------- | ----------------- | ----------- |
-| `crop`                  | ImageCroppedEvent | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
+| Name                    | Returns                    | Description |
+| ----------------------- | -------------------------- | ----------- |
+| `crop`                  | ImageCroppedEvent          | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
+| `cropWithBlob`          | Promise\<ImageCroppedEvent\> | Same as crop but also returns a Blob. |
 
 ### Interfaces
 #### CropperPosition

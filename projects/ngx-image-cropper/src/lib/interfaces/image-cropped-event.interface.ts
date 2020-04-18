@@ -9,3 +9,8 @@ export interface ImageCroppedEvent {
     imagePosition: CropperPosition;
     offsetImagePosition?: CropperPosition;
 }
+
+export interface InternalCropResults {
+    output: ImageCroppedEvent;
+    ctx: CanvasRenderingContext2D;
+}

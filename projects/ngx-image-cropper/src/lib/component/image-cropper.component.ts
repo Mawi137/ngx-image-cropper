@@ -15,7 +15,7 @@ import {
     ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart } from '../interfaces';
+import { CropperPosition, Dimensions, ImageCroppedEvent, InternalCropResults, ImageTransform, MoveStart } from '../interfaces';
 import { getTransformationsFromExifData, supportsAutomaticRotation } from '../utils/exif.utils';
 import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
@@ -769,7 +769,28 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    async crop(): Promise<ImageCroppedEvent | null> {
+    async cropWithBlob(): Promise<ImageCroppedEvent | null> {
+
+        const {output, ctx} = this.crop(true) as InternalCropResults;
+
+        if (!output) {
+            return null;
+        }
+
+        output.blob = await new Promise((resolve) => {
+            ctx.canvas.toBlob(blob => {
+                if (!blob) {
+                    return resolve(undefined);
+                }
+                return resolve(blob);
+            });
+        });
+        this.imageCropped.emit(output);
+        return output;
+
+    }
+
+    crop(internal = false): ImageCroppedEvent | InternalCropResults | null {
         if (this.sourceImage && this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
@@ -812,15 +833,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                     resizeCanvas(cropCanvas, output.width, output.height);
                 }
                 output.base64 = this.cropToBase64(cropCanvas);
-                output.blob = await new Promise((resolve, reject) => {
-                    ctx.canvas.toBlob(blob => {
-                        if (!blob) {
-                            return resolve(undefined);
-                        }
-                        return resolve(blob);
-                    });
-                });
                 this.imageCropped.emit(output);
+                if (internal) {
+                    return {output, ctx};
+                }
                 return output;
             }
         }
