@@ -1,0 +1,47 @@
+{
+  "name": "ngx-image-cropper",
+  "version": "3.1.6",
+  "description": "An image cropper for Angular",
+  "author": "Martijn Willekens",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mawi137/ngx-image-cropper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mawi137/ngx-image-cropper/issues"
+  },
+  "homepage": "https://github.com/Mawi137/ngx-image-cropper",
+  "keywords": [
+    "angular",
+    "angular 6",
+    "angular 7",
+    "angular 8",
+    "angular 9",
+    "ionic",
+    "ionic-angular",
+    "cropper",
+    "image cropper"
+  ],
+  "license": "MIT",
+  "optionalDependencies": {
+    "hammerjs": "^2.0.8"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=6.0.0",
+    "@angular/core": ">=6.0.0",
+    "@angular/platform-browser": ">=6.0.0"
+  },
+  "main": "bundles/ngx-image-cropper.umd.js",
+  "module": "fesm5/ngx-image-cropper.js",
+  "es2015": "fesm2015/ngx-image-cropper.js",
+  "esm5": "esm5/ngx-image-cropper.js",
+  "esm2015": "esm2015/ngx-image-cropper.js",
+  "fesm5": "fesm5/ngx-image-cropper.js",
+  "fesm2015": "fesm2015/ngx-image-cropper.js",
+  "typings": "ngx-image-cropper.d.ts",
+  "metadata": "ngx-image-cropper.metadata.json",
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^1.9.0"
+  }
+}

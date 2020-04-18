@@ -101,6 +101,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `roundCropper`             | boolean   | false        | Set this to true for a round cropper. Resulting image will still be square, use `border-radius: 100%` on resulting image to show it as round. |
 | `imageQuality`             | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
 | `autoCrop`                 | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to false, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
+| `includeBlob`              | boolean   | true         | When set to true, ImageCroppedEvent will contain the cropped file blob. |
 | `alignImage`               | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
 | `backgroundColor`          | string    |              | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
 | `hideResizeSquares`        | boolean   | false        | Disables the resize-squares at the border of the cropper. This is mostly useful for Touch Devices where you can change the Size of the Cropper via Pinch-To-Zoom|
@@ -125,10 +126,9 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 ### Methods
 To gain access to the image cropper's methods use `@ViewChild(ImageCropperComponent) imageCropper: ImageCropperComponent;`
 
-| Name                    | Returns                    | Description |
-| ----------------------- | -------------------------- | ----------- |
-| `crop`                  | ImageCroppedEvent          | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
-| `cropWithBlob`          | Promise\<ImageCroppedEvent\> | Same as crop but also returns a Blob. |
+| Name                    | Returns           | Description |
+| ----------------------- | ----------------- | ----------- |
+| `crop`                  | ImageCroppedEvent | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
 
 ### Interfaces
 #### CropperPosition
