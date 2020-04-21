@@ -6,7 +6,10 @@
 ### Installation
 `npm install ngx-image-cropper --save`
 
-### Example usage:
+### Upgrade instructions
+For a list of breaking changes and update instructions, go to [releases](https://github.com/Mawi137/ngx-image-cropper/releases).
+
+### Example usage
 Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.
 ```
 import { NgModule } from '@angular/core';
@@ -111,7 +114,8 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 ### CSS Variables
 |  Name                      | Type      | Default      | Description     |
 | -------------------------- |---------- | ------------ | --------------- |
-| `--cropper-outline-color`      | string    | rgba(255,255,255,0.3) | Use this to set the outline Color of the Cropper. This is the Overlay-Color over the Image which is not part of the Cropper. |
+| `--cropper-outline-color`  | string    | rgba(255,255,255,0.3) | The background color you see around the cropper |
+| `--cropper-overlay-color`  | string    | rgba(255,255,255)     | The background color you see around the image |
 
 ### Outputs
 | Name                    | Type              | Description |

@@ -257,6 +257,42 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         img.src = url;
     }
 
+    private transformOriginalImage(): Promise<void> {
+        if (!this.originalImage || !this.originalImage.complete || !this.exifTransform) {
+            return Promise.reject(new Error('No image loaded'));
+        }
+        const transformedBase64 = this.transformImageBase64();
+        return this.setTransformedImage(transformedBase64);
+    }
+
+    private transformImageBase64(): string {
+        const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
+        if (canvasRotation === 0 && !this.exifTransform.flip) {
+            return this.originalBase64;
+        }
+
+        const transformedSize = this.getTransformedSize();
+        const canvas = document.createElement('canvas');
+        canvas.width = transformedSize.width;
+        canvas.height = transformedSize.height;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(
+            this.exifTransform.flip ? -1 : 1,
+            0,
+            0,
+            1,
+            canvas.width / 2,
+            canvas.height / 2
+        );
+        ctx.rotate(Math.PI * (canvasRotation / 2));
+        ctx.drawImage(
+            this.originalImage,
+            -this.originalSize.width / 2,
+            -this.originalSize.height / 2
+        );
+        return canvas.toDataURL();
+    }
+
     private getTransformedSize(): Dimensions {
         const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
         if (this.containWithinAspectRatio) {
@@ -287,38 +323,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             width: this.originalSize.width,
             height: this.originalSize.height,
         };
-    }
-
-    private transformOriginalImage(): Promise<void> {
-        if (!this.originalImage || !this.originalImage.complete || !this.exifTransform) {
-            return Promise.reject(new Error('No image loaded'));
-        }
-        const transformedBase64 = this.transformImageBase64();
-        return this.setTransformedImage(transformedBase64);
-    }
-
-    private transformImageBase64(): string {
-        const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
-        const transformedSize = this.getTransformedSize();
-        const canvas = document.createElement('canvas');
-        canvas.width = transformedSize.width;
-        canvas.height = transformedSize.height;
-        const ctx = canvas.getContext('2d');
-        ctx.setTransform(
-            this.exifTransform.flip ? -1 : 1,
-            0,
-            0,
-            1,
-            canvas.width / 2,
-            canvas.height / 2
-        );
-        ctx.rotate(Math.PI * (canvasRotation / 2));
-        ctx.drawImage(
-            this.originalImage,
-            -this.originalSize.width / 2,
-            -this.originalSize.height / 2
-        );
-        return canvas.toDataURL();
     }
 
     private setTransformedImage(transformedBase64): Promise<void> {
