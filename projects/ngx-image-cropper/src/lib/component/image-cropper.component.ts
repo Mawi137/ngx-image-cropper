@@ -267,7 +267,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
     private transformImageBase64(): string {
         const canvasRotation = this.canvasRotation + this.exifTransform.rotate;
-        if (canvasRotation === 0 && !this.exifTransform.flip) {
+        if (canvasRotation === 0 && !this.exifTransform.flip && !this.containWithinAspectRatio) {
             return this.originalBase64;
         }
 
