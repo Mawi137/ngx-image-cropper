@@ -378,6 +378,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (this.Hammer) {
             const hammer = new this.Hammer(this.wrapper.nativeElement);
             hammer.get('pinch').set({enable: true});
+            hammer.on('pinchmove',this.onPinch.bind(this));
+            hammer.on('pinchend',this.pinchStop.bind(this));
+            hammer.on('pinchstart',this.startPinch.bind(this));
         } else if (isDevMode()) {
             console.warn('[NgxImageCropper] Could not find HammerJS - Pinch Gesture won\'t work');
         }
@@ -541,7 +544,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    @HostListener('document:pinchmove', ['$event'])
     onPinch(event: any) {
         if (this.moveStart.active) {
             if (event.stopPropagation) {
@@ -621,7 +623,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
     }
 
-    @HostListener('document:pinchend')
     pinchStop(): void {
         if (this.moveStart.active) {
             this.moveStart.active = false;
