@@ -1,6 +1,6 @@
 {
     "name": "ngx-image-cropper",
-    "version": "3.1.8",
+    "version": "3.1.9",
     "description": "An image cropper for Angular",
     "author": "Martijn Willekens",
     "repository": {
