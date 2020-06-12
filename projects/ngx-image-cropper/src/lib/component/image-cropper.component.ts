@@ -21,7 +21,7 @@ import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { HammerStatic } from '../utils/hammer.utils';
 import { MoveTypes } from '../interfaces/move-start.interface';
-import {Observable} from "rxjs";
+import { Observable } from "rxjs";
 
 @Component({
     selector: 'image-cropper',

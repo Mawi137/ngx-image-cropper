@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
-import {CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform} from 'ngx-image-cropper';
-import {Observable} from "rxjs";
+import { Component, OnInit } from '@angular/core';
+import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-root',
