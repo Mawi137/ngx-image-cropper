@@ -1,21 +1,32 @@
-import { Component } from '@angular/core';
-import { Dimensions, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
+import {Component, OnInit} from '@angular/core';
+import {CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform} from 'ngx-image-cropper';
+import {Observable} from "rxjs";
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
     imageChangedEvent: any = '';
     croppedImage: any = '';
     canvasRotation = 0;
     rotation = 0;
+    loaded = false;
     scale = 1;
+    cropperPosition$: Observable<CropperPosition>;
     showCropper = false;
     containWithinAspectRatio = false;
     transform: ImageTransform = {};
     imageURL: string;
+
+    ngOnInit(): void {
+        this.cropperPosition$ = new Observable<CropperPosition>(observer => {
+            setInterval(() => {
+                observer.next({x1:0, y1:0, x2:100, y2: 200});
+            }, 3000);
+        });
+    }
 
     fileChangeEvent(event: any): void {
         this.imageChangedEvent = event;
@@ -32,6 +43,7 @@ export class AppComponent {
     }
 
     cropperReady(sourceImageDimensions: Dimensions) {
+        this.loaded = true;
         console.log('Cropper ready', sourceImageDimensions);
     }
 
@@ -58,7 +70,6 @@ export class AppComponent {
             flipV: flippedH
         };
     }
-
 
     flipHorizontal() {
         this.transform = {
