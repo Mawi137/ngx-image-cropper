@@ -21,7 +21,7 @@ import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { HammerStatic } from '../utils/hammer.utils';
 import { MoveTypes } from '../interfaces/move-start.interface';
-import { Observable } from "rxjs";
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'image-cropper',
@@ -79,7 +79,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Input() backgroundColor: string;
     @Input() containWithinAspectRatio = false;
     @Input() hideResizeSquares = false;
-    @Input() cropperPosition$: Observable<CropperPosition>;
+    @Input() cropperPosition$?: Observable<CropperPosition>;
     @Input() cropper: CropperPosition = {
         x1: -100,
         y1: -100,
@@ -162,10 +162,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     ngOnInit(): void {
         this.stepSize = this.initialStepSize;
         this.activatePinchGesture();
-        this.cropperPosition$.subscribe((next) => {
-           this.cropper = next;
-           this.crop();
-        });
+        if (typeof this.cropperPosition$ !== 'undefined') {
+            this.cropperPosition$.subscribe((next) => {
+                this.cropper = next;
+                this.crop();
+            });
+        }
     }
 
     private initCropper(): void {
