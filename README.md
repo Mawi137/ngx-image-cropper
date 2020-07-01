@@ -59,7 +59,7 @@ import { ImageCroppedEvent } from 'ngx-image-cropper';
 export class YourComponent {
     imageChangedEvent: any = '';
     croppedImage: any = '';
-    
+
     fileChangeEvent(event: any): void {
         this.imageChangedEvent = event;
     }
@@ -96,6 +96,8 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `containWithinAspectRatio` | boolean   | false        | When set to true, padding will be added around the image to make it fit to the aspect ratio |
 | `resizeToWidth`            | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
 | `resizeToHeight`           | number    | 0 (disabled) | Cropped image will be resized to this height (in px) (will be ignored if resizeToWidth is set)  |
+| `cropperStaticWidth`          | number    | 0 (disabled) | Set Cropper Width and disable resize (in px) |
+| `cropperStaticHeight`          | number    | 0 (disabled) | Set Cropper Height and disable resize (in px) |
 | `cropperMinWidth`          | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
 | `cropperMinHeight`         | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
 | `initialStepSize`          | number    | 3 (px)       | The initial step size in pixels when moving the cropper using the keyboard. Step size can then be changed by using the numpad when the cropper is focused |
