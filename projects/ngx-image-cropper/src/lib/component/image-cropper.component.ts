@@ -905,17 +905,24 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         return Math.min(1, Math.max(0, this.imageQuality / 100));
     }
 
-    private getResizeRatio(width: number, height: number): number {
+    getResizeRatio(width: number, height: number): number {
+        const ratioWidth = this.resizeToWidth / width;
+        const ratioHeight = this.resizeToHeight / height;
+        const ratios = new Array<number>();
+
         if (this.resizeToWidth > 0) {
-            if (!this.onlyScaleDown || width > this.resizeToWidth) {
-                return this.resizeToWidth / width;
-            }
-        } else if (this.resizeToHeight > 0) {
-            if (!this.onlyScaleDown || height > this.resizeToHeight) {
-                return this.resizeToHeight / height;
-            }
+            ratios.push(ratioWidth);
         }
-        return 1;
+        if (this.resizeToHeight > 0) {
+            ratios.push(ratioHeight);
+        }
+
+        const result = ratios.length === 0 ? 1 : Math.min(...ratios);
+
+        if (result > 1 && !this.onlyScaleDown) {
+            return result;
+        }
+        return Math.min(result, 1);
     }
 
     private getClientX(event: any): number {
