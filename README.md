@@ -94,14 +94,14 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `aspectRatio`              | number    | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...) |
 | `maintainAspectRatio`      | boolean   | true         | Keep width and height of cropped image equal according to the aspectRatio |
 | `containWithinAspectRatio` | boolean   | false        | When set to true, padding will be added around the image to make it fit to the aspect ratio |
-| `resizeToWidth`            | number    | 0 (disabled) | Cropped image will be resized to this width (in px) |
-| `resizeToHeight`           | number    | 0 (disabled) | Cropped image will be resized to this height (in px) (will be ignored if resizeToWidth is set)  |
+| `resizeToWidth`            | number    | 0 (disabled) | Cropped image will be resized to at most this width (in px) |
+| `resizeToHeight`           | number    | 0 (disabled) | Cropped image will be resized to at most this height (in px)  |
 | `cropperStaticWidth`          | number    | 0 (disabled) | Set Cropper Width and disable resize (in px) |
 | `cropperStaticHeight`          | number    | 0 (disabled) | Set Cropper Height and disable resize (in px) |
 | `cropperMinWidth`          | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
 | `cropperMinHeight`         | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
 | `initialStepSize`          | number    | 3 (px)       | The initial step size in pixels when moving the cropper using the keyboard. Step size can then be changed by using the numpad when the cropper is focused |
-| `onlyScaleDown`            | boolean   | false        | When the `resizeToWidth` is set, enabling this option will make sure smaller images are not scaled up |
+| `onlyScaleDown`            | boolean   | false        | When the `resizeToWidth` or `resizeToHeight` is set, enabling this option will make sure smaller images are not scaled up |
 | `cropper`                  | CropperPosition |  | To be able to overwrite the cropper coordinates, you can use this input. Create a new object of type `CropperPosition` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position and wait for the `cropperReady` event to have fired. |
 | `roundCropper`             | boolean   | false        | Set this to true for a round cropper. Resulting image will still be square, use `border-radius: 100%` on resulting image to show it as round. |
 | `imageQuality`             | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
