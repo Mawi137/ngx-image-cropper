@@ -79,7 +79,7 @@ export class YourComponent {
 ```
 When you choose a file from the file input, it will trigger `fileChangeEvent`.
 That event is then passed to the image cropper through `imageChangedEvent` which will load the image into the cropper.
-Everytime you release the mouse, the `imageCropped` event will be triggerd with the cropped image as a Base64 string in its payload.
+Everytime you release the mouse, the `imageCropped` event will be triggered with the cropped image as a Base64 string in its payload.
 
 ## API
 All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `imageFile` should be set to load an image into the cropper.
