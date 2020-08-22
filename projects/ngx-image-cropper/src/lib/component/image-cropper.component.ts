@@ -21,6 +21,7 @@ import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { HammerStatic } from '../utils/hammer.utils';
 import { MoveTypes } from '../interfaces/move-start.interface';
+import {ImageCropperService} from "../service/image-cropper.service";
 
 @Component({
     selector: 'image-cropper',
@@ -97,7 +98,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     @Output() cropperReady = new EventEmitter<Dimensions>();
     @Output() loadImageFailed = new EventEmitter<void>();
 
-    constructor(private sanitizer: DomSanitizer,
+    constructor(private cropperService: ImageCropperService,
+                private sanitizer: DomSanitizer,
                 private cd: ChangeDetectorRef) {
         this.initCropper();
     }
@@ -798,48 +800,30 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (this.sourceImage && this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
-            const width = imagePosition.x2 - imagePosition.x1;
-            const height = imagePosition.y2 - imagePosition.y1;
+            let width = imagePosition.x2 - imagePosition.x1;
+            let height = imagePosition.y2 - imagePosition.y1;
 
-            const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
-            cropCanvas.width = width;
-            cropCanvas.height = height;
+            const cropCanvas = this.cropperService.crop(this.getImagePosition(), this.transform, this.transformedImage, this.backgroundColor);
 
-            const ctx = cropCanvas.getContext('2d');
-            if (ctx) {
-                if (this.backgroundColor != null) {
-                    ctx.fillStyle = this.backgroundColor;
-                    ctx.fillRect(0, 0, width, height);
-                }
-
-                const scaleX = (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1);
-                const scaleY = (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1);
-
-                ctx.setTransform(scaleX, 0, 0, scaleY, this.transformedSize.width / 2, this.transformedSize.height / 2);
-                ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
-                ctx.rotate((this.transform.rotate || 0) * Math.PI / 180);
-                ctx.drawImage(this.transformedImage, -this.transformedSize.width / 2, -this.transformedSize.height / 2);
-
-                const output: ImageCroppedEvent = {
-                    width, height,
-                    imagePosition,
-                    cropperPosition: {...this.cropper}
-                };
-                if (this.containWithinAspectRatio) {
-                    output.offsetImagePosition = this.getOffsetImagePosition();
-                }
-                const resizeRatio = this.getResizeRatio(width, height);
-                if (resizeRatio !== 1) {
-                    output.width = Math.round(width * resizeRatio);
-                    output.height = this.maintainAspectRatio
-                        ? Math.round(output.width / this.aspectRatio)
-                        : Math.round(height * resizeRatio);
-                    resizeCanvas(cropCanvas, output.width, output.height);
-                }
-                output.base64 = this.cropToBase64(cropCanvas);
-                this.imageCropped.emit(output);
-                return output;
+            const resizeRatio = this.getResizeRatio(width, height);
+            if (resizeRatio !== 1) {
+                width = Math.round(width * resizeRatio);
+                height = this.maintainAspectRatio
+                    ? Math.round(width / this.aspectRatio)
+                    : Math.round(height * resizeRatio);
+                resizeCanvas(cropCanvas, width, height);
             }
+
+            const output: ImageCroppedEvent = {
+                width, height,
+                imagePosition,
+                cropperPosition: {...this.cropper},
+                offsetImagePosition: this.containWithinAspectRatio ? this.getOffsetImagePosition() : undefined,
+                base64: this.cropToBase64(cropCanvas)
+            };
+
+            this.imageCropped.emit(output);
+            return output;
         }
         return null;
     }
