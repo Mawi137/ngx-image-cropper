@@ -803,7 +803,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
             let width = imagePosition.x2 - imagePosition.x1;
             let height = imagePosition.y2 - imagePosition.y1;
 
-            const cropCanvas = this.cropperService.crop(this.getImagePosition(), this.transform, this.transformedImage, this.backgroundColor);
+            const cropCanvas = this.cropperService.crop(this.transformedImage, this.getImagePosition(), this.transform, this.backgroundColor);
 
             const resizeRatio = this.getResizeRatio(width, height);
             if (resizeRatio !== 1) {

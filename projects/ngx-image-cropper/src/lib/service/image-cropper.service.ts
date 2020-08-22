@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform} from "../interfaces";
 import {resizeCanvas} from "../utils/resize.utils";
+import {IDENTITY_IMAGE_TRANSFORM} from "../interfaces/image-transform.interface";
 
 @Injectable({
   providedIn: 'root'
@@ -26,11 +27,11 @@ export class ImageCropperService {
       });
   }
 
-  async cropAsync(imagePosition: CropperPosition, transform: ImageTransform, originalImage: HTMLImageElement, backgroundColor?: string): Promise<HTMLCanvasElement> {
-      return this.crop(imagePosition, transform, await this.waitForImageToLoad(originalImage), backgroundColor);
+  async cropAsync(originalImage: HTMLImageElement, area: CropperPosition, transform: ImageTransform = IDENTITY_IMAGE_TRANSFORM, backgroundColor?: string): Promise<HTMLCanvasElement> {
+      return this.crop(await this.waitForImageToLoad(originalImage), area, transform, backgroundColor);
   }
 
-  crop(area: CropperPosition, transform: ImageTransform, originalImage: HTMLImageElement, backgroundColor?: string): HTMLCanvasElement {
+  crop(originalImage: HTMLImageElement, area: CropperPosition, transform: ImageTransform = IDENTITY_IMAGE_TRANSFORM, backgroundColor?: string): HTMLCanvasElement {
       const width = area.x2 - area.x1;
       const height = area.y2 - area.y1;
 
