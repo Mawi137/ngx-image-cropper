@@ -54,8 +54,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     imageVisible = false;
     moveTypes = MoveTypes;
 
-    @ViewChild('wrapper', {static: true}) wrapper: ElementRef;
-    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef;
+    @ViewChild('wrapper', {static: true}) wrapper: ElementRef<HTMLDivElement>;
+    @ViewChild('sourceImage', {static: false}) sourceImage: ElementRef<HTMLImageElement>;
 
     @Input() imageChangedEvent: any;
     @Input() imageURL: string;
