@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import {CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform} from "../interfaces";
-import {resizeCanvas} from "../utils/resize.utils";
+import {CropperPosition, Dimensions, ImageTransform} from "../interfaces";
 import {IDENTITY_IMAGE_TRANSFORM} from "../interfaces/image-transform.interface";
 
 @Injectable({
