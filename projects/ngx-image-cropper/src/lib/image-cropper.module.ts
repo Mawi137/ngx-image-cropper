@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageCropperComponent } from './component/image-cropper.component';
-import {ImageCropperService} from "./service/image-cropper.service";
+import { ImageCropperService } from "./services/image-cropper.service";
 
 @NgModule({
     imports: [
@@ -12,6 +12,9 @@ import {ImageCropperService} from "./service/image-cropper.service";
     ],
     exports: [
         ImageCropperComponent,
+    ],
+    providers: [
+        ImageCropperService
     ]
 })
 export class ImageCropperModule {}
