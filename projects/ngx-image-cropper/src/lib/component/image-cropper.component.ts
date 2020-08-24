@@ -21,7 +21,7 @@ import { resizeCanvas } from '../utils/resize.utils';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { HammerStatic } from '../utils/hammer.utils';
 import { MoveTypes } from '../interfaces/move-start.interface';
-import {ImageCropperService} from "../service/image-cropper.service";
+import {ImageCropperService} from "../services/image-cropper.service";
 
 @Component({
     selector: 'image-cropper',
