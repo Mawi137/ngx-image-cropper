@@ -17,11 +17,9 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
-            "main": "projects/ngx-image-cropper/src/test.ts",
-            "tsConfig": "projects/ngx-image-cropper/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-image-cropper/karma.conf.js"
+            "tsConfig": "tsconfig.spec.json"
           }
         },
         "lint": {
@@ -114,21 +112,6 @@
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "demo-app:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "polyfills": "projects/demo-app/src/polyfills.ts",
-            "tsConfig": "projects/demo-app/tsconfig.spec.json",
-            "assets": [
-              "projects/demo-app/src/favicon.ico",
-              "projects/demo-app/src/assets"
-            ],
-            "styles": [
-              "projects/demo-app/src/styles.scss"
-            ],
-            "scripts": []
           }
         },
         "lint": {
