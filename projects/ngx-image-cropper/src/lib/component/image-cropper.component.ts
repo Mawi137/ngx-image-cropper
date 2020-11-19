@@ -698,8 +698,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private resize(event: any): void {
-        var diffX = this.getClientX(event) - this.moveStart.clientX;
-        var diffY = this.getClientY(event) - this.moveStart.clientY;
+        const diffX = this.getClientX(event) - this.moveStart.clientX;
+        const diffY = this.getClientY(event) - this.moveStart.clientY;
         switch (this.moveStart.position) {
             case 'left':
                 this.cropper.x1 = Math.min(Math.max(this.moveStart.x1 + diffX, this.cropper.x2 - this.cropperScaledMaxWidth), 
