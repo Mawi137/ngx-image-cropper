@@ -441,13 +441,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                 this.cropper.x1 = 0;
                 this.cropper.x2 = cropperWidth;
                 const cropperHeightWithAspectRatio = cropperWidth / this.aspectRatio;
-                this.cropper.y1 = (cropperHeight - cropperHeightWithAspectRatio) / 2;
+                this.cropper.y1 = (sourceImageElement.offsetHeight - cropperHeightWithAspectRatio) / 2;
                 this.cropper.y2 = this.cropper.y1 + cropperHeightWithAspectRatio;
             } else {
                 this.cropper.y1 = 0;
                 this.cropper.y2 = cropperHeight;
                 const cropperWidthWithAspectRatio = cropperHeight * this.aspectRatio;
-                this.cropper.x1 = (cropperWidth - cropperWidthWithAspectRatio) / 2;
+                this.cropper.x1 = (sourceImageElement.offsetWidth - cropperWidthWithAspectRatio) / 2;
                 this.cropper.x2 = this.cropper.x1 + cropperWidthWithAspectRatio;
             }
         }
@@ -633,21 +633,22 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     private setCropperScaledMaxSize(): void {
-        const sourceImageElement = this.sourceImage.nativeElement;
-        const ratio = this.transformedSize.width / sourceImageElement.offsetWidth;
-        this.cropperScaledMaxWidth = this.cropperMaxWidth > 20? this.cropperMaxWidth : this.maxSize.width;
-        this.cropperScaledMaxHeight = this.cropperMaxHeight > 20? this.cropperMaxHeight : this.maxSize.height;
-        if (ratio != 1 && (this.cropperMaxWidth > 20 || this.cropperMaxHeight > 20)) {
-            this.cropperScaledMaxWidth = this.cropperScaledMaxWidth/ratio;
-            this.cropperScaledMaxHeight = this.cropperScaledMaxHeight/ratio;
-        }
-        if (this.transformedImage && this.maintainAspectRatio) {
-            if (this.cropperScaledMaxWidth > this.cropperScaledMaxHeight * this.aspectRatio) {
-                this.cropperScaledMaxWidth = this.cropperScaledMaxHeight * this.aspectRatio;
+        if (this.transformedImage) {
+            const ratio = this.transformedSize.width / this.maxSize.width;
+            this.cropperScaledMaxWidth = this.cropperMaxWidth > 20? this.cropperMaxWidth/ratio : this.maxSize.width;
+            this.cropperScaledMaxHeight = this.cropperMaxHeight > 20? this.cropperMaxHeight/ratio : this.maxSize.height;
+            if (this.maintainAspectRatio) {
+                if (this.cropperScaledMaxWidth > this.cropperScaledMaxHeight * this.aspectRatio) {
+                    this.cropperScaledMaxWidth = this.cropperScaledMaxHeight * this.aspectRatio;
+                }
+                else if (this.cropperScaledMaxWidth < this.cropperScaledMaxHeight * this.aspectRatio) {
+                    this.cropperScaledMaxHeight = this.cropperScaledMaxWidth / this.aspectRatio;
+                } 
             }
-            else if (this.cropperScaledMaxWidth < this.cropperScaledMaxHeight * this.aspectRatio) {
-                this.cropperScaledMaxHeight = this.cropperScaledMaxWidth / this.aspectRatio;
-            } 
+        }
+        else {
+            this.cropperScaledMaxWidth = this.maxSize.width;
+            this.cropperScaledMaxHeight = this.maxSize.height;
         }
     }
 
@@ -746,9 +747,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
                 const newHeight = (Math.abs(this.moveStart.y2 - this.moveStart.y1)) * scale;
                 const x1 = this.cropper.x1;
                 const y1 = this.cropper.y1;
-                this.cropper.x1 = Math.min(Math.max(this.moveStart.clientX - (newWidth / 2), this.cropper.x2 - this.cropperScaledMaxWidth/2),
+                this.cropper.x1 = Math.min(Math.max(this.moveStart.clientX - (newWidth / 2), this.moveStart.clientX - this.cropperScaledMaxWidth/2),
                     this.cropper.x2 - this.cropperScaledMinWidth);
-                this.cropper.y1 = Math.min(Math.max(this.moveStart.clientY - (newHeight / 2), this.cropper.y2 - this.cropperScaledMaxHeight/2),
+                this.cropper.y1 = Math.min(Math.max(this.moveStart.clientY - (newHeight / 2), this.moveStart.clientY - this.cropperScaledMaxHeight/2),
                     this.cropper.y2 - this.cropperScaledMinHeight);
                 this.cropper.x2 = Math.max(Math.min(this.moveStart.clientX + (newWidth / 2), x1 + this.cropperScaledMaxWidth/2),  
                     x1 + this.cropperScaledMinWidth);
@@ -850,15 +851,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         if (this.sourceImage && this.sourceImage.nativeElement && this.transformedImage != null) {
             this.startCropImage.emit();
             const imagePosition = this.getImagePosition();
-
-            const imgWidth = imagePosition.x2 - imagePosition.x1;
-            const imgHeight = imagePosition.y2 - imagePosition.y1;
-            const sourceImageElement = this.sourceImage.nativeElement;
-            const ratio = this.transformedSize.width / sourceImageElement.offsetWidth;
-            const scaledMaxWidthWithRatio = this.cropperScaledMaxWidth * ratio;
-            const scaledMaxHeightWithRatio = this.cropperScaledMaxHeight * ratio;
-            const width = imgWidth > scaledMaxWidthWithRatio ? scaledMaxHeightWithRatio : imgWidth;
-            const height = imgHeight > scaledMaxHeightWithRatio ? scaledMaxHeightWithRatio : imgHeight;
+            const width = imagePosition.x2 - imagePosition.x1;
+            const height = imagePosition.y2 - imagePosition.y1;
 
             const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
             cropCanvas.width = width;
