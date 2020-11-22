@@ -1,4 +1,4 @@
 export interface ExifTransform {
-    rotate: number;
-    flip: boolean;
+  rotate: number;
+  flip: boolean;
 }

@@ -8,6 +8,7 @@
     "build": "ng build",
     "build:lib": "ng build ngx-image-cropper",
     "publish:lib": "npm run build:lib && npm run copy:files && npm publish ./dist/ngx-image-cropper",
+    "pack:lib": "npm pack ./projects/ngx-image-cropper",
     "test": "ng test ngx-image-cropper",
     "test:ci": "ng test ngx-image-cropper --bail",
     "lint": "ng lint",
