@@ -2,6 +2,8 @@ import { CropperOptions, OutputFormat } from './cropper-options.interface';
 import { ImageTransform } from './image-transform.interface';
 
 export class CropperSettings {
+
+  // From options
   format: OutputFormat = 'png';
   maintainAspectRatio = true;
   transform: ImageTransform = {};
@@ -24,6 +26,13 @@ export class CropperSettings {
   containWithinAspectRatio = false;
   hideResizeSquares = false;
   alignImage: 'left' | 'center' = 'center';
+
+  // Internal
+   cropperScaledMinWidth = 20;
+   cropperScaledMinHeight = 20;
+   cropperScaledMaxWidth = 20;
+   cropperScaledMaxHeight = 20;
+   stepSize = this.initialStepSize;
 
   setOptions(options: CropperOptions): void {
     Object.keys(options).forEach((k) => this[k] = options[k]);
