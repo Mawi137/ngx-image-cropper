@@ -36,7 +36,7 @@ export class AppComponent {
   }
 
   loadImageFailed() {
-    console.log('Load failed');
+    console.error('Load image failed');
   }
 
   rotateLeft() {
