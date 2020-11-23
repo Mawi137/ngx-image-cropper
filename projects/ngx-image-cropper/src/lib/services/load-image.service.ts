@@ -86,35 +86,49 @@ export class LoadImageService {
     if (!res.originalImage || !res.originalImage.complete) {
       return Promise.reject(new Error('No image loaded'));
     }
-
-    const canvasRotation = cropperSettings.canvasRotation + exifTransform.rotate;
-    const originalSize = {
-      width: res.originalImage.naturalWidth,
-      height: res.originalImage.naturalHeight
+    const loadedImage = {
+      original: {
+        base64: res.originalBase64,
+        image: res.originalImage,
+        size: {
+          width: res.originalImage.naturalWidth,
+          height: res.originalImage.naturalHeight
+        }
+      },
+      exifTransform
     };
-    if (canvasRotation === 0 && !exifTransform.flip && !cropperSettings.containWithinAspectRatio) {
+    return this.transformLoadedImage(loadedImage, cropperSettings);
+  }
+
+  async transformLoadedImage(loadedImage: Partial<LoadedImage>, cropperSettings: CropperSettings): Promise<LoadedImage> {
+    const canvasRotation = cropperSettings.canvasRotation + loadedImage.exifTransform.rotate;
+    const originalSize = {
+      width: loadedImage.original.image.naturalWidth,
+      height: loadedImage.original.image.naturalHeight
+    };
+    if (canvasRotation === 0 && !loadedImage.exifTransform.flip && !cropperSettings.containWithinAspectRatio) {
       return {
         original: {
-          base64: res.originalBase64,
-          image: res.originalImage,
+          base64: loadedImage.original.base64,
+          image: loadedImage.original.image,
           size: {...originalSize}
         },
         transformed: {
-          base64: res.originalBase64,
-          image: res.originalImage,
+          base64: loadedImage.original.base64,
+          image: loadedImage.original.image,
           size: {...originalSize}
         },
-        exifTransform
+        exifTransform: loadedImage.exifTransform
       };
     }
 
-    const transformedSize = this.getTransformedSize(originalSize, exifTransform, cropperSettings);
+    const transformedSize = this.getTransformedSize(originalSize, loadedImage.exifTransform, cropperSettings);
     const canvas = document.createElement('canvas');
     canvas.width = transformedSize.width;
     canvas.height = transformedSize.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(
-      exifTransform.flip ? -1 : 1,
+      loadedImage.exifTransform.flip ? -1 : 1,
       0,
       0,
       1,
@@ -123,7 +137,7 @@ export class LoadImageService {
     );
     ctx.rotate(Math.PI * (canvasRotation / 2));
     ctx.drawImage(
-      res.originalImage,
+      loadedImage.original.image,
       -originalSize.width / 2,
       -originalSize.height / 2
     );
@@ -131,8 +145,8 @@ export class LoadImageService {
     const transformedImage = await this.loadImageFromBase64(transformedBase64);
     return {
       original: {
-        base64: res.originalBase64,
-        image: res.originalImage,
+        base64: loadedImage.original.base64,
+        image: loadedImage.original.image,
         size: {...originalSize}
       },
       transformed: {
@@ -143,7 +157,7 @@ export class LoadImageService {
           height: transformedImage.height
         }
       },
-      exifTransform
+      exifTransform: loadedImage.exifTransform
     };
   }
 

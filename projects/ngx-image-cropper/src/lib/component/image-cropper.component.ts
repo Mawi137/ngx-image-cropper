@@ -22,8 +22,8 @@ import { HammerStatic } from '../utils/hammer.utils';
 import { CropperService } from '../services/cropper.service';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { LoadedImage, LoadImageService } from '../services/load-image.service';
-import { resizeCanvas } from '../utils/resize.utils';
 import { OutputFormat } from '../interfaces/cropper-options.interface';
+import { resizeCanvas } from '../utils/resize.utils';
 
 @Component({
   selector: 'image-cropper',
@@ -62,27 +62,27 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() imageBase64: string;
   @Input() imageFile: File;
 
-  @Input() format: OutputFormat = 'png';
+  @Input() format: OutputFormat = this.settings.format;
   @Input() transform: ImageTransform = {};
-  @Input() maintainAspectRatio = true;
-  @Input() aspectRatio = 1;
-  @Input() resizeToWidth = 0;
-  @Input() resizeToHeight = 0;
-  @Input() cropperMinWidth = 0;
-  @Input() cropperMinHeight = 0;
-  @Input() cropperMaxHeight = 0;
-  @Input() cropperMaxWidth = 0;
-  @Input() cropperStaticWidth = 0;
-  @Input() cropperStaticHeight = 0;
-  @Input() canvasRotation = 0;
-  @Input() initialStepSize = 3;
-  @Input() roundCropper = false;
-  @Input() onlyScaleDown = false;
-  @Input() imageQuality = 92;
-  @Input() autoCrop = true;
-  @Input() backgroundColor: string;
-  @Input() containWithinAspectRatio = false;
-  @Input() hideResizeSquares = false;
+  @Input() maintainAspectRatio = this.settings.maintainAspectRatio;
+  @Input() aspectRatio = this.settings.aspectRatio;
+  @Input() resizeToWidth = this.settings.resizeToWidth;
+  @Input() resizeToHeight = this.settings.resizeToHeight;
+  @Input() cropperMinWidth = this.settings.cropperMinWidth;
+  @Input() cropperMinHeight = this.settings.cropperMinHeight;
+  @Input() cropperMaxHeight = this.settings.cropperMaxHeight;
+  @Input() cropperMaxWidth = this.settings.cropperMaxWidth;
+  @Input() cropperStaticWidth = this.settings.cropperStaticWidth;
+  @Input() cropperStaticHeight = this.settings.cropperStaticHeight;
+  @Input() canvasRotation = this.settings.canvasRotation;
+  @Input() initialStepSize = this.settings.initialStepSize;
+  @Input() roundCropper = this.settings.roundCropper;
+  @Input() onlyScaleDown = this.settings.onlyScaleDown;
+  @Input() imageQuality = this.settings.imageQuality;
+  @Input() autoCrop = this.settings.autoCrop;
+  @Input() backgroundColor = this.settings.backgroundColor;
+  @Input() containWithinAspectRatio = this.settings.containWithinAspectRatio;
+  @Input() hideResizeSquares = this.settings.hideResizeSquares;
   @Input() cropper: CropperPosition = {
     x1: -100,
     y1: -100,
@@ -90,7 +90,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     y2: 10000
   };
   @HostBinding('style.text-align')
-  @Input() alignImage: 'left' | 'center' = 'center';
+  @Input() alignImage: 'left' | 'center' = this.settings.alignImage;
   @HostBinding('class.disabled')
   @Input() disabled = false;
 
@@ -106,26 +106,20 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private sanitizer: DomSanitizer,
     private cd: ChangeDetectorRef
   ) {
-    this.initCropper();
+    this.reset();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.cropperStaticHeight && this.cropperStaticWidth) {
-      this.hideResizeSquares = true;
-      this.cropperMinWidth = this.cropperStaticWidth;
-      this.cropperMinHeight = this.cropperStaticHeight;
-      this.cropperMaxHeight = this.cropperStaticHeight;
-      this.cropperMaxWidth = this.cropperStaticWidth;
-      this.maintainAspectRatio = false;
-    }
-
+    this.onChangesUpdateSettings(changes);
     this.onChangesInputImage(changes);
 
-    // TODO
-    /*if (this.originalImage && this.originalImage.complete && this.exifTransform
+    if (this.loadedImage && this.loadedImage.original.image.complete
       && (changes.containWithinAspectRatio || changes.canvasRotation)) {
-      this.transformOriginalImage();
-    }*/
+      this.loadImageService
+        .transformLoadedImage(this.loadedImage, this.settings)
+        .then((res) => this.setLoadedImage(res))
+        .catch((err) => this.loadImageError(err));
+    }
     if (changes.cropper) {
       this.setMaxSize();
       this.setCropperScaledMinSize();
@@ -144,9 +138,24 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
+  private onChangesUpdateSettings(changes: SimpleChanges) {
+    Object.keys(changes)
+      .filter((p) => this.settings.hasOwnProperty(p))
+      .forEach((p) => this.settings[p] = this[p]);
+
+    if (this.settings.cropperStaticHeight && this.settings.cropperStaticWidth) {
+      this.settings.hideResizeSquares = true;
+      this.settings.cropperMinWidth = this.settings.cropperStaticWidth;
+      this.settings.cropperMinHeight = this.settings.cropperStaticHeight;
+      this.settings.cropperMaxHeight = this.settings.cropperStaticHeight;
+      this.settings.cropperMaxWidth = this.settings.cropperStaticWidth;
+      this.settings.maintainAspectRatio = false;
+    }
+  }
+
   private onChangesInputImage(changes: SimpleChanges): void {
     if (changes.imageChangedEvent || changes.imageURL || changes.imageBase64 || changes.imageFile) {
-      this.initCropper();
+      this.reset();
     }
     if (changes.imageChangedEvent && this.isValidImageChangedEvent()) {
       this.loadImageFile(this.imageChangedEvent.target.files[0]);
@@ -182,7 +191,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.activatePinchGesture();
   }
 
-  private initCropper(): void {
+  private reset(): void {
     this.imageVisible = false;
     this.loadedImage = null;
     this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
@@ -201,7 +210,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     };
     this.maxSize = {
       width: 0,
-      height: 0,
+      height: 0
     };
     this.cropper.x1 = -100;
     this.cropper.y1 = -100;
@@ -243,7 +252,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   imageLoadedInView(): void {
-    if (this.loadedImage != null && this.loadedImage.transformed.image != null) {
+    if (this.loadedImage != null) {
       this.imageLoaded.emit(this.loadedImage);
       this.setImageMaxSizeRetries = 0;
       setTimeout(() => this.checkImageMaxSizeRecursively());
