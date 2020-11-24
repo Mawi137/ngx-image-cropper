@@ -274,6 +274,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   @HostListener('window:resize')
   onResize(): void {
+    if (!this.loadedImage) {
+      return;
+    }
     this.resizeCropperPosition();
     this.setMaxSize();
     this.setCropperScaledMinSize();
