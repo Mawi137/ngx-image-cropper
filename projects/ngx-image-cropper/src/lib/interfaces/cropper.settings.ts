@@ -34,7 +34,7 @@ export class CropperSettings {
    cropperScaledMaxHeight = 20;
    stepSize = this.initialStepSize;
 
-  setOptions(options: CropperOptions): void {
+  setOptions(options: Partial<CropperOptions>): void {
     Object.keys(options).forEach((k) => this[k] = options[k]);
   }
 }

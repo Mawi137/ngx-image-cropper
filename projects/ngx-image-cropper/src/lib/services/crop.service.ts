@@ -106,7 +106,7 @@ export class CropService {
     return out;
   }
 
-  private getResizeRatio(width: number, height: number, settings: CropperSettings): number {
+  getResizeRatio(width: number, height: number, settings: CropperSettings): number {
     const ratioWidth = settings.resizeToWidth / width;
     const ratioHeight = settings.resizeToHeight / height;
     const ratios = new Array<number>();
@@ -126,7 +126,7 @@ export class CropService {
     return Math.min(result, 1);
   }
 
-  private getQuality(settings: CropperSettings): number {
+  getQuality(settings: CropperSettings): number {
     return Math.min(1, Math.max(0, settings.imageQuality / 100));
   }
 }
