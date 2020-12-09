@@ -94,22 +94,30 @@ export class CropperPositionService {
         break;
       case 'center':
         const scale = event.scale;
-        const newWidth = (Math.abs(moveStart.x2 - moveStart.x1)) * scale;
-        const newHeight = (Math.abs(moveStart.y2 - moveStart.y1)) * scale;
-        const x1 = cropperPosition.x1;
-        const y1 = cropperPosition.y1;
-        cropperPosition.x1 = Math.min(
-          Math.max(moveStart.clientX - (newWidth / 2), moveStart.clientX - settings.cropperScaledMaxWidth / 2),
-          cropperPosition.x2 - settings.cropperScaledMinWidth
-        );
-        cropperPosition.y1 = Math.min(
-          Math.max(moveStart.clientY - (newHeight / 2), moveStart.clientY - settings.cropperScaledMaxHeight / 2),
-          cropperPosition.y2 - settings.cropperScaledMinHeight
-        );
-        cropperPosition.x2 = Math.max(Math.min(moveStart.clientX + (newWidth / 2), x1 + settings.cropperScaledMaxWidth / 2),
-          x1 + settings.cropperScaledMinWidth);
-        cropperPosition.y2 = Math.max(Math.min(moveStart.clientY + (newHeight / 2), y1 + settings.cropperScaledMaxHeight / 2),
-          y1 + settings.cropperScaledMinHeight);
+        const newWidth = Math.min(
+          Math.max(settings.cropperScaledMinWidth, (Math.abs(moveStart.x2 - moveStart.x1)) * scale),
+          settings.cropperScaledMaxWidth);
+        const newHeight = Math.min(
+          Math.max(settings.cropperScaledMinHeight, (Math.abs(moveStart.y2 - moveStart.y1)) * scale),
+          settings.cropperScaledMaxHeight);
+        cropperPosition.x1 = moveStart.clientX - newWidth / 2;
+        cropperPosition.x2 = moveStart.clientX + newWidth / 2;
+        cropperPosition.y1 = moveStart.clientY - newHeight / 2;
+        cropperPosition.y2 = moveStart.clientY + newHeight / 2;
+        if (cropperPosition.x1 < 0) {
+          cropperPosition.x2 -= cropperPosition.x1;
+          cropperPosition.x1 = 0;
+        } else if (cropperPosition.x2 > maxSize.width) {
+          cropperPosition.x1 -= (cropperPosition.x2 - maxSize.width);
+          cropperPosition.x2 = maxSize.width;
+        }
+        if (cropperPosition.y1 < 0) {
+          cropperPosition.y2 -= cropperPosition.y1;
+          cropperPosition.y1 = 0;
+        } else if (cropperPosition.y2 > maxSize.height) {
+          cropperPosition.y1 -= (cropperPosition.y2 - maxSize.height);
+          cropperPosition.y2 = maxSize.height;
+        }
         break;
     }
 
