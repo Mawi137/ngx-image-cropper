@@ -2,9 +2,9 @@ export type HammerStatic = new(element: HTMLElement | SVGElement, options?: any)
 
 /** @docs-private */
 export interface HammerManager {
-    get(eventName: string): HammerManager;
+  get(eventName: string): HammerManager;
 
-    set(options: any): HammerManager;
+  set(options: any): HammerManager;
 
-    on(eventName: string, handler: (ev: any) => any);
+  on(eventName: string, handler: (ev: any) => any);
 }

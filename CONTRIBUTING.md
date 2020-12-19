@@ -9,5 +9,5 @@
 
 First run `npm install` to install all dependencies.
 To build the lib, run `npm run build`.
-To package the lib, run `npm run pack-lib`.
+To package the lib, run `npm run pack:lib`.
 This last step will then give you a *.tgz file which you can use in your own application to test your changes.

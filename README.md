@@ -66,7 +66,7 @@ export class YourComponent {
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
     }
-    imageLoaded() {
+    imageLoaded(image: HTMLImageElement) {
         // show cropper
     }
     cropperReady() {
@@ -96,10 +96,12 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `containWithinAspectRatio` | boolean   | false        | When set to true, padding will be added around the image to make it fit to the aspect ratio |
 | `resizeToWidth`            | number    | 0 (disabled) | Cropped image will be resized to at most this width (in px) |
 | `resizeToHeight`           | number    | 0 (disabled) | Cropped image will be resized to at most this height (in px)  |
-| `cropperStaticWidth`          | number    | 0 (disabled) | Set Cropper Width and disable resize (in px) |
-| `cropperStaticHeight`          | number    | 0 (disabled) | Set Cropper Height and disable resize (in px) |
+| `cropperStaticWidth`       | number    | 0 (disabled) | Set Cropper Width and disable resize (in px) |
+| `cropperStaticHeight`      | number    | 0 (disabled) | Set Cropper Height and disable resize (in px) |
 | `cropperMinWidth`          | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in width (relative to original image's size) (in px) |
 | `cropperMinHeight`         | number    | 0 (disabled) | The cropper cannot be made smaller than this number of pixels in height (relative to original image's size) (in px) (will be ignored if `maintainAspectRatio` is set) |
+| `cropperMaxWidth`          | number    | 0 (disabled) | The cropper cannot be made bigger than this number of pixels in width (in px) |
+| `cropperMaxHeight`         | number    | 0 (disabled) | The cropper cannot be made bigger than this number of pixels in height (in px) |
 | `initialStepSize`          | number    | 3 (px)       | The initial step size in pixels when moving the cropper using the keyboard. Step size can then be changed by using the numpad when the cropper is focused |
 | `onlyScaleDown`            | boolean   | false        | When the `resizeToWidth` or `resizeToHeight` is set, enabling this option will make sure smaller images are not scaled up |
 | `cropper`                  | CropperPosition |  | To be able to overwrite the cropper coordinates, you can use this input. Create a new object of type `CropperPosition` and assign it to this input. Make sure to create a new object each time you wish to overwrite the cropper's position and wait for the `cropperReady` event to have fired. |
@@ -123,7 +125,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | Name                    | Type              | Description |
 | ----------------------- | ----------------- | ----------- |
 | `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
-| `imageLoaded`           | void              | Emits when the image was loaded into the cropper |
+| `imageLoaded`           | LoadedImage       | Emits the Image when it was loaded into the cropper |
 | `cropperReady`          | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size |
 | `startCropImage`        | void              | Emits when the component started cropping the image |
 | `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
@@ -161,3 +163,14 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | cropperPosition       | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
 | imagePosition         | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
 | offsetImagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
+
+#### ImageLoaded
+| Property              | Type             | Description |
+| --------------------  | ------           | ----------- |
+| original.base64       | string           | Base64 string of the original image |
+| original.image        | HTMLImageElement | HTMLImageElement of the original image |
+| original.size         | Dimension        | Width and height of the original image |
+| transformed.base64    | string           | Base64 string of the transformed image |
+| transformed.image     | HTMLImageElement | HTMLImageElement of the transformed image |
+| transformed.size      | Dimension        | Width and height of the transformed image |
+| exifTransform         | ExifTransform    | Exif transformations read from original image |
