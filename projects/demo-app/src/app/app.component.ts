@@ -16,8 +16,10 @@ export class AppComponent {
   containWithinAspectRatio = false;
   transform: ImageTransform = {};
   imageURL: string;
+  loading = false;
 
   fileChangeEvent(event: any): void {
+    this.loading = true;
     this.imageChangedEvent = event;
   }
 
@@ -33,6 +35,7 @@ export class AppComponent {
 
   cropperReady(sourceImageDimensions: Dimensions) {
     console.log('Cropper ready', sourceImageDimensions);
+    this.loading = false;
   }
 
   loadImageFailed() {
@@ -40,13 +43,19 @@ export class AppComponent {
   }
 
   rotateLeft() {
-    this.canvasRotation--;
-    this.flipAfterRotate();
+    this.loading = true;
+    setTimeout(() => { // Use timeout because rotating image is a heavy operation and will block the ui thread
+      this.canvasRotation--;
+      this.flipAfterRotate();
+    });
   }
 
   rotateRight() {
-    this.canvasRotation++;
-    this.flipAfterRotate();
+    this.loading = true;
+    setTimeout(() => {
+      this.canvasRotation++;
+      this.flipAfterRotate();
+    });
   }
 
   private flipAfterRotate() {
@@ -58,7 +67,6 @@ export class AppComponent {
       flipV: flippedH
     };
   }
-
 
   flipHorizontal() {
     this.transform = {
