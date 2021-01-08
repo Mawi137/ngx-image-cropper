@@ -1,5 +1,6 @@
 import { CropperOptions, OutputFormat } from './cropper-options.interface';
 import { ImageTransform } from './image-transform.interface';
+import { SimpleChanges } from '@angular/core';
 
 export class CropperSettings {
 
@@ -22,19 +23,27 @@ export class CropperSettings {
   onlyScaleDown = false;
   imageQuality = 92;
   autoCrop = true;
-  backgroundColor: string;
+  backgroundColor: string = undefined;
   containWithinAspectRatio = false;
   hideResizeSquares = false;
   alignImage: 'left' | 'center' = 'center';
 
   // Internal
-   cropperScaledMinWidth = 20;
-   cropperScaledMinHeight = 20;
-   cropperScaledMaxWidth = 20;
-   cropperScaledMaxHeight = 20;
-   stepSize = this.initialStepSize;
+  cropperScaledMinWidth = 20;
+  cropperScaledMinHeight = 20;
+  cropperScaledMaxWidth = 20;
+  cropperScaledMaxHeight = 20;
+  stepSize = this.initialStepSize;
 
   setOptions(options: Partial<CropperOptions>): void {
-    Object.keys(options).forEach((k) => this[k] = options[k]);
+    Object.keys(options)
+      .filter((k) => k in this)
+      .forEach((k) => this[k] = options[k]);
+  }
+
+  setOptionsFromChanges(changes: SimpleChanges): void {
+    Object.keys(changes)
+      .filter((k) => k in this)
+      .forEach((k) => this[k] = changes[k].currentValue);
   }
 }
