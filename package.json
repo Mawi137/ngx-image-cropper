@@ -1,5 +1,5 @@
 {
-  "name": "ngx-image-cropper-workspace",
+  "name": "@cdelaplanche/ngx-image-cropper-workspace",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
