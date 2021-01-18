@@ -421,7 +421,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCropperScaledMinSize(): void {
-    if (this.loadedImage.transformed.image) {
+    if (this.loadedImage
+      && this.loadedImage.transformed
+      && this.loadedImage.transformed.image) {
       this.setCropperScaledMinWidth();
       this.setCropperScaledMinHeight();
     } else {
