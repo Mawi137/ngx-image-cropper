@@ -450,7 +450,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCropperScaledMaxSize(): void {
-    if (this.loadedImage.transformed.image) {
+    if (this.loadedImage && this.loadedImage.transformed && this.loadedImage.transformed.image) {
       const ratio = this.loadedImage.transformed.size.width / this.maxSize.width;
       this.settings.cropperScaledMaxWidth = this.cropperMaxWidth > 20 ? this.cropperMaxWidth / ratio : this.maxSize.width;
       this.settings.cropperScaledMaxHeight = this.cropperMaxHeight > 20 ? this.cropperMaxHeight / ratio : this.maxSize.height;
