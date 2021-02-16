@@ -133,17 +133,17 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private onChangesUpdateSettings(changes: SimpleChanges) {
-    Object.keys(changes)
-      .filter((p) => this.settings.hasOwnProperty(p))
-      .forEach((p) => this.settings[p] = this[p]);
+    this.settings.setOptionsFromChanges(changes);
 
     if (this.settings.cropperStaticHeight && this.settings.cropperStaticWidth) {
-      this.settings.hideResizeSquares = true;
-      this.settings.cropperMinWidth = this.settings.cropperStaticWidth;
-      this.settings.cropperMinHeight = this.settings.cropperStaticHeight;
-      this.settings.cropperMaxHeight = this.settings.cropperStaticHeight;
-      this.settings.cropperMaxWidth = this.settings.cropperStaticWidth;
-      this.settings.maintainAspectRatio = false;
+      this.settings.setOptions({
+        hideResizeSquares: true,
+        cropperMinWidth: this.settings.cropperStaticWidth,
+        cropperMinHeight: this.settings.cropperStaticHeight,
+        cropperMaxHeight: this.settings.cropperStaticHeight,
+        cropperMaxWidth: this.settings.cropperStaticWidth,
+        maintainAspectRatio: false
+      });
     }
   }
 
@@ -421,7 +421,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCropperScaledMinSize(): void {
-    if (this.loadedImage.transformed.image) {
+    if (this.loadedImage && this.loadedImage.transformed && this.loadedImage.transformed.image) {
       this.setCropperScaledMinWidth();
       this.setCropperScaledMinHeight();
     } else {
@@ -450,7 +450,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCropperScaledMaxSize(): void {
-    if (this.loadedImage.transformed.image) {
+    if (this.loadedImage && this.loadedImage.transformed && this.loadedImage.transformed.image) {
       const ratio = this.loadedImage.transformed.size.width / this.maxSize.width;
       this.settings.cropperScaledMaxWidth = this.cropperMaxWidth > 20 ? this.cropperMaxWidth / ratio : this.maxSize.width;
       this.settings.cropperScaledMaxHeight = this.cropperMaxHeight > 20 ? this.cropperMaxHeight / ratio : this.maxSize.height;
