@@ -3,7 +3,7 @@
  * https://github.com/viliusle/Hermite-resize
  */
 
-export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
+export function resizeCanvas(canvas: HTMLCanvasElement | OffscreenCanvas, width: number, height: number) {
   const width_source = canvas.width;
   const height_source = canvas.height;
   width = Math.round(width);

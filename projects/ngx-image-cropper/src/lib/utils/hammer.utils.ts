@@ -1,4 +1,4 @@
-export type HammerStatic = new(element: HTMLElement | SVGElement, options?: any) => HammerManager;
+export type HammerStatic = new (element: HTMLElement | SVGElement, options?: any) => HammerManager;
 
 /** @docs-private */
 export interface HammerManager {
@@ -6,5 +6,5 @@ export interface HammerManager {
 
   set(options: any): HammerManager;
 
-  on(eventName: string, handler: (ev: any) => any);
+  on(eventName: string, handler: (event: any) => any);
 }

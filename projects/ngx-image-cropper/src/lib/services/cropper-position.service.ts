@@ -2,7 +2,7 @@ import { ElementRef, Injectable } from '@angular/core';
 import { CropperPosition, Dimensions, MoveStart } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class CropperPositionService {
 
   resetCropperPosition(sourceImage: ElementRef, cropperPosition: CropperPosition, settings: CropperSettings): void {
@@ -205,10 +205,10 @@ export class CropperPositionService {
   }
 
   getClientX(event: any): number {
-    return (event.touches && event.touches[0] ? event.touches[0].clientX : event.clientX) || 0;
+    return event.touches?.[0].clientX || event.clientX || 0;
   }
 
   getClientY(event: any): number {
-    return (event.touches && event.touches[0] ? event.touches[0].clientY : event.clientY) || 0;
+    return event.touches?.[0].clientY || event.clientY || 0;
   }
 }
