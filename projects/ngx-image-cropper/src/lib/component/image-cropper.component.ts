@@ -15,12 +15,12 @@ import {
   ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, MoveStart } from '../interfaces';
+import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
 import { MoveTypes } from '../interfaces/move-start.interface';
 import { HammerStatic } from '../utils/hammer.utils';
 import { CropService } from '../services/crop.service';
 import { CropperSettings } from '../interfaces/cropper.settings';
-import { LoadedImage, LoadImageService } from '../services/load-image.service';
+import { LoadImageService } from '../services/load-image.service';
 import { OutputFormat } from '../interfaces/cropper-options.interface';
 import { CropperPositionService } from '../services/cropper-position.service';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
