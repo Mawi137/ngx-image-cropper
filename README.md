@@ -66,7 +66,7 @@ export class YourComponent {
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
     }
-    imageLoaded(image: HTMLImageElement) {
+    imageLoaded(image: LoadedImage) {
         // show cropper
     }
     cropperReady() {
@@ -125,7 +125,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | Name                    | Type              | Description |
 | ----------------------- | ----------------- | ----------- |
 | `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
-| `imageLoaded`           | LoadedImage       | Emits the Image when it was loaded into the cropper |
+| `imageLoaded`           | LoadedImage       | Emits the `LoadedImage` when it was loaded into the cropper |
 | `cropperReady`          | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size |
 | `startCropImage`        | void              | Emits when the component started cropping the image |
 | `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
@@ -164,7 +164,7 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | imagePosition         | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
 | offsetImagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
 
-#### ImageLoaded
+#### LoadedImage
 | Property              | Type             | Description |
 | --------------------  | ------           | ----------- |
 | original.base64       | string           | Base64 string of the original image |
