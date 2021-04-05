@@ -136,19 +136,41 @@ export class CropperPositionService {
         overflowX = Math.max(cropperPosition.x2 - maxSize.width, 0);
         overflowY = Math.max(0 - cropperPosition.y1, 0);
         if (overflowX > 0 || overflowY > 0) {
-          cropperPosition.x2 -= (overflowY * settings.aspectRatio) > overflowX ? (overflowY * settings.aspectRatio) : overflowX;
-          cropperPosition.y1 += (overflowY * settings.aspectRatio) > overflowX ? overflowY : overflowX / settings.aspectRatio;
-        }
-        break;
+          const deltaX = (overflowY * settings.aspectRatio) > overflowX ? (overflowY * settings.aspectRatio) : overflowX;
+          if (overflowY) {
+            cropperPosition.x2 -= deltaX;
+          } else {
+            cropperPosition.x1 -= deltaX;
+          }
+
+          const deltaY = (overflowY * settings.aspectRatio) > overflowX ? overflowY : overflowX / settings.aspectRatio;
+          if (overflowY) {
+            cropperPosition.y2 += deltaY;
+          } else {
+            cropperPosition.y1 += deltaY;
+          }
+      }
+      break;
       case 'bottom':
         cropperPosition.x2 = cropperPosition.x1 + (cropperPosition.y2 - cropperPosition.y1) * settings.aspectRatio;
         overflowX = Math.max(cropperPosition.x2 - maxSize.width, 0);
         overflowY = Math.max(cropperPosition.y2 - maxSize.height, 0);
         if (overflowX > 0 || overflowY > 0) {
-          cropperPosition.x2 -= (overflowY * settings.aspectRatio) > overflowX ? (overflowY * settings.aspectRatio) : overflowX;
-          cropperPosition.y2 -= (overflowY * settings.aspectRatio) > overflowX ? overflowY : (overflowX / settings.aspectRatio);
-        }
-        break;
+          const deltaX = (overflowY * settings.aspectRatio) > overflowX ? (overflowY * settings.aspectRatio) : overflowX;
+          if (overflowY) {
+            cropperPosition.x2 -= deltaX;
+          } else {
+            cropperPosition.x1 -= deltaX;
+          }
+
+          const deltaY = (overflowY * settings.aspectRatio) > overflowX ? overflowY : overflowX / settings.aspectRatio;
+          if (overflowY) {
+            cropperPosition.y2 -= deltaY;
+          } else {
+            cropperPosition.y1 -= deltaY;
+          }
+      }
+      break;
       case 'topleft':
         cropperPosition.y1 = cropperPosition.y2 - (cropperPosition.x2 - cropperPosition.x1) / settings.aspectRatio;
         overflowX = Math.max(0 - cropperPosition.x1, 0);
@@ -168,6 +190,25 @@ export class CropperPositionService {
         }
         break;
       case 'right':
+        cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / settings.aspectRatio;
+        overflowX = Math.max(cropperPosition.x2 - maxSize.width, 0);
+        overflowY = Math.max(cropperPosition.y2 - maxSize.height, 0);
+        if (overflowX > 0 || overflowY > 0) {
+          const deltaX = (overflowY * settings.aspectRatio) > overflowX ? (overflowY * settings.aspectRatio) : overflowX;
+          if (overflowY) {
+            cropperPosition.x2 -= deltaX;
+          } else {
+            cropperPosition.x1 -= deltaX;
+          }
+
+          const deltaY = (overflowY * settings.aspectRatio) > overflowX ? overflowY : overflowX / settings.aspectRatio;
+          if (overflowX) {
+            cropperPosition.y2 -= deltaY;
+          } else {
+            cropperPosition.y1 -= deltaY;
+          }
+        }
+        break;
       case 'bottomright':
         cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / settings.aspectRatio;
         overflowX = Math.max(cropperPosition.x2 - maxSize.width, 0);
@@ -178,6 +219,25 @@ export class CropperPositionService {
         }
         break;
       case 'left':
+        cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / settings.aspectRatio;
+        overflowX = Math.max(0 - cropperPosition.x1, 0);
+        overflowY = Math.max(cropperPosition.y2 - maxSize.height, 0);
+        if (overflowX > 0 || overflowY > 0) {
+          const deltaX = (overflowY * settings.aspectRatio) > overflowX ? (overflowY * settings.aspectRatio) : overflowX
+          if (overflowY) {
+            cropperPosition.x1 += deltaX;
+          } else {
+            cropperPosition.x2 += deltaX;
+          }
+
+          const deltaY = (overflowY * settings.aspectRatio) > overflowX ? overflowY : overflowX / settings.aspectRatio
+          if (overflowX) {
+              cropperPosition.y2 -= deltaY;
+            } else {
+              cropperPosition.y1 -= deltaY;
+            }
+        }
+        break;
       case 'bottomleft':
         cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / settings.aspectRatio;
         overflowX = Math.max(0 - cropperPosition.x1, 0);
