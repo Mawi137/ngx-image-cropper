@@ -23,7 +23,7 @@ export interface LoadedImage {
   exifTransform: ExifTransform;
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class LoadImageService {
 
   private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
@@ -48,7 +48,7 @@ export class LoadImageService {
   }
 
   private isValidImageType(type: string): boolean {
-    return /image\/(png|jpg|jpeg|bmp|gif|tiff|webp)/.test(type);
+    return /image\/(png|jpg|jpeg|bmp|gif|tiff|webp|svg)/.test(type);
   }
 
   loadImageFromURL(url: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
@@ -111,12 +111,12 @@ export class LoadImageService {
         original: {
           base64: loadedImage.original.base64,
           image: loadedImage.original.image,
-          size: {...originalSize}
+          size: { ...originalSize }
         },
         transformed: {
           base64: loadedImage.original.base64,
           image: loadedImage.original.image,
-          size: {...originalSize}
+          size: { ...originalSize }
         },
         exifTransform: loadedImage.exifTransform
       };
@@ -147,7 +147,7 @@ export class LoadImageService {
       original: {
         base64: loadedImage.original.base64,
         image: loadedImage.original.image,
-        size: {...originalSize}
+        size: { ...originalSize }
       },
       transformed: {
         base64: transformedBase64,
