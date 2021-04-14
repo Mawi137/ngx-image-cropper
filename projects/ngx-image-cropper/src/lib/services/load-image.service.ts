@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Dimensions } from '../interfaces';
+import { Dimensions, LoadedImage } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { getTransformationsFromExifData, supportsAutomaticRotation } from '../utils/exif.utils';
@@ -7,20 +7,6 @@ import { getTransformationsFromExifData, supportsAutomaticRotation } from '../ut
 interface LoadImageBase64 {
   originalImage: HTMLImageElement;
   originalBase64: string;
-}
-
-export interface LoadedImage {
-  original: {
-    base64: string;
-    image: HTMLImageElement;
-    size: Dimensions;
-  };
-  transformed: {
-    base64: string;
-    image: HTMLImageElement;
-    size: Dimensions;
-  };
-  exifTransform: ExifTransform;
 }
 
 @Injectable({providedIn: 'root'})

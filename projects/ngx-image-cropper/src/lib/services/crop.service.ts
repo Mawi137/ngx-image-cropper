@@ -1,7 +1,6 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { CropperSettings } from '../interfaces/cropper.settings';
-import { CropperPosition, ImageCroppedEvent } from '../interfaces';
-import { LoadedImage } from './load-image.service';
+import { CropperPosition, ImageCroppedEvent, LoadedImage } from '../interfaces';
 import { resizeCanvas } from '../utils/resize.utils';
 
 @Injectable({providedIn: 'root'})

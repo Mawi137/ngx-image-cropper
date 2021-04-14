@@ -66,7 +66,7 @@ export class YourComponent {
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
     }
-    imageLoaded(image: HTMLImageElement) {
+    imageLoaded(image: LoadedImage) {
         // show cropper
     }
     cropperReady() {
@@ -109,7 +109,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `imageQuality`             | number    | 92           | This only applies when using jpeg or webp as output format. Entering a number between 0 and 100 will determine the quality of the output image. |
 | `autoCrop`                 | boolean   | true         | When set to true, the cropper will emit an image each time the position or size of the cropper is changed. When set to false, you can call the crop method yourself (use @ViewChild to get access to the croppers methods). |
 | `alignImage`               | 'left' or 'center' | 'center' | Use this to align the image in the cropper either to the left or center. |
-| `backgroundColor`          | string    |              | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter a color HashCode or one of known HTML color names (https://www.w3schools.com/tags/ref_colornames.asp).|
+| `backgroundColor`          | string    |              | Use this to set a backgroundColor, this is useful if you upload an image of a format with transparent colors and convert it to 'jpeg' or 'bmp'. The transparent pixels will then become the set color or the default value. Enter any string representing a CSS color (https://developer.mozilla.org/en-US/docs/Web/CSS/color_value).|
 | `hideResizeSquares`        | boolean   | false        | Disables the resize-squares at the border of the cropper. This is mostly useful for Touch Devices where you can change the Size of the Cropper via Pinch-To-Zoom|
 | `disabled`                 | boolean   | false        | Disables the component and prevents changing the cropper position |
 | `canvasRotation`           | number    | 0            | Rotate the canvas (1 = 90deg, 2 = 180deg...) |
@@ -125,7 +125,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | Name                    | Type              | Description |
 | ----------------------- | ----------------- | ----------- |
 | `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
-| `imageLoaded`           | LoadedImage       | Emits the Image when it was loaded into the cropper |
+| `imageLoaded`           | LoadedImage       | Emits the `LoadedImage` when it was loaded into the cropper |
 | `cropperReady`          | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size |
 | `startCropImage`        | void              | Emits when the component started cropping the image |
 | `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
@@ -164,7 +164,7 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | imagePosition         | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
 | offsetImagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
 
-#### ImageLoaded
+#### LoadedImage
 | Property              | Type             | Description |
 | --------------------  | ------           | ----------- |
 | original.base64       | string           | Base64 string of the original image |
