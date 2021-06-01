@@ -13,10 +13,10 @@
     "homepage": "https://github.com/Mawi137/ngx-image-cropper",
     "keywords": [
         "angular",
-        "angular 8",
         "angular 9",
         "angular 10",
         "angular 11",
+        "angular 12",
         "ionic",
         "ionic-angular",
         "cropper",
@@ -24,8 +24,8 @@
     ],
     "license": "MIT",
     "peerDependencies": {
-        "@angular/common": ">=8.0.0",
-        "@angular/core": ">=8.0.0",
-        "@angular/platform-browser": ">=8.0.0"
+        "@angular/common": ">=9.0.0",
+        "@angular/core": ">=9.0.0",
+        "@angular/platform-browser": ">=9.0.0"
     }
 }
