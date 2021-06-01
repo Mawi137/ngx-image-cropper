@@ -11,6 +11,7 @@
 <br />
 <br />
 <button (click)="toggleContainWithinAspectRatio()">{{containWithinAspectRatio?'Fill Aspect Ratio':'Contain Within Aspect Ratio'}}</button>
+<button (click)="toggleAspectRatio()">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/9'}}</button>
 <button (click)="resetImage()">Reset image</button>
 <br />
 <br />
@@ -23,7 +24,7 @@
         [imageURL]="imageURL"
         [maintainAspectRatio]="true"
         [containWithinAspectRatio]="containWithinAspectRatio"
-        [aspectRatio]="4 / 3"
+        [aspectRatio]="aspectRatio"
         [resizeToWidth]="128"
         [cropperMinWidth]="128"
         [onlyScaleDown]="true"

@@ -12,6 +12,7 @@ export class AppComponent {
   canvasRotation = 0;
   rotation = 0;
   scale = 1;
+  aspectRatio = 4 / 3;
   showCropper = false;
   containWithinAspectRatio = false;
   transform: ImageTransform = {};
@@ -114,5 +115,9 @@ export class AppComponent {
       ...this.transform,
       rotate: this.rotation
     };
+  }
+
+  toggleAspectRatio() {
+    this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 9 : 4 / 3;
   }
 }

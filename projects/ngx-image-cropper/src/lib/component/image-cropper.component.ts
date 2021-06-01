@@ -114,16 +114,17 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         .then((res) => this.setLoadedImage(res))
         .catch((err) => this.loadImageError(err));
     }
-    if (changes.cropper) {
+    if (changes.cropper || changes.maintainAspectRatio || changes.aspectRatio) {
       this.setMaxSize();
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
-      this.checkCropperPosition(false);
-      this.doAutoCrop();
+      if (this.maintainAspectRatio && (changes.maintainAspectRatio || changes.aspectRatio)) {
+        this.resetCropperPosition();
+      } else if (changes.cropper) {
+        this.checkCropperPosition(false);
+        this.doAutoCrop();
+      }
       this.cd.markForCheck();
-    }
-    if (changes.aspectRatio && this.imageVisible) {
-      this.resetCropperPosition();
     }
     if (changes.transform) {
       this.transform = this.transform || {};
