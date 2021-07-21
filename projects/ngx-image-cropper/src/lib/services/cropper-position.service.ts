@@ -6,6 +6,9 @@ import { CropperSettings } from '../interfaces/cropper.settings';
 export class CropperPositionService {
 
   resetCropperPosition(sourceImage: ElementRef, cropperPosition: CropperPosition, settings: CropperSettings): void {
+    if (!sourceImage?.nativeElement) {
+      return;
+    }
     const sourceImageElement = sourceImage.nativeElement;
     if (settings.cropperStaticHeight && settings.cropperStaticWidth) {
       cropperPosition.x1 = 0;
