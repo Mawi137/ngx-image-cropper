@@ -208,10 +208,10 @@ export class CropperPositionService {
   }
 
   getClientX(event: any): number {
-    return event?.touches[0].clientX || event.clientX || 0;
+    return event.touches?.[0].clientX || event.clientX || 0;
   }
 
   getClientY(event: any): number {
-    return event?.touches[0].clientY || event.clientY || 0;
+    return event.touches?.[0].clientY || event.clientY || 0;
   }
 }
