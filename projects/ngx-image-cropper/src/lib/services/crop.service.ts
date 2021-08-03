@@ -1,9 +1,9 @@
 import { ElementRef, Injectable } from '@angular/core';
-import { CropperSettings } from '../interfaces/cropper.settings';
 import { CropperPosition, ImageCroppedEvent, LoadedImage } from '../interfaces';
+import { CropperSettings } from '../interfaces/cropper.settings';
 import { resizeCanvas } from '../utils/resize.utils';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class CropService {
 
   crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): ImageCroppedEvent | null {
@@ -18,7 +18,7 @@ export class CropService {
     if (!ctx) {
       return;
     }
-    if (settings.backgroundColor != null) {
+    if (settings.backgroundColor !== null) {
       ctx.fillStyle = settings.backgroundColor;
       ctx.fillRect(0, 0, width, height);
     }
@@ -35,7 +35,7 @@ export class CropService {
     const output: ImageCroppedEvent = {
       width, height,
       imagePosition,
-      cropperPosition: {...cropper}
+      cropperPosition: { ...cropper }
     };
     if (settings.containWithinAspectRatio) {
       output.offsetImagePosition = this.getOffsetImagePosition(sourceImage, loadedImage, cropper, settings);

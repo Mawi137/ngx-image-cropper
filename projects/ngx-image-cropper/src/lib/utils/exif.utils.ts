@@ -29,27 +29,27 @@ export function getTransformationsFromExifData(exifRotationOrBase64Image: number
   }
   switch (exifRotationOrBase64Image) {
     case 2:
-      return {rotate: 0, flip: true};
+      return { rotate: 0, flip: true };
     case 3:
-      return {rotate: 2, flip: false};
+      return { rotate: 2, flip: false };
     case 4:
-      return {rotate: 2, flip: true};
+      return { rotate: 2, flip: true };
     case 5:
-      return {rotate: 1, flip: true};
+      return { rotate: 1, flip: true };
     case 6:
-      return {rotate: 1, flip: false};
+      return { rotate: 1, flip: false };
     case 7:
-      return {rotate: 3, flip: true};
+      return { rotate: 3, flip: true };
     case 8:
-      return {rotate: 3, flip: false};
+      return { rotate: 3, flip: false };
     default:
-      return {rotate: 0, flip: false};
+      return { rotate: 0, flip: false };
   }
 }
 
 function getExifRotation(imageBase64: string): number {
   const view = new DataView(base64ToArrayBuffer(imageBase64));
-  if (view.getUint16(0, false) != 0xFFD8) {
+  if (view.getUint16(0, false) !== 0xFFD8) {
     return -2;
   }
   const length = view.byteLength;
@@ -59,7 +59,7 @@ function getExifRotation(imageBase64: string): number {
     const marker = view.getUint16(offset, false);
     offset += 2;
     if (marker == 0xFFE1) {
-      if (view.getUint32(offset += 2, false) != 0x45786966) {
+      if (view.getUint32(offset += 2, false) !== 0x45786966) {
         return -1;
       }
 
@@ -72,7 +72,7 @@ function getExifRotation(imageBase64: string): number {
           return view.getUint16(offset + (i * 12) + 8, little);
         }
       }
-    } else if ((marker & 0xFF00) != 0xFF00) {
+    } else if ((marker & 0xFF00) !== 0xFF00) {
       break;
     } else {
       offset += view.getUint16(offset, false);
