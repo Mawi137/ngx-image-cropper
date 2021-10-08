@@ -12,14 +12,14 @@
         width: 100%;
         position: relative;
 
-        img.source-image {
+        img.ngx-ic-source-image {
             max-width: 100%;
             max-height: 100%;
             transform-origin: center;
         }
     }
 
-    .overlay {
+    .ngx-ic-overlay {
         position: absolute;
         pointer-events: none;
         touch-action: none;
@@ -28,7 +28,7 @@
         left: 0;
     }
 
-    .cropper {
+    .ngx-ic-cropper {
         position: absolute;
         display: flex;
         color: #53535C;
@@ -56,20 +56,20 @@
             z-index: 1;
         }
 
-        .move {
+        .ngx-ic-move {
             width: 100%;
             cursor: move;
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         &:focus {
-            .move {
+            .ngx-ic-move {
                 border-color: dodgerblue;
                 border-width: 2px;
             }
         }
 
-        .resize {
+        .ngx-ic-resize {
             position: absolute;
             display: inline-block;
             line-height: 6px;
@@ -77,7 +77,7 @@
             opacity: .85;
             z-index: 1;
 
-            .square {
+            .ngx-ic-square {
                 display: inline-block;
                 background: #53535C;
                 width: 6px;
@@ -86,49 +86,49 @@
                 box-sizing: content-box;
             }
 
-            &.topleft {
+            &.ngx-ic-topleft {
                 top: -12px;
                 left: -12px;
                 cursor: nwse-resize;
             }
 
-            &.top {
+            &.ngx-ic-top {
                 top: -12px;
                 left: calc(50% - 12px);
                 cursor: ns-resize;
             }
 
-            &.topright {
+            &.ngx-ic-topright {
                 top: -12px;
                 right: -12px;
                 cursor: nesw-resize;
             }
 
-            &.right {
+            &.ngx-ic-right {
                 top: calc(50% - 12px);
                 right: -12px;
                 cursor: ew-resize;
             }
 
-            &.bottomright {
+            &.ngx-ic-bottomright {
                 bottom: -12px;
                 right: -12px;
                 cursor: nwse-resize;
             }
 
-            &.bottom {
+            &.ngx-ic-bottom {
                 bottom: -12px;
                 left: calc(50% - 12px);
                 cursor: ns-resize;
             }
 
-            &.bottomleft {
+            &.ngx-ic-bottomleft {
                 bottom: -12px;
                 left: -12px;
                 cursor: nesw-resize;
             }
 
-            &.left {
+            &.ngx-ic-left {
                 top: calc(50% - 12px);
                 left: -12px;
                 cursor: ew-resize;
@@ -136,11 +136,11 @@
 
         }
 
-        .resize-bar {
+        .ngx-ic-resize-bar {
             position: absolute;
             z-index: 1;
 
-            &.top {
+            &.ngx-ic-top {
                 top: -11px;
                 left: 11px;
                 width: calc(100% - 22px);
@@ -148,7 +148,7 @@
                 cursor: ns-resize;
             }
 
-            &.right {
+            &.ngx-ic-right {
                 top: 11px;
                 right: -11px;
                 height: calc(100% - 22px);
@@ -156,7 +156,7 @@
                 cursor: ew-resize;
             }
 
-            &.bottom {
+            &.ngx-ic-bottom {
                 bottom: -11px;
                 left: 11px;
                 width: calc(100% - 22px);
@@ -164,7 +164,7 @@
                 cursor: ns-resize;
             }
 
-            &.left {
+            &.ngx-ic-left {
                 top: 11px;
                 left: -11px;
                 height: calc(100% - 22px);
@@ -173,7 +173,7 @@
             }
         }
 
-        &.rounded {
+        &.ngx-ic-rounded {
             outline-color: transparent;
 
             &:after {
@@ -187,15 +187,15 @@
                 }
             }
 
-            .move {
+            .ngx-ic-move {
                 border-radius: 100%;
             }
         }
     }
 
     &.disabled {
-        .cropper {
-            .resize, .resize-bar, .move {
+        .ngx-ic-cropper {
+            .ngx-ic-resize, .ngx-ic-resize-bar, .ngx-ic-move {
                 display: none;
             }
         }
