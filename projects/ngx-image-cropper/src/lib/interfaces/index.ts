@@ -1,3 +1,4 @@
+export { CropperOptions, OutputFormat } from './cropper-options.interface';
 export { CropperPosition } from './cropper-position.interface';
 export { Dimensions } from './dimensions.interface';
 export { ImageCroppedEvent } from './image-cropped-event.interface';
