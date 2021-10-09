@@ -504,7 +504,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   crop(): ImageCroppedEvent | null {
-    if (this.loadedImage?.transformed?.image !== null) {
+    if (this.loadedImage?.transformed?.image != null) {
       this.startCropImage.emit();
       const output = this.cropService.crop(this.sourceImage, this.loadedImage, this.cropper, this.settings);
       if (output != null) {

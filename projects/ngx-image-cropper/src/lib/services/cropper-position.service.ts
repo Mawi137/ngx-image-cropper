@@ -25,7 +25,7 @@ export class CropperPositionService {
         cropperPosition.x2 = cropperWidth;
         cropperPosition.y1 = 0;
         cropperPosition.y2 = cropperHeight;
-      } else if (cropperWidth / settings.aspectRatio < cropperHeight) {
+      } else if (sourceImageElement.offsetWidth / settings.aspectRatio < sourceImageElement.offsetHeight) {
         cropperPosition.x1 = 0;
         cropperPosition.x2 = cropperWidth;
         const cropperHeightWithAspectRatio = cropperWidth / settings.aspectRatio;

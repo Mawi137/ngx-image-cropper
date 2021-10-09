@@ -118,6 +118,6 @@ export class AppComponent {
   }
 
   toggleAspectRatio() {
-    this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 9 : 4 / 3;
+    this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 5 : 4 / 3;
   }
 }
