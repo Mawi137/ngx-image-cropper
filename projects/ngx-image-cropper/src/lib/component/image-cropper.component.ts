@@ -240,7 +240,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   imageLoadedInView(): void {
-    if (this.loadedImage !== null) {
+    if (this.loadedImage != null) {
       this.imageLoaded.emit(this.loadedImage);
       this.setImageMaxSizeRetries = 0;
       setTimeout(() => this.checkImageMaxSizeRecursively());
@@ -507,7 +507,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (this.loadedImage?.transformed?.image !== null) {
       this.startCropImage.emit();
       const output = this.cropService.crop(this.sourceImage, this.loadedImage, this.cropper, this.settings);
-      if (output !== null) {
+      if (output != null) {
         this.imageCropped.emit(output);
       }
       return output;

@@ -18,7 +18,7 @@ export class CropService {
     if (!ctx) {
       return;
     }
-    if (settings.backgroundColor !== null) {
+    if (settings.backgroundColor != null) {
       ctx.fillStyle = settings.backgroundColor;
       ctx.fillRect(0, 0, width, height);
     }
