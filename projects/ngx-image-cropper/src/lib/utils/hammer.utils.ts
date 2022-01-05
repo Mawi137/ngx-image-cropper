@@ -6,5 +6,5 @@ export interface HammerManager {
 
   set(options: any): HammerManager;
 
-  on(eventName: string, handler: (ev: any) => any);
+  on(eventName: string, handler: (ev: any) => any): void;
 }

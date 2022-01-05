@@ -8,6 +8,7 @@
 
 ### Upgrade instructions
 For a list of breaking changes and update instructions, go to [releases](https://github.com/Mawi137/ngx-image-cropper/releases).
+Only Angular 13 is supported since image cropper version `6.0.0`.
 
 ### Example usage
 Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.

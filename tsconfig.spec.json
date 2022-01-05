@@ -1,14 +1,17 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../out-tsc/spec",
+    "outDir": "./out-tsc/spec",
     "types": [
       "jest"
     ]
   },
+  "files": [
+    "src/polyfills.ts"
+  ],
   "include": [
-    "**/*.spec.ts",
-    "**/*.d.ts"
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
   ]
 }

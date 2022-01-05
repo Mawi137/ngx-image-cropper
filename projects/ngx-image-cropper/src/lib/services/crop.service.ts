@@ -16,7 +16,7 @@ export class CropService {
 
     const ctx = cropCanvas.getContext('2d');
     if (!ctx) {
-      return;
+      return null;
     }
     if (settings.backgroundColor != null) {
       ctx.fillStyle = settings.backgroundColor;

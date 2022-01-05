@@ -10,28 +10,24 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/ngx-image-cropper/tsconfig.lib.json",
             "project": "projects/ngx-image-cropper/ng-package.json"
-          }
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ngx-image-cropper/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ngx-image-cropper/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
         },
         "test": {
           "builder": "@angular-builders/jest:run",
           "options": {
             "tsConfig": "tsconfig.spec.json"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/ngx-image-cropper/tsconfig.lib.json",
-              "projects/ngx-image-cropper/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
           }
         }
       }
@@ -55,7 +51,7 @@
             "main": "projects/demo-app/src/main.ts",
             "polyfills": "projects/demo-app/src/polyfills.ts",
             "tsConfig": "projects/demo-app/tsconfig.app.json",
-            "aot": false,
+            "inlineStyleLanguage": "scss",
             "assets": [
               "projects/demo-app/src/favicon.ico",
               "projects/demo-app/src/assets"
@@ -67,64 +63,48 @@
           },
           "configurations": {
             "production": {
-              "fileReplacements": [
-                {
-                  "replace": "projects/demo-app/src/environments/environment.ts",
-                  "with": "projects/demo-app/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
-              ]
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "demo-app:build"
-          },
           "configurations": {
             "production": {
               "browserTarget": "demo-app:build:production"
+            },
+            "development": {
+              "browserTarget": "demo-app:build:development"
             }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "demo-app:build"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/demo-app/tsconfig.app.json",
-              "projects/demo-app/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }

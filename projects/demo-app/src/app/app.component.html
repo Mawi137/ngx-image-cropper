@@ -33,6 +33,7 @@
         [transform]="transform"
         [alignImage]="'center'"
         [style.display]="showCropper ? null : 'none'"
+        backgroundColor="red"
         format="png"
         (imageCropped)="imageCropped($event)"
         (imageLoaded)="imageLoaded()"

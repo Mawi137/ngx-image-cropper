@@ -125,7 +125,7 @@ export class CropperPositionService {
     }
 
     if (settings.maintainAspectRatio) {
-      this.checkAspectRatio(moveStart.position, cropperPosition, maxSize, settings);
+      this.checkAspectRatio(moveStart.position!, cropperPosition, maxSize, settings);
     }
   }
 

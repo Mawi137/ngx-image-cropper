@@ -23,7 +23,7 @@ export class CropperSettings {
   onlyScaleDown = false;
   imageQuality = 92;
   autoCrop = true;
-  backgroundColor: string = undefined;
+  backgroundColor?: string;
   containWithinAspectRatio = false;
   hideResizeSquares = false;
   alignImage: 'left' | 'center' = 'center';
@@ -38,14 +38,14 @@ export class CropperSettings {
   setOptions(options: Partial<CropperOptions>): void {
     Object.keys(options)
       .filter((k) => k in this)
-      .forEach((k) => this[k] = options[k]);
+      .forEach((k) => (this as any)[k] = (options as any)[k]);
     this.validateOptions();
   }
 
   setOptionsFromChanges(changes: SimpleChanges): void {
     Object.keys(changes)
       .filter((k) => k in this)
-      .forEach((k) => this[k] = changes[k].currentValue);
+      .forEach((k) => (this as any)[k] = changes[k].currentValue);
     this.validateOptions();
   }
 
