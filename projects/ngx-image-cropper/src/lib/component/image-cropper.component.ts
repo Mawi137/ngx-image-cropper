@@ -174,7 +174,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
       'scaleX(' + (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1) + ')' +
       'scaleY(' + (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1) + ')' +
-      'rotate(' + (this.transform.rotate || 0) + 'deg)'
+      'rotate(' + (this.transform.rotate || 0) + 'deg)' +
+      'translate(' + (this.transform.translateH || 0) + '%, ' + (this.transform.translateV || 0) + '% )'
     );
   }
 
