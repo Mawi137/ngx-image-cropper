@@ -17,7 +17,7 @@ export class AppComponent {
   aspectRatio = 4 / 3;
   showCropper = false;
   containWithinAspectRatio = false;
-  transform: ImageTransform = {};
+  transform: ImageTransform = { translateUnit: 'px'};
   imageURL?: string;
   loading = false;
 
