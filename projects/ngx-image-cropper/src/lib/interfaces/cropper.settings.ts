@@ -23,7 +23,7 @@ export class CropperSettings {
   onlyScaleDown = false;
   imageQuality = 92;
   autoCrop = true;
-  backgroundColor?: string;
+  backgroundColor: string | null = null;
   containWithinAspectRatio = false;
   hideResizeSquares = false;
   alignImage: 'left' | 'center' = 'center';
