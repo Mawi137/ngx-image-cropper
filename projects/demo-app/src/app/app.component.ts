@@ -10,7 +10,9 @@ export class AppComponent {
   imageChangedEvent: any = '';
   croppedImage: any = '';
   canvasRotation = 0;
-  rotation = 0;
+  rotation?: number;
+  translateH = 0;
+  translateV = 0;
   scale = 1;
   aspectRatio = 4 / 3;
   showCropper = false;
@@ -59,6 +61,34 @@ export class AppComponent {
     });
   }
 
+  moveLeft() {
+    this.transform = {
+      ...this.transform,
+      translateH: ++this.translateH
+    };
+  }
+
+  moveRight() {
+    this.transform = {
+      ...this.transform,
+      translateH: --this.translateH
+    };
+  }
+
+  moveTop() {
+    this.transform = {
+      ...this.transform,
+      translateV: ++this.translateV
+    };
+  }
+
+  moveBottom() {
+    this.transform = {
+      ...this.transform,
+      translateV: --this.translateV
+    };
+  }
+
   private flipAfterRotate() {
     const flippedH = this.transform.flipH;
     const flippedV = this.transform.flipV;
@@ -67,6 +97,8 @@ export class AppComponent {
       flipH: flippedV,
       flipV: flippedH
     };
+    this.translateH = 0;
+    this.translateV = 0;
   }
 
   flipHorizontal() {

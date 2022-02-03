@@ -148,12 +148,14 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | y2       | number | Y position of second coordinate (in px) |
 
 #### ImageTransform
-| Property | Type    | Description |
-| -------- | ------- | ----------- |
-| scale    | number  | Scale image (1=normal, 2=2x zoom...) |
-| rotate   | number  | Rotation in degrees |
-| flipH    | boolean | Flipped horizontally |
-| flipV    | boolean | Flipped vertically |
+| Property      | Type     | Description                             |
+|---------------|----------|-----------------------------------------|
+| scale         | number   | Scale image (1=normal, 2=2x zoom...)    |
+| rotate        | number   | Rotation in degrees                     |
+| flipH         | boolean  | Flipped horizontally                    |
+| flipV         | boolean  | Flipped vertically                      |
+| translateH    | number   | Move horizontally (in %)                |
+| translateV    | number   | Moved vertically (in %)                 |
 
 #### ImageCroppedEvent
 | Property              | Type            | Description |
