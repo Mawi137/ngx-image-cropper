@@ -10,14 +10,14 @@ export class AppComponent {
   imageChangedEvent: any = '';
   croppedImage: any = '';
   canvasRotation = 0;
-  rotation = 0;
+  rotation?: number;
   translateH = 0;
   translateV = 0;
   scale = 1;
   aspectRatio = 4 / 3;
   showCropper = false;
   containWithinAspectRatio = false;
-  transform: ImageTransform = { translateUnit: 'px'};
+  transform: ImageTransform = {};
   imageURL?: string;
   loading = false;
 

@@ -5,5 +5,4 @@ export interface ImageTransform {
   flipV?: boolean;
   translateH?: number;
   translateV?: number;
-  translateUnit?: 'px' | '%';
 }
