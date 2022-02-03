@@ -154,9 +154,8 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | rotate        | number   | Rotation in degrees                     |
 | flipH         | boolean  | Flipped horizontally                    |
 | flipV         | boolean  | Flipped vertically                      |
-| translateH    | number   | Move horizontally                       |
-| translateV    | number   | Moved vertically                        |
-| translateUnit | string   | Move unit ('px' or '%', default is '%') |
+| translateH    | number   | Move horizontally (in %)                |
+| translateV    | number   | Moved vertically (in %)                 |
 
 #### ImageCroppedEvent
 | Property              | Type            | Description |
