@@ -17,6 +17,18 @@
 <br />
 <input [(ngModel)]="rotation" placeholder="Rotation" type="number" (keyup)="updateRotation()" /> <button (click)="zoomOut()">Zoom -</button> <button (click)="zoomIn()">Zoom +</button>
 <br />
+<br/>
+<button (click)="moveLeft()">move left</button>
+<button (click)="moveRight()">move right</button>
+
+<button (click)="moveTop()">move top</button>
+<button (click)="moveBottom()">move bottom</button>
+<select [(ngModel)]="transform.translateUnit">
+  <option value="px">px</option>
+  <option value="%">%</option>
+</select>
+<br/>
+
 
 <div class="cropper-wrapper">
     <image-cropper
