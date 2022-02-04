@@ -1,6 +1,6 @@
 {
     "name": "ngx-image-cropper",
-    "version": "6.0.3",
+    "version": "6.1.0",
     "description": "An image cropper for Angular",
     "author": "Martijn Willekens",
     "repository": {
@@ -13,9 +13,6 @@
     "homepage": "https://github.com/Mawi137/ngx-image-cropper",
     "keywords": [
         "angular",
-        "angular 10",
-        "angular 11",
-        "angular 12",
         "angular 13",
         "ionic",
         "ionic-angular",

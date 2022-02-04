@@ -32,13 +32,14 @@ export class CropService {
     ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
     ctx.rotate((settings.transform.rotate || 0) * Math.PI / 180);
 
-    const translateH = settings.transform.translateH && percentage(settings.transform.translateH, transformedImage.size.width) || 0;
-    const translateV = settings.transform.translateV && percentage(settings.transform.translateV, transformedImage.size.height) || 0;
-  
+    const translateH = settings.transform.translateH ? percentage(settings.transform.translateH, transformedImage.size.width) : 0;
+    const translateV = settings.transform.translateV ? percentage(settings.transform.translateV, transformedImage.size.height) : 0;
+
     ctx.drawImage(
       transformedImage.image,
       translateH - transformedImage.size.width / 2,
-      translateV - transformedImage.size.height / 2);
+      translateV - transformedImage.size.height / 2
+    );
 
     const output: ImageCroppedEvent = {
       width, height,
