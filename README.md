@@ -55,7 +55,7 @@ Add the element to your HTML:
 
 And add this to your ts file:
 ```
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 
 export class YourComponent {
     imageChangedEvent: any = '';
