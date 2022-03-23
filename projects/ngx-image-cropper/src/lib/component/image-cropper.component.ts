@@ -77,6 +77,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() backgroundColor = this.settings.backgroundColor;
   @Input() containWithinAspectRatio = this.settings.containWithinAspectRatio;
   @Input() hideResizeSquares = this.settings.hideResizeSquares;
+  @Input() allowImagePanning: boolean = true;
   @Input() cropper: CropperPosition = {
     x1: -100,
     y1: -100,
@@ -93,6 +94,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Output() imageLoaded = new EventEmitter<LoadedImage>();
   @Output() cropperReady = new EventEmitter<Dimensions>();
   @Output() loadImageFailed = new EventEmitter<void>();
+  @Output() imagePanned = new EventEmitter<{x: number, y: number}>();
 
   constructor(
     private cropService: CropService,
@@ -175,8 +177,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       'scaleX(' + (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1) + ')' +
       'scaleY(' + (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1) + ')' +
       'rotate(' + (this.transform.rotate || 0) + 'deg)' +
-      `translate(${this.transform.translateH || 0}%, ${this.transform.translateV || 0}%)`
+      `translate(${this.transform.translateH }%, ${this.transform.translateV }%)`
     );
+  }
+
+  onImageMoved(x: number, y: number): void{
+    if (this.allowImagePanning) {
+            this.imagePanned.next({x, y});
+      }
   }
 
   ngOnInit(): void {

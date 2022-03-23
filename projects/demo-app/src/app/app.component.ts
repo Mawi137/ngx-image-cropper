@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { Dimensions, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
+import {Dimensions, ImageCroppedEvent, ImageTransform} from "../../../ngx-image-cropper/src/lib/interfaces";
+import {BehaviorSubject} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -17,9 +18,10 @@ export class AppComponent {
   aspectRatio = 4 / 3;
   showCropper = false;
   containWithinAspectRatio = false;
-  transform: ImageTransform = {};
+  transform$: BehaviorSubject<ImageTransform> = new BehaviorSubject<ImageTransform>({});
   imageURL?: string;
   loading = false;
+  allowPanning$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   fileChangeEvent(event: any): void {
     this.loading = true;
@@ -28,7 +30,6 @@ export class AppComponent {
 
   imageCropped(event: ImageCroppedEvent) {
     this.croppedImage = event.base64;
-    console.log(event);
   }
 
   imageLoaded() {
@@ -62,80 +63,80 @@ export class AppComponent {
   }
 
   moveLeft() {
-    this.transform = {
-      ...this.transform,
+    this.transform$.next( {
+      ...this.transform$.value,
       translateH: ++this.translateH
-    };
+    });
   }
 
   moveRight() {
-    this.transform = {
-      ...this.transform,
+    this.transform$.next( {
+      ...this.transform$.value,
       translateH: --this.translateH
-    };
+    });
   }
 
   moveTop() {
-    this.transform = {
-      ...this.transform,
+    this.transform$.next( {
+      ...this.transform$.value,
       translateV: ++this.translateV
-    };
+    });
   }
 
   moveBottom() {
-    this.transform = {
-      ...this.transform,
+    this.transform$.next( {
+      ...this.transform$.value,
       translateV: --this.translateV
-    };
+    });
   }
 
   private flipAfterRotate() {
-    const flippedH = this.transform.flipH;
-    const flippedV = this.transform.flipV;
-    this.transform = {
-      ...this.transform,
+    const flippedH = this.transform$.value.flipH;
+    const flippedV = this.transform$.value.flipV;
+    this.transform$.next( {
+      ...this.transform$.value,
       flipH: flippedV,
       flipV: flippedH
-    };
+    });
     this.translateH = 0;
     this.translateV = 0;
   }
 
   flipHorizontal() {
-    this.transform = {
-      ...this.transform,
-      flipH: !this.transform.flipH
-    };
+    this.transform$.next({
+      ...this.transform$.value,
+      flipH: !this.transform$.value.flipH
+    });
   }
 
   flipVertical() {
-    this.transform = {
-      ...this.transform,
-      flipV: !this.transform.flipV
-    };
+    this.transform$.next( {
+      ...this.transform$.value,
+      flipV: !this.transform$.value.flipV
+    });
   }
 
   resetImage() {
     this.scale = 1;
     this.rotation = 0;
     this.canvasRotation = 0;
-    this.transform = {};
+    this.transform$.next({});
   }
 
   zoomOut() {
     this.scale -= .1;
-    this.transform = {
-      ...this.transform,
+    this.transform$.next({
+      ...this.transform$.value,
       scale: this.scale
-    };
+    });
   }
 
   zoomIn() {
     this.scale += .1;
-    this.transform = {
-      ...this.transform,
+    this.transform$.next( {
+      ...this.transform$.value,
       scale: this.scale
-    };
+    });
   }
 
   toggleContainWithinAspectRatio() {
@@ -143,13 +144,22 @@ export class AppComponent {
   }
 
   updateRotation() {
-    this.transform = {
-      ...this.transform,
+    this.transform$.next({
+      ...this.transform$.value,
       rotate: this.rotation
-    };
+    });
   }
 
   toggleAspectRatio() {
     this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 5 : 4 / 3;
+  }
+
+  onImageDragged(x: number, y: number)
+  {
+    this.transform$.next({
+      ...this.transform$.value,
+      translateH: x,
+      translateV: y
+    });
   }
 }

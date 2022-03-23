@@ -24,6 +24,10 @@
 <button (click)="moveTop()">move top</button>
 <button (click)="moveBottom()">move bottom</button>
 <br/>
+<br/>
+<button (click)="allowPanning$.next(!allowPanning$.value)">{{(allowPanning$ | async) ? 'Disable' : 'Enable' }} image panning</button>
+<br/>
+
 
 
 <div class="cropper-wrapper">
@@ -38,15 +42,17 @@
         [onlyScaleDown]="true"
         [roundCropper]="false"
         [canvasRotation]="canvasRotation"
-        [transform]="transform"
+        [transform]="(transform$ | async) || {}"
         [alignImage]="'center'"
         [style.display]="showCropper ? null : 'none'"
+        [allowImagePanning]="(allowPanning$ | async) || false"
         backgroundColor="red"
         format="png"
         (imageCropped)="imageCropped($event)"
         (imageLoaded)="imageLoaded()"
         (cropperReady)="cropperReady($event)"
         (loadImageFailed)="loadImageFailed()"
+        (imagePanned)="onImageDragged($event.x, $event.y)"
     ></image-cropper>
   <div *ngIf="loading" class="loader">Loading...</div>
 </div>

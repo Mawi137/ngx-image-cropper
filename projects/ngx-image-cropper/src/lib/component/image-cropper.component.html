@@ -9,6 +9,9 @@
       [style.visibility]="imageVisible ? 'visible' : 'hidden'"
       [style.transform]="safeTransformStyle"
       (load)="imageLoadedInView()"
+      [draggableImage]="allowImagePanning"
+      [imageReady]="imageVisible"
+      (newPosition)="onImageMoved($event.x, $event.y)"
     />
     <div
         class="ngx-ic-overlay"

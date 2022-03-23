@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { AppComponent } from './app.component';
+import {ImageCropperModule} from "../../../ngx-image-cropper/src/lib/image-cropper.module";
 
 @NgModule({
   declarations: [
