@@ -158,8 +158,8 @@ export class AppComponent {
   {
     this.transform$.next({
       ...this.transform$.value,
-      translateH: x,
-      translateV: y
+      translateH: (this.transform$.value?.scale && this.transform$.value?.scale > 1 ? x / this.transform$.value.scale : x),
+      translateV: (this.transform$.value?.scale && this.transform$.value?.scale > 1 ? y / this.transform$.value.scale : y)
     });
   }
 }
