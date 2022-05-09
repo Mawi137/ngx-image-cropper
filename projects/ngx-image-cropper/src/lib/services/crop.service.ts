@@ -35,11 +35,21 @@ export class CropService {
     const translateH = settings.transform.translateH ? percentage(settings.transform.translateH, transformedImage.size.width) : 0;
     const translateV = settings.transform.translateV ? percentage(settings.transform.translateV, transformedImage.size.height) : 0;
 
+    ctx.imageSmoothingEnabled = true;
+
     ctx.drawImage(
       transformedImage.image,
       translateH - transformedImage.size.width / 2,
       translateV - transformedImage.size.height / 2
     );
+
+    if (settings.roundCropper) {
+    //ctx.drawImage(sourceCanvas, 0, 0, width, height);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
+      ctx.fill();
+    }
 
     const output: ImageCroppedEvent = {
       width, height,
