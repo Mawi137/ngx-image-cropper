@@ -41,6 +41,17 @@ export class CropService {
       translateV - transformedImage.size.height / 2
     );
 
+    if(settings.roundCropper) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(width/2, 
+      height/2, 
+      Math.min(width, height) / 2,
+       0, 2 * Math.PI);
+      ctx.fill();
+    }
+
     const output: ImageCroppedEvent = {
       width, height,
       imagePosition,
