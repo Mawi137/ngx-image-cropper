@@ -11,6 +11,7 @@ export interface MoveStart {
 }
 
 export enum MoveTypes {
+  Drag = 'drag',
   Move = 'move',
   Resize = 'resize',
   Pinch = 'pinch'

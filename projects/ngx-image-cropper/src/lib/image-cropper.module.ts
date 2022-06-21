@@ -7,7 +7,8 @@ import { ImageCropperComponent } from './component/image-cropper.component';
     CommonModule
   ],
   declarations: [
-    ImageCropperComponent
+    ImageCropperComponent,
+
   ],
   exports: [
     ImageCropperComponent

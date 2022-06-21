@@ -24,30 +24,35 @@
 <button (click)="moveTop()">move top</button>
 <button (click)="moveBottom()">move bottom</button>
 <br/>
+<br/>
+<button (click)="allowPanning= !allowPanning;">{{allowPanning ? 'Disable' : 'Enable' }} image panning</button>
+<br/>
 
 
 <div class="cropper-wrapper">
-    <image-cropper
-        [imageChangedEvent]="imageChangedEvent"
-        [imageURL]="imageURL"
-        [maintainAspectRatio]="true"
-        [containWithinAspectRatio]="containWithinAspectRatio"
-        [aspectRatio]="aspectRatio"
-        [resizeToWidth]="128"
-        [cropperMinWidth]="128"
-        [onlyScaleDown]="true"
-        [roundCropper]="false"
-        [canvasRotation]="canvasRotation"
-        [transform]="transform"
-        [alignImage]="'center'"
-        [style.display]="showCropper ? null : 'none'"
-        backgroundColor="red"
-        format="png"
-        (imageCropped)="imageCropped($event)"
-        (imageLoaded)="imageLoaded()"
-        (cropperReady)="cropperReady($event)"
-        (loadImageFailed)="loadImageFailed()"
-    ></image-cropper>
+  <image-cropper
+    [imageChangedEvent]="imageChangedEvent"
+    [imageURL]="imageURL"
+    [maintainAspectRatio]="true"
+    [containWithinAspectRatio]="containWithinAspectRatio"
+    [aspectRatio]="aspectRatio"
+    [resizeToWidth]="128"
+    [cropperMinWidth]="128"
+    [onlyScaleDown]="true"
+    [roundCropper]="false"
+    [canvasRotation]="canvasRotation"
+    [transform]="transform || {}"
+    [alignImage]="'center'"
+    [style.display]="showCropper ? null : 'none'"
+    [allowImagePanning]="allowPanning"
+    backgroundColor="red"
+    format="png"
+    (imageCropped)="imageCropped($event)"
+    (imageLoaded)="imageLoaded()"
+    (cropperReady)="cropperReady($event)"
+    (loadImageFailed)="loadImageFailed()"
+    (changeTransform)="onImageDragged($event)"
+  ></image-cropper>
   <div *ngIf="loading" class="loader">Loading...</div>
 </div>
 <img [src]="croppedImage" [style.border]="croppedImage ? '1px solid black' : 'none'" />
