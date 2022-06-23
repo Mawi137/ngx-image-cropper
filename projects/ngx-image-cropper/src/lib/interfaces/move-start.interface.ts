@@ -1,7 +1,10 @@
+import { ImageTransform } from './image-transform.interface';
+
 export interface MoveStart {
   active: boolean;
   type: MoveTypes | null;
   position: string | null;
+  transform?: ImageTransform;
   x1: number;
   y1: number;
   x2: number;

@@ -1,5 +1,6 @@
-<div [style.background]="imageVisible && backgroundColor"
-     #wrapper
+<div
+  [style.background]="imageVisible && backgroundColor"
+  #wrapper
 >
   <img
     #sourceImage
@@ -8,8 +9,11 @@
     [src]="safeImgDataUrl"
     [style.visibility]="imageVisible ? 'visible' : 'hidden'"
     [style.transform]="safeTransformStyle"
+    [class.ngx-ic-draggable]="!disabled && allowMoveImage"
     (load)="imageLoadedInView()"
-  />
+    (mousedown)="startMove($event, moveTypes.Drag)"
+    (touchstart)="startMove($event, moveTypes.Drag)"
+  >
   <div
     class="ngx-ic-overlay"
     [style.width.px]="maxSize.width"

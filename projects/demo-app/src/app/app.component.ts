@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Dimensions, ImageCroppedEvent, ImageTransform} from "../../../ngx-image-cropper/src/lib/interfaces";
+import { Dimensions, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +20,7 @@ export class AppComponent {
   transform: ImageTransform = {};
   imageURL?: string;
   loading = false;
-  allowPanning = false;
+  allowMoveImage = false;
 
   fileChangeEvent(event: any): void {
     this.loading = true;
@@ -154,8 +154,7 @@ export class AppComponent {
     this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 5 : 4 / 3;
   }
 
-  onImageDragged(transform: ImageTransform)
-  {
+  onImageDragged(transform: ImageTransform) {
     this.transform = {...transform};
   }
 }
