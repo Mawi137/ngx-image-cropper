@@ -17,7 +17,9 @@ export class AppComponent {
   aspectRatio = 4 / 3;
   showCropper = false;
   containWithinAspectRatio = false;
-  transform: ImageTransform = {};
+  transform: ImageTransform = {
+    translateUnit: 'px'
+  };
   imageURL?: string;
   loading = false;
   allowMoveImage = false;
@@ -120,7 +122,9 @@ export class AppComponent {
     this.scale = 1;
     this.rotation = 0;
     this.canvasRotation = 0;
-    this.transform = {};
+    this.transform = {
+      translateUnit: 'px'
+    };
   }
 
   zoomOut() {
@@ -152,9 +156,5 @@ export class AppComponent {
 
   toggleAspectRatio() {
     this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 5 : 4 / 3;
-  }
-
-  onImageDragged(transform: ImageTransform) {
-    this.transform = {...transform};
   }
 }

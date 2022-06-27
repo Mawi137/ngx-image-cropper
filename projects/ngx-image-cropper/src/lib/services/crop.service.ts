@@ -4,7 +4,7 @@ import { CropperSettings } from '../interfaces/cropper.settings';
 import { resizeCanvas } from '../utils/resize.utils';
 import { percentage } from '../utils/percentage.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class CropService {
 
   crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): ImageCroppedEvent | null {
@@ -32,9 +32,7 @@ export class CropService {
     ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
     ctx.rotate((settings.transform.rotate || 0) * Math.PI / 180);
 
-    const translateH = settings.transform.translateH ? percentage(settings.transform.translateH, transformedImage.size.width) : 0;
-    const translateV = settings.transform.translateV ? percentage(settings.transform.translateV, transformedImage.size.height) : 0;
-
+    const {translateH, translateV} = this.getCanvasTranslate(sourceImage, loadedImage, settings);
     ctx.drawImage(
       transformedImage.image,
       translateH - transformedImage.size.width / 2,
@@ -44,7 +42,7 @@ export class CropService {
     const output: ImageCroppedEvent = {
       width, height,
       imagePosition,
-      cropperPosition: { ...cropper }
+      cropperPosition: {...cropper}
     };
     if (settings.containWithinAspectRatio) {
       output.offsetImagePosition = this.getOffsetImagePosition(sourceImage, loadedImage, cropper, settings);
@@ -61,10 +59,28 @@ export class CropService {
     return output;
   }
 
-  private getImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): CropperPosition {
-    const sourceImageElement = sourceImage.nativeElement;
-    const ratio = loadedImage.transformed.size.width / sourceImageElement.offsetWidth;
+  private getCanvasTranslate(sourceImage: ElementRef, loadedImage: LoadedImage, settings: CropperSettings): { translateH: number, translateV: number } {
+    if (settings.transform.translateUnit === 'px') {
+      const ratio = this.getRatio(sourceImage, loadedImage);
+      return {
+        translateH: (settings.transform.translateH || 0) * ratio,
+        translateV: (settings.transform.translateV || 0) * ratio
+      };
+    } else {
+      return {
+        translateH: settings.transform.translateH ? percentage(settings.transform.translateH, loadedImage.transformed.size.width) : 0,
+        translateV: settings.transform.translateV ? percentage(settings.transform.translateV, loadedImage.transformed.size.height) : 0
+      };
+    }
+  }
 
+  private getRatio(sourceImage: ElementRef, loadedImage: LoadedImage): number {
+    const sourceImageElement = sourceImage.nativeElement;
+    return loadedImage.transformed.size.width / sourceImageElement.offsetWidth;
+  }
+
+  private getImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): CropperPosition {
+    const ratio = this.getRatio(sourceImage, loadedImage);
     const out: CropperPosition = {
       x1: Math.round(cropper.x1 * ratio),
       y1: Math.round(cropper.y1 * ratio),

@@ -149,24 +149,25 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | y2       | number | Y position of second coordinate (in px) |
 
 #### ImageTransform
-| Property      | Type     | Description                             |
-|---------------|----------|-----------------------------------------|
-| scale         | number   | Scale image (1=normal, 2=2x zoom...)    |
-| rotate        | number   | Rotation in degrees                     |
-| flipH         | boolean  | Flipped horizontally                    |
-| flipV         | boolean  | Flipped vertically                      |
-| translateH    | number   | Move horizontally (in %)                |
-| translateV    | number   | Moved vertically (in %)                 |
+| Property      | Type     | Description                                             |
+|---------------|----------|---------------------------------------------------------|
+| scale         | number   | Scale image (1=normal, 2=2x zoom...)                    |
+| rotate        | number   | Rotation in degrees                                     |
+| flipH         | boolean  | Flipped horizontally                                    |
+| flipV         | boolean  | Flipped vertically                                      |
+| translateH    | number   | Move horizontally (in %)                                |
+| translateV    | number   | Moved vertically (in %)                                 |
+| translateUnit | number   | The unit used for the translate (% or px) (default = %) |
 
 #### ImageCroppedEvent
-| Property              | Type            | Description |
-| --------------------  | ------          | ----------- |
-| base64                | string          | Base64 string of the cropped image |
-| width                 | number          | Width of the cropped image |
-| height                | number          | Height of the cropped image |
-| cropperPosition       | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
-| imagePosition         | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
-| offsetImagePosition   | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
+| Property            | Type            | Description |
+|---------------------| ------          | ----------- |
+| base64              | string          | Base64 string of the cropped image |
+| width               | number          | Width of the cropped image |
+| height              | number          | Height of the cropped image |
+| cropperPosition     | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
+| imagePosition       | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
+| offsetImagePosition | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
 
 #### LoadedImage
 | Property              | Type             | Description |
