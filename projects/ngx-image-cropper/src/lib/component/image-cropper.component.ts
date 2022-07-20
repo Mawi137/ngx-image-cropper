@@ -176,10 +176,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   private setCssTransform() {
     const translateUnit = this.transform?.translateUnit || '%';
     this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
-      'scaleX(' + (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1) + ')' +
-      'scaleY(' + (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1) + ')' +
-      'rotate(' + (this.transform.rotate || 0) + 'deg)' +
-      `translate(${this.transform.translateH || 0}${translateUnit}, ${this.transform.translateV || 0}${translateUnit})`
+      `translate(${this.transform.translateH || 0}${translateUnit}, ${this.transform.translateV || 0}${translateUnit})` +
+      ' scaleX(' + (this.transform.scale || 1) * (this.transform.flipH ? -1 : 1) + ')' +
+      ' scaleY(' + (this.transform.scale || 1) * (this.transform.flipV ? -1 : 1) + ')' +
+      ' rotate(' + (this.transform.rotate || 0) + 'deg)'
     );
   }
 

@@ -26,17 +26,17 @@ export class CropService {
 
     const scaleX = (settings.transform.scale || 1) * (settings.transform.flipH ? -1 : 1);
     const scaleY = (settings.transform.scale || 1) * (settings.transform.flipV ? -1 : 1);
+    const {translateH, translateV} = this.getCanvasTranslate(sourceImage, loadedImage, settings);
 
     const transformedImage = loadedImage.transformed;
-    ctx.setTransform(scaleX, 0, 0, scaleY, transformedImage.size.width / 2, transformedImage.size.height / 2);
+    ctx.setTransform(scaleX, 0, 0, scaleY, transformedImage.size.width / 2 + translateH, transformedImage.size.height / 2 + translateV);
     ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
     ctx.rotate((settings.transform.rotate || 0) * Math.PI / 180);
 
-    const {translateH, translateV} = this.getCanvasTranslate(sourceImage, loadedImage, settings);
     ctx.drawImage(
       transformedImage.image,
-      translateH - transformedImage.size.width / 2,
-      translateV - transformedImage.size.height / 2
+      -transformedImage.size.width / 2,
+      -transformedImage.size.height / 2
     );
 
     const output: ImageCroppedEvent = {
