@@ -334,11 +334,26 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     const moveType = event.shiftKey ? MoveTypes.Resize : MoveTypes.Move;
     const position = event.altKey ? getInvertedPositionForKey(event.key) : getPositionForKey(event.key);
     const moveEvent = getEventForKey(event.key, this.settings.stepSize);
+    const bounds = moveType === MoveTypes.Resize ? this.getClientBoundsForKeyboardAction(position) : {clientX: 0, clientY: 0};
     event.preventDefault();
     event.stopPropagation();
-    this.startMove({clientX: 0, clientY: 0}, moveType, position);
+
+    this.startMove(bounds, moveType, position);
     this.moveImg(moveEvent);
     this.moveStop();
+  }
+
+  private getClientBoundsForKeyboardAction(position: string): any {
+    const clientBounds = { clientX: 0, clientY: 0};
+    const topSelector = document.querySelector('.ngx-ic-resize-bar.ngx-ic-top');
+    const bottomSelector = document.querySelector('.ngx-ic-resize-bar.ngx-ic-bottom');
+    clientBounds.clientY = bottomSelector?.getBoundingClientRect().y! - topSelector?.getBoundingClientRect().y!;
+
+    if (position === 'bottom') {
+      clientBounds.clientY = clientBounds.clientY * (1 / this.settings.stepSize);
+    }
+
+    return clientBounds;
   }
 
   startMove(event: any, moveType: MoveTypes, position: string | null = null): void {
