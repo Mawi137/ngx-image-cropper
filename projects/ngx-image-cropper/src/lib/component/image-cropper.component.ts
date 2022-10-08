@@ -8,13 +8,16 @@ import {
   HostListener,
   Input,
   isDevMode,
+  NgZone,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { fromEvent, merge, Subscription } from 'rxjs';
 import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
 import { OutputFormat } from '../interfaces/cropper-options.interface';
 import { CropperSettings } from '../interfaces/cropper.settings';
@@ -31,12 +34,13 @@ import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '..
   styleUrls: ['./image-cropper.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ImageCropperComponent implements OnChanges, OnInit {
+export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   private Hammer: HammerStatic = (window as any)?.['Hammer'] || null;
   private settings = new CropperSettings();
   private setImageMaxSizeRetries = 0;
   private moveStart?: MoveStart;
   private loadedImage?: LoadedImage;
+  private mouseAndTouchmoveSubscription!: Subscription;
 
   safeImgDataUrl?: SafeUrl | string;
   safeTransformStyle?: SafeStyle | string;
@@ -101,7 +105,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private cropperPositionService: CropperPositionService,
     private loadImageService: LoadImageService,
     private sanitizer: DomSanitizer,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private ngZone: NgZone,
   ) {
     this.reset();
   }
@@ -185,7 +190,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   ngOnInit(): void {
     this.settings.stepSize = this.initialStepSize;
-    this.activatePinchGesture();
+    this.ngZone.runOutsideAngular(() => {
+      this.activatePinchGesture();
+
+      this.mouseAndTouchmoveSubscription = merge(
+        fromEvent(document, 'mousemove'),
+        fromEvent(document, 'touchmove'),
+      ).subscribe(this.moveImg.bind(this));
+    });
   }
 
   private reset(): void {
@@ -378,8 +390,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     };
   }
 
-  @HostListener('document:mousemove', ['$event'])
-  @HostListener('document:touchmove', ['$event'])
   moveImg(event: any): void {
     if (this.moveStart!.active) {
       if (event.stopPropagation) {
@@ -537,5 +547,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       return output;
     }
     return null;
+  }
+
+  ngOnDestroy() {
+    if (this.mouseAndTouchmoveSubscription) {
+      this.mouseAndTouchmoveSubscription.unsubscribe();
+    }
   }
 }
