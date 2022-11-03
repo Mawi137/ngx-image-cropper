@@ -59,6 +59,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() transform: ImageTransform = {};
   @Input() maintainAspectRatio = this.settings.maintainAspectRatio;
   @Input() aspectRatio = this.settings.aspectRatio;
+  @Input() resetCropOnAspectRatioChange = this.settings.resetCropOnAspectRatioChange;
   @Input() resizeToWidth = this.settings.resizeToWidth;
   @Input() resizeToHeight = this.settings.resizeToHeight;
   @Input() cropperMinWidth = this.settings.cropperMinWidth;
@@ -120,7 +121,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.setMaxSize();
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
-      if (this.maintainAspectRatio && (changes['maintainAspectRatio'] || changes['aspectRatio'])) {
+      if (
+        this.maintainAspectRatio &&
+        (this.resetCropOnAspectRatioChange || !this.aspectRatioIsCorrect()) &&
+        (changes['maintainAspectRatio'] || changes['aspectRatio'])
+      ) {
         this.resetCropperPosition();
       } else if (changes['cropper']) {
         this.checkCropperPosition(false);
@@ -537,5 +542,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       return output;
     }
     return null;
+  }
+
+  private aspectRatioIsCorrect(): boolean {
+    const currentCropAspectRatio = (this.cropper.x2 - this.cropper.x1) / (this.cropper.y2 - this.cropper.y1);
+    return currentCropAspectRatio === this.aspectRatio;
   }
 }
