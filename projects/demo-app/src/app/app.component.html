@@ -26,6 +26,7 @@
 <br/>
 <br/>
 <button (click)="allowMoveImage = !allowMoveImage;">{{allowMoveImage ? 'Disable' : 'Enable' }} image panning</button>
+<button (click)="hidden = !hidden;">{{hidden ? 'Show' : 'Hide' }}</button>
 <br/>
 
 
@@ -45,6 +46,7 @@
     [alignImage]="'center'"
     [style.display]="showCropper ? null : 'none'"
     [allowMoveImage]="allowMoveImage"
+    [hidden]="hidden"
     backgroundColor="red"
     format="png"
     (imageCropped)="imageCropped($event)"

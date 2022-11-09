@@ -37,6 +37,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   private setImageMaxSizeRetries = 0;
   private moveStart?: MoveStart;
   private loadedImage?: LoadedImage;
+  private resizedWhileHidden = false;
 
   safeImgDataUrl?: SafeUrl | string;
   safeTransformStyle?: SafeStyle | string;
@@ -88,6 +89,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() alignImage: 'left' | 'center' = this.settings.alignImage;
   @HostBinding('class.disabled')
   @Input() disabled = false;
+  @HostBinding('class.ngx-ix-hidden')
+  @Input() hidden = false;
 
   @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
   @Output() startCropImage = new EventEmitter<void>();
@@ -138,6 +141,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.setCssTransform();
       this.doAutoCrop();
       this.cd.markForCheck();
+    }
+    if (changes['hidden'] && this.resizedWhileHidden && !this.hidden) {
+      setTimeout(() => {
+        this.onResize();
+        this.resizedWhileHidden = false;
+      });
     }
   }
 
@@ -285,10 +294,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (!this.loadedImage) {
       return;
     }
-    this.resizeCropperPosition();
-    this.setMaxSize();
-    this.setCropperScaledMinSize();
-    this.setCropperScaledMaxSize();
+    if (this.hidden) {
+      this.resizedWhileHidden = true;
+    } else {
+      this.resizeCropperPosition();
+      this.setMaxSize();
+      this.setCropperScaledMinSize();
+      this.setCropperScaledMaxSize();
+    }
   }
 
   private activatePinchGesture() {

@@ -23,6 +23,7 @@ export class AppComponent {
   imageURL?: string;
   loading = false;
   allowMoveImage = false;
+  hidden = false;
 
   fileChangeEvent(event: any): void {
     this.loading = true;
