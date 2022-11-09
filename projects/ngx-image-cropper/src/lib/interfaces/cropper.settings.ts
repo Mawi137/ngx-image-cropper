@@ -9,6 +9,7 @@ export class CropperSettings {
   maintainAspectRatio = true;
   transform: ImageTransform = {};
   aspectRatio = 1;
+  resetCropOnAspectRatioChange = true;
   resizeToWidth = 0;
   resizeToHeight = 0;
   cropperMinWidth = 0;

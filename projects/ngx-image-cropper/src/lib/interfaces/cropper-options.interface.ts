@@ -3,6 +3,7 @@ import { ImageTransform } from './image-transform.interface';
 export interface CropperOptions {
   format: OutputFormat;
   maintainAspectRatio: boolean;
+  resetCropOnAspectRatioChange: boolean;
   transform: ImageTransform;
   aspectRatio: number;
   resizeToWidth: number;
