@@ -53,6 +53,7 @@
     (imageLoaded)="imageLoaded()"
     (cropperReady)="cropperReady($event)"
     (loadImageFailed)="loadImageFailed()"
+    [imageAltText]="'alternative image text'"
   ></image-cropper>
   <div *ngIf="loading" class="loader">Loading...</div>
 </div>
