@@ -542,14 +542,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private doAutoCrop(): void {
     if (this.autoCrop) {
-      this.crop();
+      void this.crop();
     }
   }
 
-  crop(): ImageCroppedEvent | null {
+  async crop(): Promise<ImageCroppedEvent | null> {
     if (this.loadedImage?.transformed?.image != null) {
       this.startCropImage.emit();
-      const output = this.cropService.crop(this.sourceImage, this.loadedImage, this.cropper, this.settings);
+      const output = await this.cropService.crop(this.sourceImage, this.loadedImage, this.cropper, this.settings);
       if (output != null) {
         this.imageCropped.emit(output);
       }

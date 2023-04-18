@@ -47,9 +47,15 @@ export class LoadImageService {
         canvas.width = img.width;
         canvas.height = img.height;
         context?.drawImage(img, 0, 0);
-        this.loadBase64Image(canvas.toDataURL(), cropperSettings).then(resolve);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            this.loadBase64Image(URL.createObjectURL(blob), cropperSettings).then(resolve);
+          } else {
+            reject('Failed to create Blob from canvas');
+          }
+        });
       };
-      img.crossOrigin = 'anonymous';
+      img.crossOrigin = 'Anonymous';
       img.src = url;
     });
   }
@@ -127,7 +133,11 @@ export class LoadImageService {
       -originalSize.width / 2,
       -originalSize.height / 2
     );
-    const transformedBase64 = canvas.toDataURL();
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve));
+    if (!blob) {
+      throw new Error('Failed to get Blob from image.');
+    }
+    const transformedBase64 = URL.createObjectURL(blob);
     const transformedImage = await this.loadImageFromBase64(transformedBase64);
     return {
       original: {

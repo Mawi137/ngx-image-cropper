@@ -7,7 +7,7 @@ import { percentage } from '../utils/percentage.utils';
 @Injectable({providedIn: 'root'})
 export class CropService {
 
-  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): ImageCroppedEvent | null {
+  async crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): Promise<ImageCroppedEvent | null> {
     const imagePosition = this.getImagePosition(sourceImage, loadedImage, cropper, settings);
     const width = imagePosition.x2 - imagePosition.x1;
     const height = imagePosition.y2 - imagePosition.y1;
@@ -55,7 +55,8 @@ export class CropService {
         : Math.round(height * resizeRatio);
       resizeCanvas(cropCanvas, output.width, output.height);
     }
-    output.base64 = cropCanvas.toDataURL('image/' + settings.format, this.getQuality(settings));
+    const blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve));
+    output.base64 = URL.createObjectURL(blob!);
     return output;
   }
 
