@@ -4,9 +4,10 @@ import { CropperSettings } from '../interfaces/cropper.settings';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { getTransformationsFromExifData, supportsAutomaticRotation } from '../utils/exif.utils';
 
-interface LoadImageBase64 {
+interface LoadImageArrayBuffer {
   originalImage: HTMLImageElement;
-  originalBase64: string;
+  originalArrayBuffer: ArrayBufferLike;
+  originalObjectUrl: string;
 }
 
 @Injectable({providedIn: 'root'})
@@ -15,22 +16,15 @@ export class LoadImageService {
   private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
 
   loadImageFile(file: File, cropperSettings: CropperSettings): Promise<LoadedImage> {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.onload = (event: any) => {
-        this.loadImage(event.target.result, file.type, cropperSettings)
-          .then(resolve)
-          .catch(reject);
-      };
-      fileReader.readAsDataURL(file);
-    });
+    return file.arrayBuffer()
+      .then(arrayBuffer => this.loadImage(arrayBuffer, file.type, cropperSettings));
   }
 
-  private loadImage(imageBase64: string, imageType: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  private loadImage(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
     if (!this.isValidImageType(imageType)) {
       return Promise.reject(new Error('Invalid image type'));
     }
-    return this.loadBase64Image(imageBase64, cropperSettings);
+    return this.loadImageFromArrayBuffer(arrayBuffer, cropperSettings);
   }
 
   private isValidImageType(type: string): boolean {
@@ -38,49 +32,52 @@ export class LoadImageService {
   }
 
   loadImageFromURL(url: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onerror = () => reject;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        context?.drawImage(img, 0, 0);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            this.loadBase64Image(URL.createObjectURL(blob), cropperSettings).then(resolve);
-          } else {
-            reject('Failed to create Blob from canvas');
-          }
-        });
-      };
-      img.crossOrigin = 'Anonymous';
-      img.src = url;
-    });
+    return fetch(url)
+      .then(res => res.arrayBuffer())
+      .then(buffer => this.loadImageFromArrayBuffer(buffer, cropperSettings));
   }
 
   loadBase64Image(imageBase64: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
-    return new Promise<LoadImageBase64>((resolve, reject) => {
+    const arrayBuffer = this.base64ToArrayBuffer(imageBase64);
+    return this.loadImageFromArrayBuffer(arrayBuffer, cropperSettings);
+  }
+
+  private base64ToArrayBuffer(imageBase64: string): ArrayBufferLike {
+    imageBase64 = imageBase64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
+    const binaryString = atob(imageBase64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  private loadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, cropperSettings: CropperSettings): Promise<LoadedImage> {
+    return new Promise<LoadImageArrayBuffer>((resolve, reject) => {
+      const blob = new Blob([arrayBuffer]);
+      console.log(blob);
+      const objectUrl = URL.createObjectURL(blob);
       const originalImage = new Image();
       originalImage.onload = () => resolve({
         originalImage,
-        originalBase64: imageBase64
+        originalObjectUrl: objectUrl,
+        originalArrayBuffer: arrayBuffer
       });
       originalImage.onerror = reject;
-      originalImage.src = imageBase64;
-    }).then((res: LoadImageBase64) => this.transformImageBase64(res, cropperSettings));
+      originalImage.src = objectUrl;
+    }).then((res: LoadImageArrayBuffer) => this.transformImageFromArrayBuffer(res, cropperSettings));
   }
 
-  private async transformImageBase64(res: LoadImageBase64, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  private async transformImageFromArrayBuffer(res: LoadImageArrayBuffer, cropperSettings: CropperSettings): Promise<LoadedImage> {
     const autoRotate = await this.autoRotateSupported;
-    const exifTransform = await getTransformationsFromExifData(autoRotate ? -1 : res.originalBase64);
+    const exifTransform = await getTransformationsFromExifData(autoRotate ? -1 : res.originalArrayBuffer);
     if (!res.originalImage || !res.originalImage.complete) {
       return Promise.reject(new Error('No image loaded'));
     }
     const loadedImage = {
       original: {
-        base64: res.originalBase64,
+        objectUrl: res.originalObjectUrl,
         image: res.originalImage,
         size: {
           width: res.originalImage.naturalWidth,
@@ -101,12 +98,12 @@ export class LoadImageService {
     if (canvasRotation === 0 && !loadedImage.exifTransform!.flip && !cropperSettings.containWithinAspectRatio) {
       return {
         original: {
-          base64: loadedImage.original!.base64,
+          objectUrl: loadedImage.original!.objectUrl,
           image: loadedImage.original!.image,
           size: {...originalSize}
         },
         transformed: {
-          base64: loadedImage.original!.base64,
+          objectUrl: loadedImage.original!.objectUrl,
           image: loadedImage.original!.image,
           size: {...originalSize}
         },
@@ -133,20 +130,20 @@ export class LoadImageService {
       -originalSize.width / 2,
       -originalSize.height / 2
     );
-    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve));
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, cropperSettings.format));
     if (!blob) {
       throw new Error('Failed to get Blob from image.');
     }
-    const transformedBase64 = URL.createObjectURL(blob);
-    const transformedImage = await this.loadImageFromBase64(transformedBase64);
+    const objectUrl = URL.createObjectURL(blob);
+    const transformedImage = await this.loadImageFromObjectUrl(objectUrl);
     return {
       original: {
-        base64: loadedImage.original!.base64,
+        objectUrl: loadedImage.original!.objectUrl,
         image: loadedImage.original!.image,
         size: {...originalSize}
       },
       transformed: {
-        base64: transformedBase64,
+        objectUrl: objectUrl,
         image: transformedImage,
         size: {
           width: transformedImage.width,
@@ -157,12 +154,12 @@ export class LoadImageService {
     };
   }
 
-  private loadImageFromBase64(imageBase64: string): Promise<HTMLImageElement> {
+  private loadImageFromObjectUrl(objectUrl: string): Promise<HTMLImageElement> {
     return new Promise<HTMLImageElement>(((resolve, reject) => {
       const image = new Image();
       image.onload = () => resolve(image);
       image.onerror = reject;
-      image.src = imageBase64;
+      image.src = objectUrl;
     }));
   }
 

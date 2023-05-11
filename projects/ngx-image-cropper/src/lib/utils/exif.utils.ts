@@ -23,11 +23,11 @@ export function supportsAutomaticRotation(): Promise<boolean> {
   });
 }
 
-export function getTransformationsFromExifData(exifRotationOrBase64Image: number | string): ExifTransform {
-  if (typeof exifRotationOrBase64Image === 'string') {
-    exifRotationOrBase64Image = getExifRotation(exifRotationOrBase64Image);
+export function getTransformationsFromExifData(exifRotationOrArrayBuffer: number | ArrayBufferLike): ExifTransform {
+  if (typeof exifRotationOrArrayBuffer === 'object') {
+    exifRotationOrArrayBuffer = getExifRotation(exifRotationOrArrayBuffer);
   }
-  switch (exifRotationOrBase64Image) {
+  switch (exifRotationOrArrayBuffer) {
     case 2:
       return { rotate: 0, flip: true };
     case 3:
@@ -47,8 +47,8 @@ export function getTransformationsFromExifData(exifRotationOrBase64Image: number
   }
 }
 
-function getExifRotation(imageBase64: string): number {
-  const view = new DataView(base64ToArrayBuffer(imageBase64));
+function getExifRotation(arrayBuffer: ArrayBufferLike): number {
+  const view = new DataView(arrayBuffer);
   if (view.getUint16(0, false) !== 0xFFD8) {
     return -2;
   }
@@ -79,15 +79,4 @@ function getExifRotation(imageBase64: string): number {
     }
   }
   return -1;
-}
-
-function base64ToArrayBuffer(imageBase64: string) {
-  imageBase64 = imageBase64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
-  const binaryString = atob(imageBase64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
 }
