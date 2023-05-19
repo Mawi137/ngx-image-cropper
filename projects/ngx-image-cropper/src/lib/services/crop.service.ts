@@ -55,7 +55,8 @@ export class CropService {
         : Math.round(height * resizeRatio);
       resizeCanvas(cropCanvas, output.width, output.height);
     }
-    const blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve));
+    // TODO return blob or base64 image
+    const blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, settings.format));
     output.base64 = URL.createObjectURL(blob!);
     return output;
   }
