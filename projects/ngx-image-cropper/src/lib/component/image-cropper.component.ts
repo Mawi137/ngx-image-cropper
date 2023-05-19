@@ -257,7 +257,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.cd.markForCheck();
   }
 
-  private loadImageError(error: any): void {
+  public loadImageError(error: any): void {
     console.error(error);
     this.loadImageFailed.emit();
   }
