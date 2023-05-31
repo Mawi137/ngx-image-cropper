@@ -27,3 +27,4 @@ export interface CropperOptions {
 }
 
 export type OutputFormat = 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico';
+export type OutputType = 'base64' | 'blob';

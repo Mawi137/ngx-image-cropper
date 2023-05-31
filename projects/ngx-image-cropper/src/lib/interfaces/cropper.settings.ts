@@ -1,4 +1,4 @@
-import { CropperOptions, OutputFormat } from './cropper-options.interface';
+import { CropperOptions, OutputFormat, OutputType } from './cropper-options.interface';
 import { ImageTransform } from './image-transform.interface';
 import { SimpleChanges } from '@angular/core';
 
@@ -6,7 +6,7 @@ export class CropperSettings {
 
   // From options
   format: OutputFormat = 'png';
-  output: 'base64' | 'blob' = 'base64';
+  output: OutputType = 'base64';
   maintainAspectRatio = true;
   transform: ImageTransform = {};
   aspectRatio = 1;

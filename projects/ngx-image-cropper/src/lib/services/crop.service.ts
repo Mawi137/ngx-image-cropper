@@ -3,11 +3,14 @@ import { CropperPosition, ImageCroppedEvent, LoadedImage } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { resizeCanvas } from '../utils/resize.utils';
 import { percentage } from '../utils/percentage.utils';
+import { OutputType } from '../interfaces/cropper-options.interface';
 
 @Injectable({providedIn: 'root'})
 export class CropService {
 
-  async crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): Promise<ImageCroppedEvent | null> {
+  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'blob'): Promise<ImageCroppedEvent> | null;
+  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'base64'): ImageCroppedEvent | null;
+  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: OutputType): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
     const imagePosition = this.getImagePosition(sourceImage, loadedImage, cropper, settings);
     const width = imagePosition.x2 - imagePosition.x1;
     const height = imagePosition.y2 - imagePosition.y1;
@@ -39,29 +42,34 @@ export class CropService {
       -transformedImage.size.height / 2
     );
 
-    const output: ImageCroppedEvent = {
+    const result: ImageCroppedEvent = {
       width, height,
       imagePosition,
       cropperPosition: {...cropper}
     };
     if (settings.containWithinAspectRatio) {
-      output.offsetImagePosition = this.getOffsetImagePosition(sourceImage, loadedImage, cropper, settings);
+      result.offsetImagePosition = this.getOffsetImagePosition(sourceImage, loadedImage, cropper, settings);
     }
     const resizeRatio = this.getResizeRatio(width, height, settings);
     if (resizeRatio !== 1) {
-      output.width = Math.round(width * resizeRatio);
-      output.height = settings.maintainAspectRatio
-        ? Math.round(output.width / settings.aspectRatio)
+      result.width = Math.round(width * resizeRatio);
+      result.height = settings.maintainAspectRatio
+        ? Math.round(result.width / settings.aspectRatio)
         : Math.round(height * resizeRatio);
-      resizeCanvas(cropCanvas, output.width, output.height);
+      resizeCanvas(cropCanvas, result.width, result.height);
     }
-    if (settings.output === 'blob') {
-      output.blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, settings.format, this.getQuality(settings)));
-      if (output.blob) {
-        output.objectUrl = URL.createObjectURL(output.blob);
-      }
+    if (output === 'blob') {
+      return this.cropToBlob(result, cropCanvas, settings);
     } else {
-      output.base64 = cropCanvas.toDataURL('image/' + settings.format, this.getQuality(settings));
+      result.base64 = cropCanvas.toDataURL('image/' + settings.format, this.getQuality(settings));
+      return result;
+    }
+  }
+
+  private async cropToBlob(output: ImageCroppedEvent, cropCanvas: HTMLCanvasElement, settings: CropperSettings): Promise<ImageCroppedEvent> {
+    output.blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, settings.format, this.getQuality(settings)));
+    if (output.blob) {
+      output.objectUrl = URL.createObjectURL(output.blob);
     }
     return output;
   }

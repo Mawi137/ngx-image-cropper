@@ -17,10 +17,10 @@ export class LoadImageService {
 
   loadImageFile(file: File, cropperSettings: CropperSettings): Promise<LoadedImage> {
     return file.arrayBuffer()
-      .then(arrayBuffer => this.loadImage(arrayBuffer, file.type, cropperSettings));
+      .then(arrayBuffer => this.checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer, file.type, cropperSettings));
   }
 
-  private loadImage(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  private checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
     if (!this.isValidImageType(imageType)) {
       return Promise.reject(new Error('Invalid image type'));
     }
@@ -56,7 +56,6 @@ export class LoadImageService {
   private loadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, cropperSettings: CropperSettings): Promise<LoadedImage> {
     return new Promise<LoadImageArrayBuffer>((resolve, reject) => {
       const blob = new Blob([arrayBuffer]);
-      console.log(blob);
       const objectUrl = URL.createObjectURL(blob);
       const originalImage = new Image();
       originalImage.onload = () => resolve({
@@ -132,7 +131,7 @@ export class LoadImageService {
     );
     const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, cropperSettings.format));
     if (!blob) {
-      throw new Error('Failed to get Blob from image.');
+      throw new Error('Failed to get Blob for transformed image.');
     }
     const objectUrl = URL.createObjectURL(blob);
     const transformedImage = await this.loadImageFromObjectUrl(objectUrl);

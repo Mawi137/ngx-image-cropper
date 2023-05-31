@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
 import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
-import { OutputFormat } from '../interfaces/cropper-options.interface';
+import { OutputFormat, OutputType } from '../interfaces/cropper-options.interface';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { MoveTypes } from '../interfaces/move-start.interface';
 import { CropService } from '../services/crop.service';
@@ -547,14 +547,38 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  async crop(): Promise<ImageCroppedEvent | null> {
+  crop(): ImageCroppedEvent | null;
+  crop(output: 'base64'): ImageCroppedEvent | null;
+  crop(output: 'blob'): Promise<ImageCroppedEvent> | null;
+  crop(output: OutputType = this.settings.output): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
     if (this.loadedImage?.transformed?.image != null) {
       this.startCropImage.emit();
-      const output = await this.cropService.crop(this.sourceImage, this.loadedImage, this.cropper, this.settings);
-      if (output != null) {
-        this.imageCropped.emit(output);
+      if (output === 'blob') {
+        return this.cropToBlob();
+      } else if (output === 'base64') {
+        return this.cropToBase64();
       }
-      return output;
+    }
+    return null;
+  }
+
+  private cropToBlob(): Promise<ImageCroppedEvent> | null {
+    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'blob');
+    if (result) {
+      return Promise.resolve(result)
+        .then((output) => {
+          this.imageCropped.emit(output);
+          return result;
+        });
+    }
+    return null;
+  }
+
+  private cropToBase64(): ImageCroppedEvent | null {
+    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'base64');
+    if (result) {
+      this.imageCropped.emit(result);
+      return result;
     }
     return null;
   }
