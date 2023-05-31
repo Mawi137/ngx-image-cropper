@@ -57,6 +57,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() imageBase64?: string;
   @Input() imageFile?: File;
   @Input() imageAltText?: string;
+  @Input() output: 'blob' | 'base64' = this.settings.output;
   @Input() format: OutputFormat = this.settings.format;
   @Input() transform: ImageTransform = {};
   @Input() maintainAspectRatio = this.settings.maintainAspectRatio;

@@ -37,7 +37,7 @@ export class AppComponent {
   }
 
   imageCropped(event: ImageCroppedEvent) {
-    this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.base64!);
+    this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl || event.base64 || '');
     console.log(event);
   }
 
