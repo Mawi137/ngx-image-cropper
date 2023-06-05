@@ -67,7 +67,7 @@ export class YourComponent {
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
     }
-    imageLoaded(image: LoadedImage) {
+    imageLoaded() {
         // show cropper
     }
     cropperReady() {
