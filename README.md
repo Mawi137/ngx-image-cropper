@@ -91,8 +91,9 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `imageFile`                | Blob(File)         |              | The file you want to change (set to `null` to reset the cropper)                                                                                                                                                                                                                                                                      |
 | `imageBase64`              | string             |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper                                                                                                                                                                                                                     |
 | `imageURL`                 | string             |              | If you don't want to use a file input or a base64 you can set an URL to get the image from. If requesting an image from a different domain make sure Cross-Origin Resource Sharing (CORS) is allowed or the image will fail to load.                                                                                                  |
-| `imageAltText`             | string             |              | Alternative text for uploaded image for accessibility compliance.                                                                                                  |
+| `imageAltText`             | string             |              | Alternative text for uploaded image for accessibility compliance.                                                                                                                                                                                                                                                                     |
 | `format`                   | string             | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional)                                                                                                                                                                                                          |
+| `output`                   | string             | blob         | Output type (blob or base64) (blob is the most performant)                                                                                                                                                                                                                                                                            |
 | `aspectRatio`              | number             | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...)                                                                                                                                                                                                                                                                 |
 | `maintainAspectRatio`      | boolean            | true         | Keep width and height of cropped image equal according to the aspectRatio                                                                                                                                                                                                                                                             |
 | `containWithinAspectRatio` | boolean            | false        | When set to true, padding will be added around the image to make it fit to the aspect ratio                                                                                                                                                                                                                                           |
@@ -120,33 +121,33 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `hidden`                   | boolean            | false        | Set to true to hide image cropper                                                                                                                                                                                                                                                                                                     |
 
 ### CSS Variables
-|  Name                      | Type      | Default      | Description     |
-| -------------------------- |---------- | ------------ | --------------- |
+| Name                       | Type      | Default               | Description                                     |
+|----------------------------|-----------|-----------------------|-------------------------------------------------|
 | `--cropper-outline-color`  | string    | rgba(255,255,255,0.3) | The background color you see around the cropper |
-| `--cropper-overlay-color`  | string    | rgba(255,255,255)     | The background color you see around the image |
+| `--cropper-overlay-color`  | string    | rgba(255,255,255)     | The background color you see around the image   |
 
 ### Outputs
-| Name                    | Type              | Description |
-| ----------------------- | ----------------- | ----------- |
-| `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped |
-| `imageLoaded`           | LoadedImage       | Emits the `LoadedImage` when it was loaded into the cropper |
+| Name                    | Type              | Description                                                                                                                |
+|-------------------------|-------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `imageCropped`          | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped                                                                  |
+| `imageLoaded`           | LoadedImage       | Emits the `LoadedImage` when it was loaded into the cropper                                                                |
 | `cropperReady`          | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size |
-| `startCropImage`        | void              | Emits when the component started cropping the image |
-| `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed) |
+| `startCropImage`        | void              | Emits when the component started cropping the image                                                                        |
+| `loadImageFailed`       | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed)                                              |
 
 ### Methods
 To gain access to the image cropper's methods use `@ViewChild(ImageCropperComponent) imageCropper: ImageCropperComponent;`
 
-| Name                    | Returns           | Description |
-| ----------------------- | ----------------- | ----------- |
-| `crop`                  | ImageCroppedEvent | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. |
+| Name                                               | Returns                                         | Description                                                                                                                                                                                           |
+|----------------------------------------------------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <code>crop(output?: 'blob' &#124; 'base64')</code> | Promise<ImageCroppedEvent> or ImageCroppedEvent | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. When output is set to blob, a Promise will be returned.  |
 
 ### Interfaces
 #### CropperPosition
-| Property | Type   | Description |
-| -------- | ------ | ----------- |
-| x1       | number | X position of first coordinate (in px) |
-| y1       | number | Y position of first coordinate (in px) |
+| Property | Type   | Description                             |
+|----------|--------|-----------------------------------------|
+| x1       | number | X position of first coordinate (in px)  |
+| y1       | number | Y position of first coordinate (in px)  |
 | x2       | number | X position of second coordinate (in px) |
 | y2       | number | Y position of second coordinate (in px) |
 
@@ -162,22 +163,24 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 | translateUnit | number   | The unit used for the translate (% or px) (default = %) |
 
 #### ImageCroppedEvent
-| Property            | Type            | Description |
-|---------------------| ------          | ----------- |
-| base64              | string          | Base64 string of the cropped image |
-| width               | number          | Width of the cropped image |
-| height              | number          | Height of the cropped image |
-| cropperPosition     | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size |
-| imagePosition       | CropperPosition | Position of the cropper when it was cropped relative to the original image size |
+| Property            | Type            | Description                                                                                                                           |
+|---------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| blob                | Blob            | Blob of the cropped image (only if output="blob")                                                                                     |
+| objectUrl           | string          | Object url pointing to the generated blob (only if output="blob")                                                                     |
+| base64              | string          | Base64 string of the cropped image (only if output="base64")                                                                          |
+| width               | number          | Width of the cropped image                                                                                                            |
+| height              | number          | Height of the cropped image                                                                                                           |
+| cropperPosition     | CropperPosition | Position of the cropper when it was cropped relative to the displayed image size                                                      |
+| imagePosition       | CropperPosition | Position of the cropper when it was cropped relative to the original image size                                                       |
 | offsetImagePosition | CropperPosition | Position of the cropper when it was cropped relative to the original image size without padding when containWithinAspectRatio is true |
 
 #### LoadedImage
-| Property              | Type             | Description |
-| --------------------  | ------           | ----------- |
-| original.base64       | string           | Base64 string of the original image |
-| original.image        | HTMLImageElement | HTMLImageElement of the original image |
-| original.size         | Dimension        | Width and height of the original image |
-| transformed.base64    | string           | Base64 string of the transformed image |
-| transformed.image     | HTMLImageElement | HTMLImageElement of the transformed image |
-| transformed.size      | Dimension        | Width and height of the transformed image |
-| exifTransform         | ExifTransform    | Exif transformations read from original image |
+| Property               | Type              | Description                                   |
+|------------------------|-------------------|-----------------------------------------------|
+| original.objectUrl     | string            | Object url pointing to the original image     |
+| original.image         | HTMLImageElement  | HTMLImageElement of the original image        |
+| original.size          | Dimension         | Width and height of the original image        |
+| transformed.objectUrl  | string            | Object url pointing to the transformed image  |
+| transformed.image      | HTMLImageElement  | HTMLImageElement of the transformed image     |
+| transformed.size       | Dimension         | Width and height of the transformed image     |
+| exifTransform          | ExifTransform     | Exif transformations read from original image |
