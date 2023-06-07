@@ -1,4 +1,4 @@
-<input type="file" (change)="fileChangeEvent($event)" />
+<input type="file" (change)="fileChangeEvent($event)" accept="image/*" />
 <br />
 <br />
 <input [(ngModel)]="imageURL" placeholder="URL to load image" type="text" />
@@ -37,7 +37,6 @@
     [maintainAspectRatio]="true"
     [containWithinAspectRatio]="containWithinAspectRatio"
     [aspectRatio]="aspectRatio"
-    [resizeToWidth]="128"
     [cropperMinWidth]="128"
     [onlyScaleDown]="true"
     [roundCropper]="false"
@@ -49,6 +48,7 @@
     [hidden]="hidden"
     imageAltText="Alternative image text"
     backgroundColor="red"
+    output="blob"
     format="png"
     (imageCropped)="imageCropped($event)"
     (imageLoaded)="imageLoaded()"

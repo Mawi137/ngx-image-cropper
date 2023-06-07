@@ -3,12 +3,12 @@ import { ExifTransform } from './exif-transform.interface';
 
 export interface LoadedImage {
   original: {
-    base64: string;
+    objectUrl: string;
     image: HTMLImageElement;
     size: Dimensions;
   };
   transformed: {
-    base64: string;
+    objectUrl: string;
     image: HTMLImageElement;
     size: Dimensions;
   };
