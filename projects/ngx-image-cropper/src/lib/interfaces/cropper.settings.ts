@@ -6,7 +6,7 @@ export class CropperSettings {
 
   // From options
   format: OutputFormat = 'png';
-  output: OutputType = 'base64';
+  output: OutputType = 'blob';
   maintainAspectRatio = true;
   transform: ImageTransform = {};
   aspectRatio = 1;
