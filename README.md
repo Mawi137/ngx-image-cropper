@@ -71,7 +71,7 @@ export class YourComponent {
     }
     imageCropped(event: ImageCroppedEvent) {
       this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
-      // event.blob can be used to upload the result image
+      // event.blob can be used to upload the cropped image
     }
     imageLoaded(image: LoadedImage) {
         // show cropper
