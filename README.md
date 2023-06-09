@@ -60,12 +60,18 @@ import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 export class YourComponent {
     imageChangedEvent: any = '';
     croppedImage: any = '';
+    
+    constructor(
+      private sanitizer: DomSanitizer
+    ) {
+    }
 
     fileChangeEvent(event: any): void {
         this.imageChangedEvent = event;
     }
     imageCropped(event: ImageCroppedEvent) {
-        this.croppedImage = event.base64;
+      this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
+      // event.blob can be used to upload the result image
     }
     imageLoaded(image: LoadedImage) {
         // show cropper
