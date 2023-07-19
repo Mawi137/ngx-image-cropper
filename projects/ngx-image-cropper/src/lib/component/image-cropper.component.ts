@@ -6,15 +6,17 @@ import {
   EventEmitter,
   HostBinding,
   HostListener,
+  Inject,
   Input,
   isDevMode,
   OnChanges,
   OnInit,
+  Optional,
   Output,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, HammerLoader, HAMMER_LOADER, SafeStyle, SafeUrl } from '@angular/platform-browser';
 import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
 import { OutputFormat, OutputType } from '../interfaces/cropper-options.interface';
 import { CropperSettings } from '../interfaces/cropper.settings';
@@ -32,7 +34,6 @@ import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '..
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageCropperComponent implements OnChanges, OnInit {
-  private Hammer: HammerStatic = (window as any)?.['Hammer'] || null;
   private settings = new CropperSettings();
   private setImageMaxSizeRetries = 0;
   private moveStart?: MoveStart;
@@ -107,7 +108,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private cropperPositionService: CropperPositionService,
     private loadImageService: LoadImageService,
     private sanitizer: DomSanitizer,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    @Optional() @Inject(HAMMER_LOADER) private readonly hammerLoader: HammerLoader | null
   ) {
     this.reset();
   }
@@ -306,9 +308,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private activatePinchGesture() {
-    if (this.Hammer) {
-      const hammer = new this.Hammer(this.wrapper.nativeElement);
+  private async activatePinchGesture() {
+    // Loads HammerJS via angular APIs if configured
+    await this.hammerLoader?.();
+
+    const Hammer = (window as unknown as (Window & { Hammer?: HammerStatic }))?.['Hammer'] || null;
+
+    if (Hammer) {
+      const hammer = new Hammer(this.wrapper.nativeElement);
       hammer.get('pinch').set({enable: true});
       hammer.on('pinchmove', this.onPinch.bind(this));
       hammer.on('pinchend', this.pinchStop.bind(this));

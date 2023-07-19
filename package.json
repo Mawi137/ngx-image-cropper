@@ -38,6 +38,7 @@
     "@angular/language-service": "~13.3.11",
     "@types/jest": "^27.4.0",
     "hammerjs": "^2.0.8",
+    "@types/hammerjs": "^2.0.41",
     "jest": "^27.4.7",
     "ng-packagr": "^13.0.0"
   }
