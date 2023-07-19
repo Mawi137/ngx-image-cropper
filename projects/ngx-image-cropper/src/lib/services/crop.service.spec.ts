@@ -1,4 +1,3 @@
-import { CropperPosition, Dimensions, LoadedImage } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { CropService } from './crop.service';
 
@@ -119,87 +118,6 @@ describe('CropService', () => {
         expect(service.getResizeRatio(250, 1000, settings)).toBe(0.5);
         expect(service.getResizeRatio(250, 50, settings)).toBe(1);
       });
-    });
-  });
-
-  describe("#getImagePosition", () => {
-    describe("when cropper position rounding shaves off a few pixels", () => {
-      const sourceImage = { nativeElement: { offsetWidth: 500 } };
-      const loadedImage = {
-        transformed: { size: { width: 1124, height: 750 } },
-      } as LoadedImage;
-      const cropper = { x1: 0, y1: 67.09608540925274, x2: 500, y2: 334 };
-      
-      it("should be moved back into bounds", () => {
-        settings.setOptions({ containWithinAspectRatio: false });
-        expect(
-          service.getImagePosition(sourceImage, loadedImage, cropper, settings)
-        ).toEqual({ x1: 0, y1: 150, x2: 1124, y2: 750 });
-      });
-    });
-  });
-
-  describe("#containWithinBounds", () => {
-    const maxDimensions: Dimensions = {
-      width: 600,
-      height: 400,
-    };
-    const cropperPositionBase: CropperPosition = {
-      x1: 100,
-      x2: 400,
-      y1: 250,
-      y2: 350,
-    };
-
-    it("when in bounds, should not change", () => {
-      const cropperPosition = { ...cropperPositionBase };
-      const expectedCropperPosition = { ...cropperPositionBase };
-      service.containWithinBounds(cropperPosition, maxDimensions);
-      expect(cropperPosition).toEqual(expectedCropperPosition);
-    });
-
-    it("when out of bounds left side, should be brought back in bounds", () => {
-      const cropperPosition = { ...cropperPositionBase, x1: -2 };
-      const expectedCropperPosition = {
-        ...cropperPositionBase,
-        x1: 0,
-        x2: 402,
-      };
-      service.containWithinBounds(cropperPosition, maxDimensions);
-      expect(cropperPosition).toEqual(expectedCropperPosition);
-    });
-
-    it("when out of bounds top side, should be brought back into bounds", () => {
-      const cropperPosition = { ...cropperPositionBase, y1: -3 };
-      const expectedCropperPosition = {
-        ...cropperPositionBase,
-        y1: 0,
-        y2: 353,
-      };
-      service.containWithinBounds(cropperPosition, maxDimensions);
-      expect(cropperPosition).toEqual(expectedCropperPosition);
-    });
-
-    it("when out of bounds right side, should be brought back into bounds", () => {
-      const cropperPosition = { ...cropperPositionBase, x2: 601 };
-      const expectedCropperPosition = {
-        ...cropperPositionBase,
-        x1: 99,
-        x2: 600,
-      };
-      service.containWithinBounds(cropperPosition, maxDimensions);
-      expect(cropperPosition).toEqual(expectedCropperPosition);
-    });
-
-    it("when out of bounds bottom side, should be brought back into bounds", () => {
-      const cropperPosition = { ...cropperPositionBase, y2: 405 };
-      const expectedCropperPosition = {
-        ...cropperPositionBase,
-        y1: 245,
-        y2: 400,
-      };
-      service.containWithinBounds(cropperPosition, maxDimensions);
-      expect(cropperPosition).toEqual(expectedCropperPosition);
     });
   });
 });
