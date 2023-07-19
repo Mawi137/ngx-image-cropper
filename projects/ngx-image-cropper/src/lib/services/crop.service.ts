@@ -1,5 +1,5 @@
 import { ElementRef, Injectable } from '@angular/core';
-import { CropperPosition, ImageCroppedEvent, LoadedImage } from '../interfaces';
+import { CropperPosition, Dimensions, ImageCroppedEvent, LoadedImage } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { resizeCanvas } from '../utils/resize.utils';
 import { percentage } from '../utils/percentage.utils';
@@ -94,7 +94,7 @@ export class CropService {
     return loadedImage.transformed.size.width / sourceImageElement.offsetWidth;
   }
 
-  private getImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): CropperPosition {
+  getImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): CropperPosition {
     const ratio = this.getRatio(sourceImage, loadedImage);
     const out: CropperPosition = {
       x1: Math.round(cropper.x1 * ratio),
@@ -104,10 +104,7 @@ export class CropService {
     };
 
     if (!settings.containWithinAspectRatio) {
-      out.x1 = Math.max(out.x1, 0);
-      out.y1 = Math.max(out.y1, 0);
-      out.x2 = Math.min(out.x2, loadedImage.transformed.size.width);
-      out.y2 = Math.min(out.y2, loadedImage.transformed.size.height);
+      this.containWithinBounds(out, loadedImage.transformed.size);
     }
 
     return out;
@@ -136,10 +133,7 @@ export class CropService {
     };
 
     if (!settings.containWithinAspectRatio) {
-      out.x1 = Math.max(out.x1, 0);
-      out.y1 = Math.max(out.y1, 0);
-      out.x2 = Math.min(out.x2, loadedImage.transformed.size.width);
-      out.y2 = Math.min(out.y2, loadedImage.transformed.size.height);
+      this.containWithinBounds(out, loadedImage.transformed.size);
     }
 
     return out;
@@ -167,5 +161,39 @@ export class CropService {
 
   getQuality(settings: CropperSettings): number {
     return Math.min(1, Math.max(0, settings.imageQuality / 100));
+  }
+
+  containWithinBounds(
+    cropperPosition: CropperPosition,
+    maxDimensions: Dimensions
+  ): void {
+    const { width: maxWidth, height: maxHeight } = maxDimensions;
+    const { x1, x2, y1, y2 } = cropperPosition;
+    const excess = {
+      left: Math.max(x1, 0) - x1,
+      top: Math.max(y1, 0) - y1,
+      right: x2 - Math.min(x2, maxWidth),
+      bottom: y2 - Math.min(y2, maxHeight),
+    };
+
+    if (excess.left > 0) {
+      cropperPosition.x1 = 0;
+      cropperPosition.x2 += excess.left;
+    }
+
+    if (excess.top > 0) {
+      cropperPosition.y1 = 0;
+      cropperPosition.y2 += excess.top;
+    }
+
+    if (excess.right > 0) {
+      cropperPosition.x2 = maxWidth;
+      cropperPosition.x1 -= excess.right;
+    }
+
+    if (excess.bottom > 0) {
+      cropperPosition.y2 = maxHeight;
+      cropperPosition.y1 -= excess.bottom;
+    }
   }
 }
