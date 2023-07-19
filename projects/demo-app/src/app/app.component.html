@@ -34,7 +34,7 @@
   <image-cropper
     [imageChangedEvent]="imageChangedEvent"
     [imageURL]="imageURL"
-    [maintainAspectRatio]="false"
+    [maintainAspectRatio]="true"
     [containWithinAspectRatio]="containWithinAspectRatio"
     [aspectRatio]="aspectRatio"
     [cropperMinWidth]="128"
@@ -45,7 +45,6 @@
     [alignImage]="'center'"
     [style.display]="showCropper ? null : 'none'"
     [allowMoveImage]="allowMoveImage"
-    [cropperMinHeight]="400"
     [hidden]="hidden"
     imageAltText="Alternative image text"
     backgroundColor="red"
