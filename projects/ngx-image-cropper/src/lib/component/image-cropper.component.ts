@@ -326,12 +326,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private resizeCropperPosition(): void {
-    const sourceImageElement = this.sourceImage.nativeElement;
-    if (this.maxSize.width !== sourceImageElement.offsetWidth || this.maxSize.height !== sourceImageElement.offsetHeight) {
-      this.cropper.x1 = this.cropper.x1 * sourceImageElement.offsetWidth / this.maxSize.width;
-      this.cropper.x2 = this.cropper.x2 * sourceImageElement.offsetWidth / this.maxSize.width;
-      this.cropper.y1 = this.cropper.y1 * sourceImageElement.offsetHeight / this.maxSize.height;
-      this.cropper.y2 = this.cropper.y2 * sourceImageElement.offsetHeight / this.maxSize.height;
+    const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
+    const sourceImageWidth = parseFloat(sourceImageStyle.width);
+    const sourceImageHeight = parseFloat(sourceImageStyle.height);
+    if (this.maxSize.width !== sourceImageWidth || this.maxSize.height !== sourceImageHeight) {
+      this.cropper.x1 = this.cropper.x1 * sourceImageWidth / this.maxSize.width;
+      this.cropper.x2 = this.cropper.x2 * sourceImageWidth / this.maxSize.width;
+      this.cropper.y1 = this.cropper.y1 * sourceImageHeight / this.maxSize.height;
+      this.cropper.y2 = this.cropper.y2 * sourceImageHeight / this.maxSize.height;
     }
   }
 
@@ -455,9 +457,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setMaxSize(): void {
     if (this.sourceImage) {
-      const sourceImageElement = this.sourceImage.nativeElement;
-      this.maxSize.width = sourceImageElement.offsetWidth;
-      this.maxSize.height = sourceImageElement.offsetHeight;
+      const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
+      this.maxSize.width = parseFloat(sourceImageStyle.width);
+      this.maxSize.height = parseFloat(sourceImageStyle.height);
       this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
     }
   }

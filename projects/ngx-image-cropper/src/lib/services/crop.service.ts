@@ -91,7 +91,7 @@ export class CropService {
 
   private getRatio(sourceImage: ElementRef, loadedImage: LoadedImage): number {
     const sourceImageElement = sourceImage.nativeElement;
-    return loadedImage.transformed.size.width / sourceImageElement.offsetWidth;
+    return loadedImage.transformed.size.width / parseFloat(getComputedStyle(sourceImageElement).width);
   }
 
   private getImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): CropperPosition {
@@ -115,8 +115,7 @@ export class CropService {
 
   private getOffsetImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings): CropperPosition {
     const canvasRotation = settings.canvasRotation + loadedImage.exifTransform.rotate;
-    const sourceImageElement = sourceImage.nativeElement;
-    const ratio = loadedImage.transformed.size.width / sourceImageElement.offsetWidth;
+    const ratio = this.getRatio(sourceImage, loadedImage);
     let offsetX: number;
     let offsetY: number;
 
