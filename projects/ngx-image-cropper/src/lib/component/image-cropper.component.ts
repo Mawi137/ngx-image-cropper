@@ -26,6 +26,7 @@ import { CropperPositionService } from '../services/cropper-position.service';
 import { LoadImageService } from '../services/load-image.service';
 import { HammerStatic } from '../utils/hammer.utils';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
+import { rotateBox } from '../utils/geometry-math.utils';
 
 @Component({
   selector: 'image-cropper',
@@ -301,8 +302,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (this.hidden) {
       this.resizedWhileHidden = true;
     } else {
-      this.resizeCropperPosition();
+      const oldMaxSize = {...this.maxSize}
       this.setMaxSize();
+      this.resizeCropperPosition(oldMaxSize);
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
     }
@@ -325,15 +327,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private resizeCropperPosition(): void {
-    const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
-    const sourceImageWidth = parseFloat(sourceImageStyle.width);
-    const sourceImageHeight = parseFloat(sourceImageStyle.height);
-    if (this.maxSize.width !== sourceImageWidth || this.maxSize.height !== sourceImageHeight) {
-      this.cropper.x1 = this.cropper.x1 * sourceImageWidth / this.maxSize.width;
-      this.cropper.x2 = this.cropper.x2 * sourceImageWidth / this.maxSize.width;
-      this.cropper.y1 = this.cropper.y1 * sourceImageHeight / this.maxSize.height;
-      this.cropper.y2 = this.cropper.y2 * sourceImageHeight / this.maxSize.height;
+  private resizeCropperPosition(oldMaxSize: Dimensions): void {
+    if (oldMaxSize.width !== this.maxSize.width || oldMaxSize.height !== this.maxSize.height) {
+      this.cropper.x1 = this.cropper.x1 * this.maxSize.width / oldMaxSize.width;
+      this.cropper.x2 = this.cropper.x2 * this.maxSize.width / oldMaxSize.width;
+      this.cropper.y1 = this.cropper.y1 * this.maxSize.height / oldMaxSize.height;
+      this.cropper.y2 = this.cropper.y2 * this.maxSize.height / oldMaxSize.height;
     }
   }
 
@@ -457,9 +456,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setMaxSize(): void {
     if (this.sourceImage) {
-      const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
-      this.maxSize.width = parseFloat(sourceImageStyle.width);
-      this.maxSize.height = parseFloat(sourceImageStyle.height);
+      const source = this.sourceImage.nativeElement.getBoundingClientRect();
+      const loaded = this.loadedImage!.transformed.size;
+      const rotatedLoaded = rotateBox(loaded, this.transform.rotate ?? 0);      
+      this.maxSize.width = source.width / rotatedLoaded.width * loaded.width / (this.transform.scale ?? 1);
+      this.maxSize.height = source.height / rotatedLoaded.height * loaded.height / (this.transform.scale ?? 1);
       this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
     }
   }
