@@ -5,39 +5,36 @@ import { CropperSettings } from '../interfaces/cropper.settings';
 @Injectable({ providedIn: 'root' })
 export class CropperPositionService {
 
-  resetCropperPosition(sourceImage: ElementRef, cropperPosition: CropperPosition, settings: CropperSettings): void {
+  resetCropperPosition(sourceImage: ElementRef, cropperPosition: CropperPosition, settings: CropperSettings, maxSize: Dimensions): void {
     if (!sourceImage?.nativeElement) {
       return;
     }
-    const sourceImageStyle = getComputedStyle(sourceImage.nativeElement);
-    const sourceImageWidth = parseFloat(sourceImageStyle.width);
-    const sourceImageHeight = parseFloat(sourceImageStyle.height);
     if (settings.cropperStaticHeight && settings.cropperStaticWidth) {
       cropperPosition.x1 = 0;
-      cropperPosition.x2 = sourceImageWidth > settings.cropperStaticWidth ?
-        settings.cropperStaticWidth : sourceImageWidth;
+      cropperPosition.x2 = maxSize.width > settings.cropperStaticWidth ?
+        settings.cropperStaticWidth : maxSize.width;
       cropperPosition.y1 = 0;
-      cropperPosition.y2 = sourceImageHeight > settings.cropperStaticHeight ?
-        settings.cropperStaticHeight : sourceImageHeight;
+      cropperPosition.y2 = maxSize.height > settings.cropperStaticHeight ?
+        settings.cropperStaticHeight : maxSize.height;
     } else {
-      const cropperWidth = Math.min(settings.cropperScaledMaxWidth, sourceImageWidth);
-      const cropperHeight = Math.min(settings.cropperScaledMaxHeight, sourceImageHeight);
+      const cropperWidth = Math.min(settings.cropperScaledMaxWidth, maxSize.width);
+      const cropperHeight = Math.min(settings.cropperScaledMaxHeight, maxSize.height);
       if (!settings.maintainAspectRatio) {
         cropperPosition.x1 = 0;
         cropperPosition.x2 = cropperWidth;
         cropperPosition.y1 = 0;
         cropperPosition.y2 = cropperHeight;
-      } else if (sourceImageWidth / settings.aspectRatio < sourceImageHeight) {
+      } else if (maxSize.width / settings.aspectRatio < maxSize.height) {
         cropperPosition.x1 = 0;
         cropperPosition.x2 = cropperWidth;
         const cropperHeightWithAspectRatio = cropperWidth / settings.aspectRatio;
-        cropperPosition.y1 = (sourceImageHeight - cropperHeightWithAspectRatio) / 2;
+        cropperPosition.y1 = (maxSize.height - cropperHeightWithAspectRatio) / 2;
         cropperPosition.y2 = cropperPosition.y1 + cropperHeightWithAspectRatio;
       } else {
         cropperPosition.y1 = 0;
         cropperPosition.y2 = cropperHeight;
         const cropperWidthWithAspectRatio = cropperHeight * settings.aspectRatio;
-        cropperPosition.x1 = (sourceImageWidth - cropperWidthWithAspectRatio) / 2;
+        cropperPosition.x1 = (maxSize.width - cropperWidthWithAspectRatio) / 2;
         cropperPosition.x2 = cropperPosition.x1 + cropperWidthWithAspectRatio;
       }
     }

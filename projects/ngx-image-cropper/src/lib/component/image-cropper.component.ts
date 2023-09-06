@@ -338,7 +338,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   resetCropperPosition(): void {
-    this.cropperPositionService.resetCropperPosition(this.sourceImage, this.cropper, this.settings);
+    this.cropperPositionService.resetCropperPosition(this.sourceImage, this.cropper, this.settings, this.maxSize);
     this.doAutoCrop();
     this.imageVisible = true;
   }
@@ -572,7 +572,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private cropToBlob(): Promise<ImageCroppedEvent> | null {
-    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'blob');
+    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'blob', this.maxSize);
     if (result) {
       return Promise.resolve(result)
         .then((output) => {
@@ -584,7 +584,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private cropToBase64(): ImageCroppedEvent | null {
-    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'base64');
+    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'base64', this.maxSize);
     if (result) {
       this.imageCropped.emit(result);
       return result;
