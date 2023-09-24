@@ -56,6 +56,7 @@ Add the element to your HTML:
 And add this to your ts file:
 ```
 import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
+import { DomSanitizer } from '@angular/platform-browser';
 
 export class YourComponent {
     imageChangedEvent: any = '';
