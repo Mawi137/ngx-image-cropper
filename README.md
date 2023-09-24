@@ -12,7 +12,7 @@ Only Angular 13+ is supported since image cropper version `6.0.0`.
 
 ### Example usage
 Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.
-```
+``` typescript
 import { NgModule } from '@angular/core';
 import { ImageCropperModule } from 'ngx-image-cropper';
 
@@ -36,7 +36,7 @@ export class YourModule {
 ```
 
 Add the element to your HTML:
-```
+``` html
 <input type="file" (change)="fileChangeEvent($event)" />
 
 <image-cropper
@@ -54,7 +54,7 @@ Add the element to your HTML:
 ```
 
 And add this to your ts file:
-```
+``` typescript
 import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer } from '@angular/platform-browser';
 
