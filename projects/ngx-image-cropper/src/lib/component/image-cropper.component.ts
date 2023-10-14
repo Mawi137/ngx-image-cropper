@@ -16,7 +16,7 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { DomSanitizer, HammerLoader, HAMMER_LOADER, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, HAMMER_LOADER, HammerLoader, SafeStyle, SafeUrl } from '@angular/platform-browser';
 import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
 import { OutputFormat, OutputType } from '../interfaces/cropper-options.interface';
 import { CropperSettings } from '../interfaces/cropper.settings';
@@ -26,7 +26,7 @@ import { CropperPositionService } from '../services/cropper-position.service';
 import { LoadImageService } from '../services/load-image.service';
 import { HammerStatic } from '../utils/hammer.utils';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
-import { rotateBox } from '../utils/geometry-math.utils';
+import { first, fromEvent, merge, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'image-cropper',
@@ -59,6 +59,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() imageBase64?: string;
   @Input() imageFile?: File;
   @Input() imageAltText?: string;
+  @Input() cropperFrameAriaLabel = this.settings.cropperFrameAriaLabel;
   @Input() output: 'blob' | 'base64' = this.settings.output;
   @Input() format: OutputFormat = this.settings.format;
   @Input() transform: ImageTransform = {};
@@ -365,8 +366,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.startMove({clientX: 0, clientY: 0}, moveType, position);
-    this.moveImg(moveEvent);
-    this.moveStop();
+    this.handleMouseMove(moveEvent);
+    this.handleMouseUp();
   }
 
   startMove(event: any, moveType: MoveTypes, position: string | null = null): void {
@@ -387,6 +388,23 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       clientY: this.cropperPositionService.getClientY(event),
       ...this.cropper
     };
+    this.initMouseMove();
+  }
+
+  private initMouseMove(): void {
+    merge(
+      fromEvent(document, 'mousemove'),
+      fromEvent(document, 'touchmove')
+    ).pipe(
+      takeUntil(merge(
+        fromEvent(document, 'mouseup'),
+        fromEvent(document, 'touchend')
+      ).pipe(first()))
+    )
+      .subscribe({
+        next: (event) => this.handleMouseMove(event),
+        complete: () => this.handleMouseUp()
+      });
   }
 
   startPinch(event: any) {
@@ -406,9 +424,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     };
   }
 
-  @HostListener('document:mousemove', ['$event'])
-  @HostListener('document:touchmove', ['$event'])
-  moveImg(event: any): void {
+  private handleMouseMove(event: any): void {
     if (this.moveStart!.active) {
       if (event.stopPropagation) {
         event.stopPropagation();
@@ -434,7 +450,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         };
         this.setCssTransform();
       }
-      this.cd.detectChanges();
+      this.cd.markForCheck();
     }
   }
 
@@ -450,7 +466,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.cropperPositionService.resize(event, this.moveStart!, this.cropper, this.maxSize, this.settings);
         this.checkCropperPosition(false);
       }
-      this.cd.detectChanges();
+      this.cd.markForCheck();
     }
   }
 
@@ -529,9 +545,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  @HostListener('document:mouseup')
-  @HostListener('document:touchend')
-  moveStop(): void {
+  private handleMouseUp(): void {
     if (this.moveStart!.active) {
       this.moveStart!.active = false;
       if (this.moveStart?.type === MoveTypes.Drag) {

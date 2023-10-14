@@ -29,6 +29,7 @@ export class CropperSettings {
   containWithinAspectRatio = false;
   hideResizeSquares = false;
   alignImage: 'left' | 'center' = 'center';
+  cropperFrameAriaLabel = 'Crop photo';
 
   // Internal
   cropperScaledMinWidth = 20;

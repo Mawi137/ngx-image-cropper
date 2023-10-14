@@ -12,7 +12,7 @@ Only Angular 13+ is supported since image cropper version `6.0.0`.
 
 ### Example usage
 Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.
-```
+``` typescript
 import { NgModule } from '@angular/core';
 import { ImageCropperModule } from 'ngx-image-cropper';
 
@@ -36,7 +36,7 @@ export class YourModule {
 ```
 
 Add the element to your HTML:
-```
+``` html
 <input type="file" (change)="fileChangeEvent($event)" />
 
 <image-cropper
@@ -45,7 +45,7 @@ Add the element to your HTML:
     [aspectRatio]="4 / 3"
     format="png"
     (imageCropped)="imageCropped($event)"
-    (imageLoaded)="imageLoaded()"
+    (imageLoaded)="imageLoaded($event)"
     (cropperReady)="cropperReady()"
     (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
@@ -54,8 +54,9 @@ Add the element to your HTML:
 ```
 
 And add this to your ts file:
-```
+``` typescript
 import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
+import { DomSanitizer } from '@angular/platform-browser';
 
 export class YourComponent {
     imageChangedEvent: any = '';
@@ -98,6 +99,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `imageBase64`              | string             |              | If you don't want to use a file input, you can set a base64 image directly and it will be loaded into the cropper                                                                                                                                                                                                                     |
 | `imageURL`                 | string             |              | If you don't want to use a file input or a base64 you can set an URL to get the image from. If requesting an image from a different domain make sure Cross-Origin Resource Sharing (CORS) is allowed or the image will fail to load.                                                                                                  |
 | `imageAltText`             | string             |              | Alternative text for uploaded image for accessibility compliance.                                                                                                                                                                                                                                                                     |
+| `cropperFrameAriaLabel`    | string             | 'Crop photo' | Aria-label text for the focusable cropper frame element.                                                                                                                                                                                                                                                                              |
 | `format`                   | string             | png          | Output format (png, jpeg, webp, bmp, ico) (not all browsers support all types, png is always supported, others are optional)                                                                                                                                                                                                          |
 | `output`                   | string             | blob         | Output type (blob or base64) (blob is the most performant)                                                                                                                                                                                                                                                                            |
 | `aspectRatio`              | number             | 1 / 1        | The width / height ratio (e.g. 1 / 1 for a square, 4 / 3, 16 / 9 ...)                                                                                                                                                                                                                                                                 |
