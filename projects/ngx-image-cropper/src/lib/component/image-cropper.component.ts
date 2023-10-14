@@ -303,8 +303,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (this.hidden) {
       this.resizedWhileHidden = true;
     } else {
-      this.resizeCropperPosition();
+      const oldMaxSize = {...this.maxSize}
       this.setMaxSize();
+      this.resizeCropperPosition(oldMaxSize);
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
     }
@@ -327,18 +328,17 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private resizeCropperPosition(): void {
-    const sourceImageElement = this.sourceImage.nativeElement;
-    if (this.maxSize.width !== sourceImageElement.offsetWidth || this.maxSize.height !== sourceImageElement.offsetHeight) {
-      this.cropper.x1 = this.cropper.x1 * sourceImageElement.offsetWidth / this.maxSize.width;
-      this.cropper.x2 = this.cropper.x2 * sourceImageElement.offsetWidth / this.maxSize.width;
-      this.cropper.y1 = this.cropper.y1 * sourceImageElement.offsetHeight / this.maxSize.height;
-      this.cropper.y2 = this.cropper.y2 * sourceImageElement.offsetHeight / this.maxSize.height;
+  private resizeCropperPosition(oldMaxSize: Dimensions): void {
+    if (oldMaxSize.width !== this.maxSize.width || oldMaxSize.height !== this.maxSize.height) {
+      this.cropper.x1 = this.cropper.x1 * this.maxSize.width / oldMaxSize.width;
+      this.cropper.x2 = this.cropper.x2 * this.maxSize.width / oldMaxSize.width;
+      this.cropper.y1 = this.cropper.y1 * this.maxSize.height / oldMaxSize.height;
+      this.cropper.y2 = this.cropper.y2 * this.maxSize.height / oldMaxSize.height;
     }
   }
 
   resetCropperPosition(): void {
-    this.cropperPositionService.resetCropperPosition(this.sourceImage, this.cropper, this.settings);
+    this.cropperPositionService.resetCropperPosition(this.sourceImage, this.cropper, this.settings, this.maxSize);
     this.doAutoCrop();
     this.imageVisible = true;
   }
@@ -472,9 +472,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setMaxSize(): void {
     if (this.sourceImage) {
-      const sourceImageElement = this.sourceImage.nativeElement;
-      this.maxSize.width = sourceImageElement.offsetWidth;
-      this.maxSize.height = sourceImageElement.offsetHeight;
+      const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
+      this.maxSize.width = parseFloat(sourceImageStyle.width);
+      this.maxSize.height = parseFloat(sourceImageStyle.height);
       this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
     }
   }
@@ -585,7 +585,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private cropToBlob(): Promise<ImageCroppedEvent> | null {
-    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'blob');
+    const result = this.cropService.crop(this.loadedImage!, this.cropper, this.settings, 'blob', this.maxSize);
     if (result) {
       return Promise.resolve(result)
         .then((output) => {
@@ -597,7 +597,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private cropToBase64(): ImageCroppedEvent | null {
-    const result = this.cropService.crop(this.sourceImage, this.loadedImage!, this.cropper, this.settings, 'base64');
+    const result = this.cropService.crop(this.loadedImage!, this.cropper, this.settings, 'base64', this.maxSize);
     if (result) {
       this.imageCropped.emit(result);
       return result;
