@@ -8,10 +8,10 @@ import { OutputType } from '../interfaces/cropper-options.interface';
 @Injectable({providedIn: 'root'})
 export class CropService {
 
-  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'blob', maxSize: Dimensions): Promise<ImageCroppedEvent> | null;
-  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'base64', maxSize: Dimensions): ImageCroppedEvent | null;
-  crop(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: OutputType, maxSize: Dimensions): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
-    const imagePosition = this.getImagePosition(sourceImage, loadedImage, cropper, settings, maxSize);
+  crop(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'blob', maxSize: Dimensions): Promise<ImageCroppedEvent> | null;
+  crop(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'base64', maxSize: Dimensions): ImageCroppedEvent | null;
+  crop(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: OutputType, maxSize: Dimensions): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
+    const imagePosition = this.getImagePosition(loadedImage, cropper, settings, maxSize);
     const width = imagePosition.x2 - imagePosition.x1;
     const height = imagePosition.y2 - imagePosition.y1;
     const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
@@ -29,7 +29,7 @@ export class CropService {
 
     const scaleX = (settings.transform.scale || 1) * (settings.transform.flipH ? -1 : 1);
     const scaleY = (settings.transform.scale || 1) * (settings.transform.flipV ? -1 : 1);
-    const {translateH, translateV} = this.getCanvasTranslate(sourceImage, loadedImage, settings, maxSize);
+    const {translateH, translateV} = this.getCanvasTranslate(loadedImage, settings, maxSize);
 
     const transformedImage = loadedImage.transformed;
     ctx.setTransform(scaleX, 0, 0, scaleY, transformedImage.size.width / 2 + translateH, transformedImage.size.height / 2 + translateV);
@@ -48,7 +48,7 @@ export class CropService {
       cropperPosition: {...cropper}
     };
     if (settings.containWithinAspectRatio) {
-      result.offsetImagePosition = this.getOffsetImagePosition(sourceImage, loadedImage, cropper, settings, maxSize);
+      result.offsetImagePosition = this.getOffsetImagePosition(loadedImage, cropper, settings, maxSize);
     }
     const resizeRatio = this.getResizeRatio(width, height, settings);
     if (resizeRatio !== 1) {
@@ -74,7 +74,7 @@ export class CropService {
     return output;
   }
 
-  private getCanvasTranslate(sourceImage: ElementRef, loadedImage: LoadedImage, settings: CropperSettings, maxSize: Dimensions): { translateH: number, translateV: number } {
+  private getCanvasTranslate(loadedImage: LoadedImage, settings: CropperSettings, maxSize: Dimensions): { translateH: number, translateV: number } {
     if (settings.transform.translateUnit === 'px') {
       const ratio = this.getRatio(loadedImage, maxSize);
       return {
@@ -93,7 +93,7 @@ export class CropService {
     return loadedImage.transformed.size.width / maxSize.width;
   }
 
-  private getImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, maxSize: Dimensions): CropperPosition {
+  private getImagePosition(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, maxSize: Dimensions): CropperPosition {
     const ratio = this.getRatio(loadedImage, maxSize);
     const out: CropperPosition = {
       x1: Math.round(cropper.x1 * ratio),
@@ -112,7 +112,7 @@ export class CropService {
     return out;
   }
 
-  private getOffsetImagePosition(sourceImage: ElementRef, loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, maxSize: Dimensions): CropperPosition {
+  private getOffsetImagePosition(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, maxSize: Dimensions): CropperPosition {
     const canvasRotation = settings.canvasRotation + loadedImage.exifTransform.rotate;
     const ratio = this.getRatio(loadedImage, maxSize);
     let offsetX: number;
