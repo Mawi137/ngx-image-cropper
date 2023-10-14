@@ -456,11 +456,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setMaxSize(): void {
     if (this.sourceImage) {
-      const source = this.sourceImage.nativeElement.getBoundingClientRect();
-      const loaded = this.loadedImage!.transformed.size;
-      const rotatedLoaded = rotateBox(loaded, this.transform.rotate ?? 0);      
-      this.maxSize.width = source.width / rotatedLoaded.width * loaded.width / (this.transform.scale ?? 1);
-      this.maxSize.height = source.height / rotatedLoaded.height * loaded.height / (this.transform.scale ?? 1);
+      const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
+      this.maxSize.width = parseFloat(sourceImageStyle.width);
+      this.maxSize.height = parseFloat(sourceImageStyle.height);
       this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.maxSize.width / 2 + 'px)');
     }
   }
