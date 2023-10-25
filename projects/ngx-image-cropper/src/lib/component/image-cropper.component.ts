@@ -9,6 +9,7 @@ import {
   Inject,
   Input,
   isDevMode,
+  NgZone,
   OnChanges,
   OnInit,
   Optional,
@@ -111,6 +112,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private loadImageService: LoadImageService,
     private sanitizer: DomSanitizer,
     private cd: ChangeDetectorRef,
+    private zone: NgZone,
     @Optional() @Inject(HAMMER_LOADER) private readonly hammerLoader: HammerLoader | null
   ) {
     this.reset();
@@ -140,13 +142,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.checkCropperPosition(false);
         this.doAutoCrop();
       }
-      this.cd.markForCheck();
     }
     if (changes['transform']) {
       this.transform = this.transform || {};
       this.setCssTransform();
       this.doAutoCrop();
-      this.cd.markForCheck();
     }
     if (changes['hidden'] && this.resizedWhileHidden && !this.hidden) {
       setTimeout(() => {
@@ -160,6 +160,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.settings.setOptionsFromChanges(changes);
 
     if (this.settings.cropperStaticHeight && this.settings.cropperStaticWidth) {
+      this.hideResizeSquares = true;
       this.settings.setOptions({
         hideResizeSquares: true,
         cropperMinWidth: this.settings.cropperStaticWidth,
@@ -303,7 +304,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (this.hidden) {
       this.resizedWhileHidden = true;
     } else {
-      const oldMaxSize = {...this.maxSize}
+      const oldMaxSize = {...this.maxSize};
       this.setMaxSize();
       this.resizeCropperPosition(oldMaxSize);
       this.setCropperScaledMinSize();
@@ -402,8 +403,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       ).pipe(first()))
     )
       .subscribe({
-        next: (event) => this.handleMouseMove(event),
-        complete: () => this.handleMouseUp()
+        next: (event) => this.zone.run(() => {
+          this.handleMouseMove(event);
+          this.cd.markForCheck();
+        }),
+        complete: () => this.zone.run(() => {
+          this.handleMouseUp();
+          this.cd.markForCheck();
+        })
       });
   }
 
@@ -450,7 +457,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         };
         this.setCssTransform();
       }
-      this.cd.markForCheck();
     }
   }
 
@@ -585,15 +591,15 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private cropToBlob(): Promise<ImageCroppedEvent> | null {
-    const result = this.cropService.crop(this.loadedImage!, this.cropper, this.settings, 'blob', this.maxSize);
-    if (result) {
-      return Promise.resolve(result)
-        .then((output) => {
-          this.imageCropped.emit(output);
-          return result;
-        });
-    }
-    return null;
+    return new Promise((resolve, reject) => this.zone.run(async () => {
+      const result = await this.cropService.crop(this.loadedImage!, this.cropper, this.settings, 'blob', this.maxSize);
+      if (result) {
+        this.imageCropped.emit(result);
+        resolve(result);
+      } else {
+        reject('Crop image failed');
+      }
+    }));
   }
 
   private cropToBase64(): ImageCroppedEvent | null {
