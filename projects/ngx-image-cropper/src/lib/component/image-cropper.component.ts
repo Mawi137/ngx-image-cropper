@@ -27,7 +27,8 @@ import { CropperPositionService } from '../services/cropper-position.service';
 import { LoadImageService } from '../services/load-image.service';
 import { HammerStatic } from '../utils/hammer.utils';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
-import { first, fromEvent, merge, takeUntil } from 'rxjs';
+import { first, takeUntil } from 'rxjs/operators';
+import { fromEvent, merge } from 'rxjs';
 
 @Component({
   selector: 'image-cropper',
