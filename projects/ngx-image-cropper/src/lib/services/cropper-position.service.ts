@@ -1,45 +1,67 @@
-import { ElementRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { CropperPosition, Dimensions, MoveStart } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 
 @Injectable({ providedIn: 'root' })
 export class CropperPositionService {
 
-  resetCropperPosition(sourceImage: ElementRef, cropperPosition: CropperPosition, settings: CropperSettings, maxSize: Dimensions): void {
-    if (!sourceImage?.nativeElement) {
-      return;
-    }
-    console.log('RESET CROPPER POSITION')
-    if (settings.cropperStaticHeight && settings.cropperStaticWidth) {
+  /*
+  Up until now whenever resetCropperPosition was called, the cropper was reset to it's biggest possible size. 
+    
+  This is no longer the case, hence the new name.  
+
+  By the end of this PR, when there are changes to cropper min, max and/or static size (I'm calling this cropper size bounds) and mantainAspectRatio is FALSE, we only want to check the cropper is whithin its size bounds. If it is, return the same cropper position and size. And if it isn't, change cropper size but keep the position untouched – we then check it's within maxSize later in the code path in case any of it ended up outside during the resizing.
+    
+  This behaviour is completely new, and is needed at this stage – before the app wasn't responding to these changes and now it will so it needs a response. All the other ways in which this method was being used I've kept the same by adding the resetCropper parameter. Now it's always true, but when responding to changes in cropper bounding sizes, resetCropper will be false.
+    
+  In future PRs I'll be changing this so developers can pick when to reset the cropper as big as possible and when to work with the cropper that is already there. This will be done by using the resetCropper param or assigning 0 to cropperPosition.x2.
+
+  So far I've managed to have an app input called resetCropperToBiggestPossibleSize:boolean and I toggle it between interactions I send from the parent and the imageCropped event. But this doesn't work if auto crop is false, hence the cropperPosition.x2 === 0 check.
+
+  cropperPosition.x2 will only be 0 when the app is initialised – I've changed this too – or when a new source image is loaded – also changed. So it's safe to use it in this way too. I've also argued to myself that it's easy for developers to understand that if the cropper has no width, we're asking for a new one, as no width is no cropper and the app needs one to work. Fingers crossed.
+
+  Also, if you do some crazy testing by setting strange min and max values. You might find problems. That is also in a future PR.
+  */
+  checkWithinCropperSizeBounds(cropperPosition: CropperPosition, settings: CropperSettings, maxSize: Dimensions, resetCropper: boolean): void {
+
+    // by the end of the PR we don't need a blocker here
+
+    console.log('CHECK CROPPER WITHIN CROPPER SIZE BOUNDS')
+
+    if (resetCropper || cropperPosition.x2 === 0) {
       cropperPosition.x1 = 0;
-      cropperPosition.x2 = maxSize.width > settings.cropperStaticWidth ?
-        settings.cropperStaticWidth : maxSize.width;
       cropperPosition.y1 = 0;
-      cropperPosition.y2 = maxSize.height > settings.cropperStaticHeight ?
+      cropperPosition.x2 = maxSize.width;
+      cropperPosition.y2 = maxSize.height;
+    };
+
+    let cropperWidth = cropperPosition.x2 - cropperPosition.x1;
+    let cropperHeight = cropperPosition.y2 - cropperPosition.y1;
+    const centerX = cropperPosition.x1 + cropperWidth / 2;
+    const centerY = cropperPosition.y1 + cropperHeight / 2;
+
+    // added checking for min scaled size too
+    if (settings.cropperStaticHeight && settings.cropperStaticWidth) {
+      cropperWidth = maxSize.width > settings.cropperStaticWidth ? 
+        settings.cropperStaticWidth : maxSize.width;
+      cropperHeight = maxSize.height > settings.cropperStaticHeight ?
         settings.cropperStaticHeight : maxSize.height;
     } else {
-      const cropperWidth = Math.min(settings.cropperScaledMaxWidth, maxSize.width);
-      const cropperHeight = Math.min(settings.cropperScaledMaxHeight, maxSize.height);
-      if (!settings.maintainAspectRatio) {
-        cropperPosition.x1 = 0;
-        cropperPosition.x2 = cropperWidth;
-        cropperPosition.y1 = 0;
-        cropperPosition.y2 = cropperHeight;
-      } else if (maxSize.width / settings.aspectRatio < maxSize.height) {
-        cropperPosition.x1 = 0;
-        cropperPosition.x2 = cropperWidth;
-        const cropperHeightWithAspectRatio = cropperWidth / settings.aspectRatio;
-        cropperPosition.y1 = (maxSize.height - cropperHeightWithAspectRatio) / 2;
-        cropperPosition.y2 = cropperPosition.y1 + cropperHeightWithAspectRatio;
-      } else {
-        cropperPosition.y1 = 0;
-        cropperPosition.y2 = cropperHeight;
-        const cropperWidthWithAspectRatio = cropperHeight * settings.aspectRatio;
-        cropperPosition.x1 = (maxSize.width - cropperWidthWithAspectRatio) / 2;
-        cropperPosition.x2 = cropperPosition.x1 + cropperWidthWithAspectRatio;
+      cropperWidth = Math.max(settings.cropperScaledMinWidth, Math.min(cropperWidth, settings.cropperScaledMaxWidth, maxSize.width));
+      cropperHeight = Math.max(settings.cropperScaledMinHeight, Math.min(cropperHeight, settings.cropperScaledMaxHeight, maxSize.height));
+      if (settings.maintainAspectRatio) {
+        maxSize.width / settings.aspectRatio < maxSize.height
+          ? cropperHeight = cropperWidth / settings.aspectRatio
+          : cropperWidth = cropperHeight * settings.aspectRatio;
       }
     }
+
+    cropperPosition.x1 = centerX - cropperWidth / 2;
+    cropperPosition.x2 = cropperPosition.x1 + cropperWidth;
+    cropperPosition.y1 = centerY - cropperHeight / 2;
+    cropperPosition.y2 = cropperPosition.y1 + cropperHeight;
   }
+  
 
   move(event: any, moveStart: MoveStart, cropperPosition: CropperPosition) {
     console.log('MOVE')

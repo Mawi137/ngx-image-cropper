@@ -86,12 +86,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() containWithinAspectRatio = this.settings.containWithinAspectRatio;
   @Input() hideResizeSquares = this.settings.hideResizeSquares;
   @Input() allowMoveImage = false;
-  @Input() cropper: CropperPosition = {
-    x1: -100,
-    y1: -100,
-    x2: 10000,
-    y2: 10000
-  };
+  @Input() cropper: CropperPosition = {x1: 0, y1: 0, x2: 0, y2: 0};
   @HostBinding('style.text-align')
   @Input() alignImage: 'left' | 'center' = this.settings.alignImage;
   @HostBinding('class.disabled')
@@ -138,7 +133,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         (this.resetCropOnAspectRatioChange || !this.aspectRatioIsCorrect()) &&
         (changes['maintainAspectRatio'] || changes['aspectRatio'])
       ) {
-        this.resetCropperPosition();
+        this.checkCropperWithinCropperSizeBounds(true);
       } else if (changes['cropper']) {
         this.checkCropperPosition(false);
         this.doAutoCrop();
@@ -221,10 +216,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       width: 0,
       height: 0
     };
-    this.cropper.x1 = -100;
-    this.cropper.y1 = -100;
-    this.cropper.x2 = 10000;
-    this.cropper.y2 = 10000;
+    this.cropper.x1 = 0;
+    this.cropper.y1 = 0;
+    this.cropper.x2 = 0;
+    this.cropper.y2 = 0;
     this.moveStart = {
       active: false,
       type: null,
@@ -283,7 +278,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.setMaxSize();
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
-      this.resetCropperPosition();
+      this.checkCropperWithinCropperSizeBounds(true);
       this.cropperReady.emit({...this.maxSize});
       this.cd.markForCheck();
     } else {
@@ -338,8 +333,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  resetCropperPosition(): void {
-    this.cropperPositionService.resetCropperPosition(this.sourceImage, this.cropper, this.settings, this.maxSize);
+  checkCropperWithinCropperSizeBounds(resetCropper: boolean): void {
+    this.cropperPositionService.checkWithinCropperSizeBounds(this.cropper, this.settings, this.maxSize, resetCropper);
     this.doAutoCrop();
     this.imageVisible = true;
   }
