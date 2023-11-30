@@ -196,6 +196,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCssTransform() {
+    console.log('SET CSS')
     const translateUnit = this.transform?.translateUnit || '%';
     this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
       `translate(${this.transform.translateH || 0}${translateUnit}, ${this.transform.translateV || 0}${translateUnit})` +
@@ -281,6 +282,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (this.setImageMaxSizeRetries > 40) {
       this.loadImageFailed.emit();
     } else if (this.sourceImageLoaded()) {
+      console.log('CHECK IMAGE MAX SIZE RECURSIVELY')
       this.setMaxSize();
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
@@ -479,6 +481,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setMaxSize(): void {
     if (this.sourceImage) {
+      console.log('SET MAX SIZE');
       const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
       this.maxSize.width = parseFloat(sourceImageStyle.width);
       this.maxSize.height = parseFloat(sourceImageStyle.height);
@@ -497,6 +500,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCropperScaledMinWidth(): void {
+    console.log('SET CROPPER MIN WIDTH')
     this.settings.cropperScaledMinWidth = this.cropperMinWidth > 0
       ? Math.max(20, this.cropperMinWidth / this.loadedImage!.transformed.image.width * this.maxSize.width)
       : 20;
@@ -504,23 +508,28 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setCropperScaledMinHeight(): void {
     if (this.maintainAspectRatio) {
+      console.log('SET CROPPER MIN HEIGHT mantain aspect ratio')
       this.settings.cropperScaledMinHeight = Math.max(20, this.settings.cropperScaledMinWidth / this.aspectRatio);
     } else if (this.cropperMinHeight > 0) {
+      console.log('SET CROPPER MIN HEIGHT')
       this.settings.cropperScaledMinHeight = Math.max(
         20,
         this.cropperMinHeight / this.loadedImage!.transformed.image.height * this.maxSize.height
       );
     } else {
+      console.log('SET CROPPER MIN HEIGHT fallback')
       this.settings.cropperScaledMinHeight = 20;
     }
   }
 
   private setCropperScaledMaxSize(): void {
     if (this.loadedImage?.transformed?.image) {
+      console.log('SET CROPPER MAX WIDTH AND HEIGHT')
       const ratio = this.loadedImage.transformed.size.width / this.maxSize.width;
       this.settings.cropperScaledMaxWidth = this.cropperMaxWidth > 20 ? this.cropperMaxWidth / ratio : this.maxSize.width;
       this.settings.cropperScaledMaxHeight = this.cropperMaxHeight > 20 ? this.cropperMaxHeight / ratio : this.maxSize.height;
       if (this.maintainAspectRatio) {
+        console.log('SET CROPPER MAX WIDTH AND HEIGHT mantain aspect ratio')
         if (this.settings.cropperScaledMaxWidth > this.settings.cropperScaledMaxHeight * this.aspectRatio) {
           this.settings.cropperScaledMaxWidth = this.settings.cropperScaledMaxHeight * this.aspectRatio;
         } else if (this.settings.cropperScaledMaxWidth < this.settings.cropperScaledMaxHeight * this.aspectRatio) {
@@ -528,12 +537,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
       }
     } else {
+      console.log('SET CROPPER MAX WIDTH AND HEIGHT fallback')
       this.settings.cropperScaledMaxWidth = this.maxSize.width;
       this.settings.cropperScaledMaxHeight = this.maxSize.height;
     }
   }
 
   private checkCropperPosition(maintainSize = false): void {
+    console.log('CHECK CROPPER POSITION')
     if (this.cropper.x1 < 0) {
       this.cropper.x2 -= maintainSize ? this.cropper.x1 : 0;
       this.cropper.x1 = 0;

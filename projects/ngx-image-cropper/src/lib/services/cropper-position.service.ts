@@ -9,6 +9,7 @@ export class CropperPositionService {
     if (!sourceImage?.nativeElement) {
       return;
     }
+    console.log('RESET CROPPER POSITION')
     if (settings.cropperStaticHeight && settings.cropperStaticWidth) {
       cropperPosition.x1 = 0;
       cropperPosition.x2 = maxSize.width > settings.cropperStaticWidth ?
@@ -41,6 +42,7 @@ export class CropperPositionService {
   }
 
   move(event: any, moveStart: MoveStart, cropperPosition: CropperPosition) {
+    console.log('MOVE')
     const diffX = this.getClientX(event) - moveStart.clientX;
     const diffY = this.getClientY(event) - moveStart.clientY;
 
@@ -51,6 +53,7 @@ export class CropperPositionService {
   }
 
   resize(event: any, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
+    console.log('RESIZE')
     const moveX = this.getClientX(event) - moveStart.clientX;
     const moveY = this.getClientY(event) - moveStart.clientY;
     switch (moveStart.position) {
@@ -129,6 +132,7 @@ export class CropperPositionService {
   }
 
   checkAspectRatio(position: string, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
+    console.log(' - CHECK ASPECT RATIO')
     let overflowX = 0;
     let overflowY = 0;
 

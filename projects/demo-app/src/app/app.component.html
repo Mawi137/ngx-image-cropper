@@ -1,59 +1,85 @@
+<input [(ngModel)]="imageURL" placeholder="URL to load image" type="text" />
 <input type="file" (change)="fileChangeEvent($event)" accept="image/*" />
 <br />
 <br />
-<input [(ngModel)]="imageURL" placeholder="URL to load image" type="text" />
-<br />
-<br />
+<button (click)="toggleAspectRatio()">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
+<button (click)="containWithinAspectRatio = !containWithinAspectRatio;">{{containWithinAspectRatio ? 'Fill Aspect Ratio' : 'Contain Within Aspect Ratio'}}</button>
 <button (click)="rotateLeft()">Rotate left</button>
 <button (click)="rotateRight()">Rotate right</button>
 <button (click)="flipHorizontal()">Flip horizontal</button>
 <button (click)="flipVertical()">Flip vertical</button>
 <br />
 <br />
-<button (click)="toggleContainWithinAspectRatio()">{{containWithinAspectRatio?'Fill Aspect Ratio':'Contain Within Aspect Ratio'}}</button>
-<button (click)="toggleAspectRatio()">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
-<button (click)="resetImage()">Reset image</button>
+<section>
+  <button (click)="maintainAspectRatio = !maintainAspectRatio;">{{maintainAspectRatio ? "Don't Maintain Aspect Ratio" : 'Maintain Aspect Ratio'}}</button>
+  <label for="cropperStaticWidth">Cropper Static Width:</label>
+  <input id="cropperStaticWidth" type="number" (keyup)="debounce($event)" />
+  <label for="cropperMinWidth">Cropper Min Width:</label>
+  <input id="cropperMinWidth" type="number" (keyup)="debounce($event)"/>
+  <label for="cropperMaxWidth">Cropper Max Width:</label>
+  <input id="cropperMaxWidth" type="number" (keyup)="debounce($event)"/>
+  <span></span>
+  <label for="cropperStaticHeight">Cropper Static Height:</label>
+  <input id="cropperStaticHeight" type="number" (keyup)="debounce($event)" />
+  <label for="cropperMinHeight">Cropper Min Height:</label>
+  <input id="cropperMinHeight" type="number" (keyup)="debounce($event)"/>
+  <label for="cropperMaxHeight">Cropper Max Height:</label>
+  <input id="cropperMaxHeight" type="number" (keyup)="debounce($event)"/>
+</section>
 <br />
-<br />
-<input [(ngModel)]="rotation" placeholder="Rotation" type="number" (ngModelChange)="updateRotation()" /> <button (click)="zoomOut()">Zoom -</button> <button (click)="zoomIn()">Zoom +</button>
-<br />
-<br/>
+<input [(ngModel)]="rotation" placeholder="Rotation" type="number" (ngModelChange)="updateRotation()" /> 
+<button (click)="zoomOut()">Zoom -</button> 
+<button (click)="zoomIn()">Zoom +</button>
 <button (click)="moveLeft()">move left</button>
 <button (click)="moveRight()">move right</button>
-
-<button (click)="moveTop()">move top</button>
-<button (click)="moveBottom()">move bottom</button>
+<button (click)="moveUp()">move up</button>
+<button (click)="moveDown()">move down</button>
+<button (click)="allowMoveImage = !allowMoveImage;">{{allowMoveImage ? 'Disable' : 'Enable'}} image panning</button>
 <br/>
 <br/>
-<button (click)="allowMoveImage = !allowMoveImage;">{{allowMoveImage ? 'Disable' : 'Enable' }} image panning</button>
-<button (click)="hidden = !hidden;">{{hidden ? 'Show' : 'Hide' }}</button>
+<button (click)="hidden = !hidden;">{{hidden ? 'Show' : 'Hide'}}</button>
+<button (click)="disabled = !disabled;">{{disabled ? 'Enable' : 'Disable'}} Cropper</button>
+<button (click)="hideResizeSquares = !hideResizeSquares;">{{hideResizeSquares ? 'Show' : 'Hide'}} Resize Squares</button>
+<button (click)="resetCropOnAspectRatioChange = !resetCropOnAspectRatioChange;">{{resetCropOnAspectRatioChange ? "Don't" : ''}} Reset Crop On Aspect Ratio Change</button>
+<button (click)="toggleBackgroundColor()">Background Color: {{backgroundColor === 'red' ? 'blue' : 'red'}}</button>
+<button (click)="test()">Random test</button>
+<button (click)="resetImage()">Reset image</button>
+<br/>
 <br/>
 
-
-<div class="cropper-wrapper">
-  <image-cropper
+<div [style.display]="showCropper ? null : 'none'" class="cropper-wrapper">
+  <image-cropper 
     [imageChangedEvent]="imageChangedEvent"
     [imageURL]="imageURL"
-    [maintainAspectRatio]="true"
-    [containWithinAspectRatio]="containWithinAspectRatio"
-    [cropperMinWidth]="128"
-    [aspectRatio]="aspectRatio"
-    [onlyScaleDown]="true"
-    [roundCropper]="false"
-    [canvasRotation]="canvasRotation"
-    [(transform)]="transform"
-    [alignImage]="'center'"
-    [style.display]="showCropper ? null : 'none'"
-    [allowMoveImage]="allowMoveImage"
     [hidden]="hidden"
+    [disabled]="disabled"
+    [alignImage]="alignImage"
+    [roundCropper]="roundCropper"
+    [backgroundColor]="backgroundColor"
     imageAltText="Alternative image text"
-    backgroundColor="red"
+    [allowMoveImage]="allowMoveImage"
+    [hideResizeSquares]="hideResizeSquares"
+    [canvasRotation]="canvasRotation"
+    [aspectRatio]="aspectRatio"
+    [containWithinAspectRatio]="containWithinAspectRatio"
+    [maintainAspectRatio]="maintainAspectRatio"
+    [cropperStaticWidth]="cropperStaticWidth"
+    [cropperStaticHeight]="cropperStaticHeight"
+    [cropperMinWidth]="cropperMinWidth"
+    [cropperMinHeight]="cropperMinHeight"
+    [cropperMaxWidth]="cropperMaxWidth"
+    [cropperMaxHeight]="cropperMaxHeight"
+    [resetCropOnAspectRatioChange]="resetCropOnAspectRatioChange"
+    [cropper]="cropper"
+    [(transform)]="transform"
+    [onlyScaleDown]="true"
     output="blob"
     format="png"
     (imageCropped)="imageCropped($event)"
     (imageLoaded)="imageLoaded()"
     (cropperReady)="cropperReady($event)"
     (loadImageFailed)="loadImageFailed()"
+    (transformChange)="transformChange($event)"
   ></image-cropper>
   <div *ngIf="loading" class="loader">Loading...</div>
 </div>
