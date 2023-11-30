@@ -27,7 +27,7 @@
   <input id="cropperMaxHeight" type="number" (keyup)="debounce($event)"/>
 </section>
 <br />
-<input [(ngModel)]="rotation" placeholder="Rotation" type="number" (ngModelChange)="updateRotation()" /> 
+<input [(ngModel)]="transform.rotate" placeholder="Rotation" type="number" (ngModelChange)="updateRotation()" /> 
 <button (click)="zoomOut()">Zoom -</button> 
 <button (click)="zoomIn()">Zoom +</button>
 <button (click)="moveLeft()">move left</button>

@@ -11,7 +11,6 @@ export class AppComponent {
   showCropper = false;
   loading = false;
   croppedImage: any = '';
-  rotation?: number;
 
   imageChangedEvent: any = '';
   imageURL?: string;
@@ -99,28 +98,28 @@ export class AppComponent {
   moveLeft() {
     this.transform = {
       ...this.transform,
-      translateH: this.transform.translateH! - 1
+      translateH: --this.transform.translateH!
     };
   }
 
   moveRight() {
     this.transform = {
       ...this.transform,
-      translateH: this.transform.translateH! + 1
+      translateH: ++this.transform.translateH! 
     };
   }
 
   moveDown() {
     this.transform = {
       ...this.transform,
-      translateV: this.transform.translateV! + 1
+      translateV: ++this.transform.translateV!
     };
   }
 
   moveUp() {
     this.transform = {
       ...this.transform,
-      translateV: this.transform.translateV! - 1
+      translateV: --this.transform.translateV!
     };
   }
 
@@ -156,6 +155,12 @@ export class AppComponent {
     this.maintainAspectRatio = false; 
     this.transform = {
       translateUnit: 'px',
+      scale: 1,
+      rotate: 0,
+      flipH: false,
+      flipV: false,
+      translateH: 0,
+      translateV: 0 // need to add everything or transform doesn't work after reset
     };
   }
 
@@ -176,7 +181,6 @@ export class AppComponent {
   updateRotation() {
     this.transform = {
       ...this.transform,
-      rotate: this.rotation
     };
   }
 

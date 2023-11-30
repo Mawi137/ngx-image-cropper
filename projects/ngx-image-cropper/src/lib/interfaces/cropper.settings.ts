@@ -39,17 +39,14 @@ export class CropperSettings {
   cropperScaledMaxHeight = 20;
   stepSize = this.initialStepSize;
 
-  setOptions(options: Partial<CropperOptions>): void {
-    Object.keys(options)
-      .filter((k) => k in this)
-      .forEach((k) => (this as any)[k] = (options as any)[k]);
-    this.validateOptions();
-  }
-
   setOptionsFromChanges(changes: SimpleChanges): void {
-    Object.keys(changes)
-      .filter((k) => k in this)
-      .forEach((k) => (this as any)[k] = changes[k].currentValue);
+    /*
+    Better to clone the objects so the properties don't share memory pointer. things like, for example, setting transform in parent like transform = {...transform, translateH: ++translateH} don't break the app this way (I've added this to the demo)
+    */
+    for(const k in changes){
+      if (k === 'transform' || k === 'cropper') (this as any)[k] = { ...changes[k].currentValue };
+      else if (k in this) (this as any)[k] = changes[k].currentValue;
+    }
     this.validateOptions();
   }
 

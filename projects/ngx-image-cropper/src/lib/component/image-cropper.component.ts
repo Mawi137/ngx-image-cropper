@@ -91,7 +91,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() alignImage: 'left' | 'center' = this.settings.alignImage;
   @HostBinding('class.disabled')
   @Input() disabled = false;
-  @HostBinding('class.ngx-ix-hidden')
+  @HostBinding('class.ngx-ic-hidden') // fix typo
   @Input() hidden = false;
 
   @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
@@ -192,6 +192,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.doAutoCrop();
     }
 
+    //TODO: if a new img tires to loaded to view when hidden, loadImageFailed event is triggered. I vote developers handle this. From parent it's solved by disabeling or hiding the new source img inputs while the app is hidden. Here it's more complicated.
     if (changes['hidden'] && this.resizedWhileHidden && !this.hidden) {
       setTimeout(() => {
         this.onResize();
@@ -199,6 +200,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       });
     }
   }
+
+  /* TODO: DELETE this method 
+
+  Only this.hideResizeSquares = true; is used, but it remains as true until parent sets it to false – if they were to change both static sides, this would still be true. The rest isn't used cos cropperSCALEDMin and Max are used in the cropperPosition service and here local versions are used to calculate the scaled versions. 
+
+  I'm adding an if condition to the html and a blocker to onPinch – handleMouseMove has one but onPinch doesn't – to achieve what I suspect this was trying to do. 
+
+  Deleting settings.setOptions from settings too as it's only used here.
 
   private onChangesUpdateSettings(changes: SimpleChanges) {
     this.settings.setOptionsFromChanges(changes);
@@ -215,6 +224,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       });
     }
   }
+  */
 
   private onChangesInputImage(changes: SimpleChanges): void {
     if (changes['imageChangedEvent'] || changes['imageURL'] || changes['imageBase64'] || changes['imageFile']) {
@@ -356,6 +366,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.resizeCropperPosition(oldMaxSize);
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
+      this.cd.markForCheck(); // when triggered from ngOnChanges we need to let angular know to paint cropper
     }
   }
 
@@ -460,7 +471,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   startPinch(event: any) {
-    if (!this.safeImgDataUrl) {
+    // safeImgDataUrl can be a dummy if reset(), below also covers if hidden
+    if (this.disabled || !this.sourceImageLoaded()) { 
       return;
     }
     if (event.preventDefault) {
@@ -490,8 +502,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       } else if (this.moveStart!.type === MoveTypes.Resize) {
         if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
           this.cropperPositionService.resize(event, this.moveStart!, this.cropper, this.maxSize, this.settings);
+          this.checkCropperWithinMaxSizeBounds(false);
         }
-        this.checkCropperWithinMaxSizeBounds(false);
       } else if (this.moveStart!.type === MoveTypes.Drag) {
         const diffX = this.cropperPositionService.getClientX(event) - this.moveStart!.clientX;
         const diffY = this.cropperPositionService.getClientY(event) - this.moveStart!.clientY;
@@ -514,8 +526,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         event.preventDefault();
       }
       if (this.moveStart!.type === MoveTypes.Pinch) {
-        this.cropperPositionService.resize(event, this.moveStart!, this.cropper, this.maxSize, this.settings);
-        this.checkCropperWithinMaxSizeBounds(false);
+        if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
+          this.cropperPositionService.resize(event, this.moveStart!, this.cropper, this.maxSize, this.settings);
+          this.checkCropperWithinMaxSizeBounds(false);
+        }
       }
       this.cd.markForCheck();
     }
@@ -610,7 +624,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.moveStart!.active = false;
       if (this.isNewPosition(this.moveStart?.cropper!, this.moveStart?.transform)) {
         if (this.moveStart?.type === MoveTypes.Drag) this.transformChange.emit(this.transform);
-        this.doAutoCrop(); // later on in this PR I'll prevent ngOnChanges from triggering another crop after this
+        this.doAutoCrop();
       }
     }
   }
@@ -645,9 +659,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private doAutoCrop(): void {
+    this.settings.cropper = { ...this.cropper };
+    this.settings.transform = { ...this.transform };
     if (this.autoCrop) {
-      this.settings.cropper = { ...this.cropper };
-      this.settings.transform = { ...this.transform };
       void this.crop();
     }
   }
