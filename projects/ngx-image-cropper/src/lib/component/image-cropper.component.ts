@@ -217,17 +217,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
       + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
       + 'AAarVyFEAAAAASUVORK5CYII=';
-    this.moveStart = {
-      active: false,
-      type: null,
-      position: null,
-      x1: 0,
-      y1: 0,
-      x2: 0,
-      y2: 0,
-      clientX: 0,
-      clientY: 0
-    };
     this.maxSize = {
       width: 0,
       height: 0
@@ -236,6 +225,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.cropper.y1 = -100;
     this.cropper.x2 = 10000;
     this.cropper.y2 = 10000;
+    this.moveStart = {
+      active: false,
+      type: null,
+      position: null,
+      clientX: 0,
+      clientY: 0,
+      cropper: {...this.cropper},
+    };
   }
 
   private loadImageFile(file: File): void {
@@ -390,7 +387,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       transform: {...this.transform},
       clientX: this.cropperPositionService.getClientX(event),
       clientY: this.cropperPositionService.getClientY(event),
-      ...this.cropper
+      cropper: {...this.cropper}
     };
     this.initMouseMove();
   }
@@ -430,7 +427,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       position: 'center',
       clientX: this.cropper.x1 + (this.cropper.x2 - this.cropper.x1) / 2,
       clientY: this.cropper.y1 + (this.cropper.y2 - this.cropper.y1) / 2,
-      ...this.cropper
+      cropper: {...this.cropper}
     };
   }
 
@@ -566,10 +563,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   private handleMouseUp(): void {
     if (this.moveStart!.active) {
       this.moveStart!.active = false;
-      if (this.moveStart?.type === MoveTypes.Drag) {
-        this.transformChange.emit(this.transform);
-      } else {
-        this.doAutoCrop();
+      if (this.isNewPosition(this.moveStart?.cropper!, this.moveStart?.transform)) {
+        if (this.moveStart?.type === MoveTypes.Drag) this.transformChange.emit(this.transform);
+        this.doAutoCrop(); // later on in this PR I'll prevent ngOnChanges from triggering another crop after this
       }
     }
   }
@@ -577,8 +573,22 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   pinchStop(): void {
     if (this.moveStart!.active) {
       this.moveStart!.active = false;
-      this.doAutoCrop();
+      if (this.isNewPosition(this.moveStart?.cropper!)) this.doAutoCrop();
     }
+  }
+
+  private isNewPosition(oldCropper: CropperPosition, oldTransform?: ImageTransform){
+    if (oldTransform && this.imagePositionIsNewPosition(oldTransform, this.transform)) return true;
+    if (this.cropperPositionService.isNewPosition(oldCropper, this.cropper)) return true;
+    return false;
+  }
+
+  // TODO:(loiddy) move to image pos serivice when added.
+  // Useful to check if to send transformChanged event. Will be used more later on.
+  private imagePositionIsNewPosition(oldTransform: ImageTransform, newTransform: ImageTransform){
+    if ((oldTransform.translateH ?? 0) !== (newTransform.translateH ?? 0)) return true;
+    if ((oldTransform.translateV ?? 0) !== (newTransform.translateV ?? 0)) return true;
+    return false;
   }
 
   private doAutoCrop(): void {

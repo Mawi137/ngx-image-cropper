@@ -46,10 +46,10 @@ export class CropperPositionService {
     const diffX = this.getClientX(event) - moveStart.clientX;
     const diffY = this.getClientY(event) - moveStart.clientY;
 
-    cropperPosition.x1 = moveStart.x1 + diffX;
-    cropperPosition.y1 = moveStart.y1 + diffY;
-    cropperPosition.x2 = moveStart.x2 + diffX;
-    cropperPosition.y2 = moveStart.y2 + diffY;
+    cropperPosition.x1 = moveStart.cropper.x1 + diffX;
+    cropperPosition.y1 = moveStart.cropper.y1 + diffY;
+    cropperPosition.x2 = moveStart.cropper.x2 + diffX;
+    cropperPosition.y2 = moveStart.cropper.y2 + diffY;
   }
 
   resize(event: any, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
@@ -58,52 +58,52 @@ export class CropperPositionService {
     const moveY = this.getClientY(event) - moveStart.clientY;
     switch (moveStart.position) {
       case 'left':
-        cropperPosition.x1 = Math.min(Math.max(moveStart.x1 + moveX, cropperPosition.x2 - settings.cropperScaledMaxWidth),
+        cropperPosition.x1 = Math.min(Math.max(moveStart.cropper.x1 + moveX, cropperPosition.x2 - settings.cropperScaledMaxWidth),
           cropperPosition.x2 - settings.cropperScaledMinWidth);
         break;
       case 'topleft':
-        cropperPosition.x1 = Math.min(Math.max(moveStart.x1 + moveX, cropperPosition.x2 - settings.cropperScaledMaxWidth),
+        cropperPosition.x1 = Math.min(Math.max(moveStart.cropper.x1 + moveX, cropperPosition.x2 - settings.cropperScaledMaxWidth),
           cropperPosition.x2 - settings.cropperScaledMinWidth);
-        cropperPosition.y1 = Math.min(Math.max(moveStart.y1 + moveY, cropperPosition.y2 - settings.cropperScaledMaxHeight),
+        cropperPosition.y1 = Math.min(Math.max(moveStart.cropper.y1 + moveY, cropperPosition.y2 - settings.cropperScaledMaxHeight),
           cropperPosition.y2 - settings.cropperScaledMinHeight);
         break;
       case 'top':
-        cropperPosition.y1 = Math.min(Math.max(moveStart.y1 + moveY, cropperPosition.y2 - settings.cropperScaledMaxHeight),
+        cropperPosition.y1 = Math.min(Math.max(moveStart.cropper.y1 + moveY, cropperPosition.y2 - settings.cropperScaledMaxHeight),
           cropperPosition.y2 - settings.cropperScaledMinHeight);
         break;
       case 'topright':
-        cropperPosition.x2 = Math.max(Math.min(moveStart.x2 + moveX, cropperPosition.x1 + settings.cropperScaledMaxWidth),
+        cropperPosition.x2 = Math.max(Math.min(moveStart.cropper.x2 + moveX, cropperPosition.x1 + settings.cropperScaledMaxWidth),
           cropperPosition.x1 + settings.cropperScaledMinWidth);
-        cropperPosition.y1 = Math.min(Math.max(moveStart.y1 + moveY, cropperPosition.y2 - settings.cropperScaledMaxHeight),
+        cropperPosition.y1 = Math.min(Math.max(moveStart.cropper.y1 + moveY, cropperPosition.y2 - settings.cropperScaledMaxHeight),
           cropperPosition.y2 - settings.cropperScaledMinHeight);
         break;
       case 'right':
-        cropperPosition.x2 = Math.max(Math.min(moveStart.x2 + moveX, cropperPosition.x1 + settings.cropperScaledMaxWidth),
+        cropperPosition.x2 = Math.max(Math.min(moveStart.cropper.x2 + moveX, cropperPosition.x1 + settings.cropperScaledMaxWidth),
           cropperPosition.x1 + settings.cropperScaledMinWidth);
         break;
       case 'bottomright':
-        cropperPosition.x2 = Math.max(Math.min(moveStart.x2 + moveX, cropperPosition.x1 + settings.cropperScaledMaxWidth),
+        cropperPosition.x2 = Math.max(Math.min(moveStart.cropper.x2 + moveX, cropperPosition.x1 + settings.cropperScaledMaxWidth),
           cropperPosition.x1 + settings.cropperScaledMinWidth);
-        cropperPosition.y2 = Math.max(Math.min(moveStart.y2 + moveY, cropperPosition.y1 + settings.cropperScaledMaxHeight),
+        cropperPosition.y2 = Math.max(Math.min(moveStart.cropper.y2 + moveY, cropperPosition.y1 + settings.cropperScaledMaxHeight),
           cropperPosition.y1 + settings.cropperScaledMinHeight);
         break;
       case 'bottom':
-        cropperPosition.y2 = Math.max(Math.min(moveStart.y2 + moveY, cropperPosition.y1 + settings.cropperScaledMaxHeight),
+        cropperPosition.y2 = Math.max(Math.min(moveStart.cropper.y2 + moveY, cropperPosition.y1 + settings.cropperScaledMaxHeight),
           cropperPosition.y1 + settings.cropperScaledMinHeight);
         break;
       case 'bottomleft':
-        cropperPosition.x1 = Math.min(Math.max(moveStart.x1 + moveX, cropperPosition.x2 - settings.cropperScaledMaxWidth),
+        cropperPosition.x1 = Math.min(Math.max(moveStart.cropper.x1 + moveX, cropperPosition.x2 - settings.cropperScaledMaxWidth),
           cropperPosition.x2 - settings.cropperScaledMinWidth);
-        cropperPosition.y2 = Math.max(Math.min(moveStart.y2 + moveY, cropperPosition.y1 + settings.cropperScaledMaxHeight),
+        cropperPosition.y2 = Math.max(Math.min(moveStart.cropper.y2 + moveY, cropperPosition.y1 + settings.cropperScaledMaxHeight),
           cropperPosition.y1 + settings.cropperScaledMinHeight);
         break;
       case 'center':
         const scale = event.scale;
         const newWidth = Math.min(
-          Math.max(settings.cropperScaledMinWidth, (Math.abs(moveStart.x2 - moveStart.x1)) * scale),
+          Math.max(settings.cropperScaledMinWidth, (Math.abs(moveStart.cropper.x2 - moveStart.cropper.x1)) * scale),
           settings.cropperScaledMaxWidth);
         const newHeight = Math.min(
-          Math.max(settings.cropperScaledMinHeight, (Math.abs(moveStart.y2 - moveStart.y1)) * scale),
+          Math.max(settings.cropperScaledMinHeight, (Math.abs(moveStart.cropper.y2 - moveStart.cropper.y1)) * scale),
           settings.cropperScaledMaxHeight);
         cropperPosition.x1 = moveStart.clientX - newWidth / 2;
         cropperPosition.x2 = moveStart.clientX + newWidth / 2;
@@ -217,4 +217,14 @@ export class CropperPositionService {
   getClientY(event: any): number {
     return event.touches?.[0].clientY || event.clientY || 0;
   }
+
+  isNewPosition(oldCropper: CropperPosition, newCropper: CropperPosition){
+    // TODO:(loiddy) Sometimes there's a difference in the 14th decimal place in the cropper position when a limit has been reached and accidentally you try to pinch over it. This should not trigger crop so toFixed prevents it. Check toFixed is still needed after changing resize in cropper pos service (in one of the next PRs).
+    if(oldCropper.x1.toFixed(3) !== newCropper.x1.toFixed(3)) return true;
+    if(oldCropper.y1.toFixed(3) !== newCropper.y1.toFixed(3)) return true;
+    if(oldCropper.x2.toFixed(3) !== newCropper.x2.toFixed(3)) return true;
+    if(oldCropper.y2.toFixed(3) !== newCropper.y2.toFixed(3)) return true;
+    return false;
+  }
 }
+

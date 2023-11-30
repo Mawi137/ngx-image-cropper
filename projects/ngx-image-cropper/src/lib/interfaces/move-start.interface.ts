@@ -1,14 +1,11 @@
-import { ImageTransform } from './image-transform.interface';
+import { CropperPosition, ImageTransform } from './';
 
 export interface MoveStart {
   active: boolean;
   type: MoveTypes | null;
   position: string | null;
   transform?: ImageTransform;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
+  cropper: CropperPosition;
   clientX: number;
   clientY: number;
 }
