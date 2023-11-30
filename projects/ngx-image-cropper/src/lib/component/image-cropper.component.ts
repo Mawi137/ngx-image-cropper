@@ -135,7 +135,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       ) {
         this.checkCropperWithinCropperSizeBounds(true);
       } else if (changes['cropper']) {
-        this.checkCropperPosition(false);
+        this.checkCropperWithinMaxSizeBounds(false);
         this.doAutoCrop();
       }
     }
@@ -436,12 +436,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       }
       if (this.moveStart!.type === MoveTypes.Move) {
         this.cropperPositionService.move(event, this.moveStart!, this.cropper);
-        this.checkCropperPosition(true);
+        this.checkCropperWithinMaxSizeBounds(true);
       } else if (this.moveStart!.type === MoveTypes.Resize) {
         if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
           this.cropperPositionService.resize(event, this.moveStart!, this.cropper, this.maxSize, this.settings);
         }
-        this.checkCropperPosition(false);
+        this.checkCropperWithinMaxSizeBounds(false);
       } else if (this.moveStart!.type === MoveTypes.Drag) {
         const diffX = this.cropperPositionService.getClientX(event) - this.moveStart!.clientX;
         const diffY = this.cropperPositionService.getClientY(event) - this.moveStart!.clientY;
@@ -465,7 +465,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       }
       if (this.moveStart!.type === MoveTypes.Pinch) {
         this.cropperPositionService.resize(event, this.moveStart!, this.cropper, this.maxSize, this.settings);
-        this.checkCropperPosition(false);
+        this.checkCropperWithinMaxSizeBounds(false);
       }
       this.cd.markForCheck();
     }
@@ -535,8 +535,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private checkCropperPosition(maintainSize = false): void {
-    console.log('CHECK CROPPER POSITION')
+  private checkCropperWithinMaxSizeBounds(maintainSize = false): void {
+    console.log('CHECK CROPPER WITHIN MAX SIZE BOUNDS')
     if (this.cropper.x1 < 0) {
       this.cropper.x2 -= maintainSize ? this.cropper.x1 : 0;
       this.cropper.x1 = 0;
