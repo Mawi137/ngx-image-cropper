@@ -91,7 +91,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() alignImage: 'left' | 'center' = this.settings.alignImage;
   @HostBinding('class.disabled')
   @Input() disabled = false;
-  @HostBinding('class.ngx-ic-hidden') // fix typo
+  @HostBinding('class.ngx-ic-hidden')
   @Input() hidden = false;
 
   @Output() imageCropped = new EventEmitter<ImageCroppedEvent>();
@@ -117,22 +117,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   ngOnChanges(changes: SimpleChanges): void {  
     const oldCropper = { ...this.settings.cropper };
     const oldTransform = { ...this.settings.transform };
-
-    /*
-    if(changes['transform'] && changes['transform'].previousValue) {
-      console.log(
-        '\n changes previous value ', changes['transform'].previousValue.translateH, changes['transform'].previousValue.translateV,
-        '\n changes current value ', changes['transform'].currentValue.translateH, changes['transform'].currentValue.translateV,
-        '\n settings ', this.settings.transform.translateH, this.settings.transform.translateV,
-        '\n this ', this.transform.translateH, this.transform.translateV,
-        );
-    }
-    */
     
     this.settings.setOptionsFromChanges(changes);
     this.onChangesInputImage(changes); 
 
-    // changed to transformed.image cos everything else depends on it
     if (!this.loadedImage?.transformed.image.complete) return; 
  
     if ((this.containWithinAspectRatio && changes["aspectRatio"]) || changes["containWithinAspectRatio"] || changes["canvasRotation"]) { 
@@ -170,7 +158,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       //TODO(loiddy): decouple min, max and static sizes. app should be able to respond to changes individually too (also have only one static side) (fixed in future PR).
     }
 
-    // if cropper was emitted I'd check for isNewPosition here
     if (changes["cropper"]) checkCropperWithinBounds = true;
 
     if (checkCropperWithinBounds) {
@@ -180,8 +167,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     if (changes["transform"]) {
-      // delete cos initialised from settings like the rest
-      // this.transform = this.transform || {}; 
       if (this.imagePositionIsNewTransform(oldTransform, this.transform)) {
         this.setCssTransform();
         crop = true;
@@ -200,31 +185,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       });
     }
   }
-
-  /* TODO: DELETE this method 
-
-  Only this.hideResizeSquares = true; is used, but it remains as true until parent sets it to false – if they were to change both static sides, this would still be true. The rest isn't used cos cropperSCALEDMin and Max are used in the cropperPosition service and here local versions are used to calculate the scaled versions. 
-
-  I'm adding an if condition to the html and a blocker to onPinch – handleMouseMove has one but onPinch doesn't – to achieve what I suspect this was trying to do. 
-
-  Deleting settings.setOptions from settings too as it's only used here.
-
-  private onChangesUpdateSettings(changes: SimpleChanges) {
-    this.settings.setOptionsFromChanges(changes);
-
-    if (this.settings.cropperStaticHeight && this.settings.cropperStaticWidth) {
-      this.hideResizeSquares = true;
-      this.settings.setOptions({
-        hideResizeSquares: true,
-        cropperMinWidth: this.settings.cropperStaticWidth,
-        cropperMinHeight: this.settings.cropperStaticHeight,
-        cropperMaxHeight: this.settings.cropperStaticHeight,
-        cropperMaxWidth: this.settings.cropperStaticWidth,
-        maintainAspectRatio: false
-      });
-    }
-  }
-  */
 
   private onChangesInputImage(changes: SimpleChanges): void {
     if (changes['imageChangedEvent'] || changes['imageURL'] || changes['imageBase64'] || changes['imageFile']) {
@@ -249,7 +209,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCssTransform() {
-    console.log('SET CSS')
     const translateUnit = this.transform?.translateUnit || '%';
     this.safeTransformStyle = this.sanitizer.bypassSecurityTrustStyle(
       `translate(${this.transform.translateH || 0}${translateUnit}, ${this.transform.translateV || 0}${translateUnit})` +
@@ -332,12 +291,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (this.setImageMaxSizeRetries > 40) {
       this.loadImageFailed.emit();
     } else if (this.sourceImageLoaded()) {
-      console.log('CHECK IMAGE MAX SIZE RECURSIVELY')
       this.setMaxSize();
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
       this.checkCropperWithinCropperSizeBounds(true);
-      //TODO(loiddy): add checkCropperWithinMaxSizeBounds when resetCropper and x2=0 is fully implemented. Explained in cropper position service.
+      //TODO(loiddy): add checkCropperWithinMaxSizeBounds when resetCropper and x2=0 is fully implemented. 
       this.setCssTransform();
       this.imageVisible = true;
       this.doAutoCrop();
@@ -366,7 +324,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.resizeCropperPosition(oldMaxSize);
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
-      this.cd.markForCheck(); // when triggered from ngOnChanges we need to let angular know to paint cropper
+      this.cd.markForCheck(); 
     }
   }
 
@@ -471,7 +429,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   startPinch(event: any) {
-    // safeImgDataUrl can be a dummy if reset(), below also covers if hidden
     if (this.disabled || !this.sourceImageLoaded()) { 
       return;
     }
@@ -537,7 +494,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setMaxSize(): void {
     if (this.sourceImage) {
-      console.log('SET MAX SIZE');
       const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
       this.maxSize.width = parseFloat(sourceImageStyle.width);
       this.maxSize.height = parseFloat(sourceImageStyle.height);
@@ -556,7 +512,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private setCropperScaledMinWidth(): void {
-    console.log('SET CROPPER MIN WIDTH')
     this.settings.cropperScaledMinWidth = this.cropperMinWidth > 0
       ? Math.max(20, this.cropperMinWidth / this.loadedImage!.transformed.image.width * this.maxSize.width)
       : 20;
@@ -564,28 +519,23 @@ export class ImageCropperComponent implements OnChanges, OnInit {
 
   private setCropperScaledMinHeight(): void {
     if (this.maintainAspectRatio) {
-      console.log('SET CROPPER MIN HEIGHT mantain aspect ratio')
       this.settings.cropperScaledMinHeight = Math.max(20, this.settings.cropperScaledMinWidth / this.aspectRatio);
     } else if (this.cropperMinHeight > 0) {
-      console.log('SET CROPPER MIN HEIGHT')
       this.settings.cropperScaledMinHeight = Math.max(
         20,
         this.cropperMinHeight / this.loadedImage!.transformed.image.height * this.maxSize.height
       );
     } else {
-      console.log('SET CROPPER MIN HEIGHT fallback')
       this.settings.cropperScaledMinHeight = 20;
     }
   }
 
   private setCropperScaledMaxSize(): void {
     if (this.loadedImage?.transformed?.image) {
-      console.log('SET CROPPER MAX WIDTH AND HEIGHT')
       const ratio = this.loadedImage.transformed.size.width / this.maxSize.width;
       this.settings.cropperScaledMaxWidth = this.cropperMaxWidth > 20 ? this.cropperMaxWidth / ratio : this.maxSize.width;
       this.settings.cropperScaledMaxHeight = this.cropperMaxHeight > 20 ? this.cropperMaxHeight / ratio : this.maxSize.height;
       if (this.maintainAspectRatio) {
-        console.log('SET CROPPER MAX WIDTH AND HEIGHT mantain aspect ratio')
         if (this.settings.cropperScaledMaxWidth > this.settings.cropperScaledMaxHeight * this.aspectRatio) {
           this.settings.cropperScaledMaxWidth = this.settings.cropperScaledMaxHeight * this.aspectRatio;
         } else if (this.settings.cropperScaledMaxWidth < this.settings.cropperScaledMaxHeight * this.aspectRatio) {
@@ -593,14 +543,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         }
       }
     } else {
-      console.log('SET CROPPER MAX WIDTH AND HEIGHT fallback')
       this.settings.cropperScaledMaxWidth = this.maxSize.width;
       this.settings.cropperScaledMaxHeight = this.maxSize.height;
     }
   }
 
   private checkCropperWithinMaxSizeBounds(maintainSize = false): void {
-    console.log('CHECK CROPPER WITHIN MAX SIZE BOUNDS')
     if (this.cropper.x1 < 0) {
       this.cropper.x2 -= maintainSize ? this.cropper.x1 : 0;
       this.cropper.x1 = 0;
@@ -643,7 +591,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   // TODO:(loiddy) move to image pos serivice when added.
-  // Useful to check if to send transformChanged event. Will be used more later on.
   private imagePositionIsNewPosition(oldTransform: ImageTransform, newTransform: ImageTransform){
     if ((oldTransform.translateH ?? 0) !== (newTransform.translateH ?? 0)) return true;
     if ((oldTransform.translateV ?? 0) !== (newTransform.translateV ?? 0)) return true;

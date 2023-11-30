@@ -5,28 +5,7 @@ import { CropperSettings } from '../interfaces/cropper.settings';
 @Injectable({ providedIn: 'root' })
 export class CropperPositionService {
 
-  /*
-  Up until now whenever resetCropperPosition was called, the cropper was reset to it's biggest possible size. 
-    
-  This is no longer the case, hence the new name.  
-
-  By the end of this PR, when there are changes to cropper min, max and/or static size (I'm calling this cropper size bounds) and mantainAspectRatio is FALSE, we only want to check the cropper is whithin its size bounds. If it is, return the same cropper position and size. And if it isn't, change cropper size but keep the position untouched – we then check it's within maxSize later in the code path in case any of it ended up outside during the resizing.
-    
-  This behaviour is completely new, and is needed at this stage – before the app wasn't responding to these changes and now it will so it needs a response. All the other ways in which this method was being used I've kept the same by adding the resetCropper parameter. Now it's always true, but when responding to changes in cropper bounding sizes, resetCropper will be false.
-    
-  In future PRs I'll be changing this so developers can pick when to reset the cropper as big as possible and when to work with the cropper that is already there. This will be done by using the resetCropper param or assigning 0 to cropperPosition.x2.
-
-  So far I've managed to have an app input called resetCropperToBiggestPossibleSize:boolean and I toggle it between interactions I send from the parent and the imageCropped event. But this doesn't work if auto crop is false, hence the cropperPosition.x2 === 0 check.
-
-  cropperPosition.x2 will only be 0 when the app is initialised – I've changed this too – or when a new source image is loaded – also changed. So it's safe to use it in this way too. I've also argued to myself that it's easy for developers to understand that if the cropper has no width, we're asking for a new one, as no width is no cropper and the app needs one to work. Fingers crossed.
-
-  Also, if you do some crazy testing by setting strange min and max values. You might find problems. That is also in a future PR.
-  */
   checkWithinCropperSizeBounds(cropperPosition: CropperPosition, settings: CropperSettings, maxSize: Dimensions, resetCropper: boolean): void {
-
-    // by the end of the PR we don't need a blocker here
-
-    console.log('CHECK CROPPER WITHIN CROPPER SIZE BOUNDS')
 
     if (resetCropper || cropperPosition.x2 === 0) {
       cropperPosition.x1 = 0;
@@ -40,7 +19,6 @@ export class CropperPositionService {
     const centerX = cropperPosition.x1 + cropperWidth / 2;
     const centerY = cropperPosition.y1 + cropperHeight / 2;
 
-    // added checking for min scaled size too
     if (settings.cropperStaticHeight && settings.cropperStaticWidth) {
       cropperWidth = maxSize.width > settings.cropperStaticWidth ? 
         settings.cropperStaticWidth : maxSize.width;
@@ -64,7 +42,6 @@ export class CropperPositionService {
   
 
   move(event: any, moveStart: MoveStart, cropperPosition: CropperPosition) {
-    console.log('MOVE')
     const diffX = this.getClientX(event) - moveStart.clientX;
     const diffY = this.getClientY(event) - moveStart.clientY;
 
@@ -75,7 +52,6 @@ export class CropperPositionService {
   }
 
   resize(event: any, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
-    console.log('RESIZE')
     const moveX = this.getClientX(event) - moveStart.clientX;
     const moveY = this.getClientY(event) - moveStart.clientY;
     switch (moveStart.position) {
@@ -154,7 +130,6 @@ export class CropperPositionService {
   }
 
   checkAspectRatio(position: string, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
-    console.log(' - CHECK ASPECT RATIO')
     let overflowX = 0;
     let overflowY = 0;
 

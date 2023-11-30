@@ -160,7 +160,7 @@ export class AppComponent {
       flipH: false,
       flipV: false,
       translateH: 0,
-      translateV: 0 // need to add everything or transform doesn't work after reset
+      translateV: 0 
     };
   }
 
@@ -192,7 +192,7 @@ export class AppComponent {
     this.backgroundColor = this.backgroundColor === 'red' ? 'blue' : 'red';
   }
 
-  // to prevent over triggering app when typing
+  // prevent over triggering app when typing
   debounce(event: any) {
     clearTimeout(this.timeout);
     (this.eventList as any)[event.target!.id] = event.target.value;

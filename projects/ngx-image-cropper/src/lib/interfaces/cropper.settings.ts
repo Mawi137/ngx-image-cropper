@@ -40,9 +40,6 @@ export class CropperSettings {
   stepSize = this.initialStepSize;
 
   setOptionsFromChanges(changes: SimpleChanges): void {
-    /*
-    Better to clone the objects so the properties don't share memory pointer. things like, for example, setting transform in parent like transform = {...transform, translateH: ++translateH} don't break the app this way (I've added this to the demo)
-    */
     for(const k in changes){
       if (k === 'transform' || k === 'cropper') (this as any)[k] = { ...changes[k].currentValue };
       else if (k in this) (this as any)[k] = changes[k].currentValue;
