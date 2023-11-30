@@ -1,5 +1,5 @@
 import { CropperOptions, OutputFormat, OutputType } from './cropper-options.interface';
-import { ImageTransform } from './image-transform.interface';
+import { ImageTransform, CropperPosition } from './';
 import { SimpleChanges } from '@angular/core';
 
 export class CropperSettings {
@@ -13,6 +13,7 @@ export class CropperSettings {
   resetCropOnAspectRatioChange = true;
   resizeToWidth = 0;
   resizeToHeight = 0;
+  cropper: CropperPosition = {x1: 0, y1: 0, x2: 0, y2: 0};
   cropperMinWidth = 0;
   cropperMinHeight = 0;
   cropperMaxHeight = 0;
