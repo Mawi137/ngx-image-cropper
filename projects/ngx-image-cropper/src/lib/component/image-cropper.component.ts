@@ -173,11 +173,11 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       }
     }
 
-    if (crop || (changes["backgroundColor"] && this.format !== "jpeg")) {
+    if (crop || changes["backgroundColor"]) {
       this.doAutoCrop();
     }
 
-    //TODO: if a new img tires to loaded to view when hidden, loadImageFailed event is triggered. I vote developers handle this. From parent it's solved by disabeling or hiding the new source img inputs while the app is hidden. Here it's more complicated.
+    //TODO: if a new img tires to load to view when hidden, loadImageFailed event is triggered. I vote developers handle this. From parent it's solved by disabeling or hiding the new source img inputs while the app is hidden. Here it's more complicated. 
     if (changes['hidden'] && this.resizedWhileHidden && !this.hidden) {
       setTimeout(() => {
         this.onResize();
