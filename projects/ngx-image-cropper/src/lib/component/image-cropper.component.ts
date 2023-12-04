@@ -308,7 +308,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private sourceImageLoaded(): boolean {
-    return this.sourceImage?.nativeElement?.offsetWidth > 0;
+    return this.sourceImage?.nativeElement?.offsetWidth > 1;
   }
 
   @HostListener('window:resize')
