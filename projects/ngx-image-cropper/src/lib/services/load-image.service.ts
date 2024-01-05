@@ -34,8 +34,9 @@ export class LoadImageService {
 
   async loadImageFromURL(url: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
     const res = await fetch(url);
-    const buffer = await res.arrayBuffer();
-    return await this.loadImageFromArrayBuffer(buffer, cropperSettings);
+    const blob = await res.blob();
+    const buffer = await blob.arrayBuffer();
+    return await this.loadImageFromArrayBuffer(buffer, cropperSettings, blob.type);
   }
 
   loadBase64Image(imageBase64: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
