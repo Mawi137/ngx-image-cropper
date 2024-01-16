@@ -153,12 +153,15 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 ## Base64
 To use with base64 just follow these images
 First apply the code above as it follows on the image
+
 ![Alt text](image.png)
 
 Then on 'ngAfterViewInit()' apply the configuration to base64
+
 ![Alt text](image-1.png)
 
 You gonna need to call the 'crop' method somewhere, I used in a button and after 'imageLoaded' method, but feel free to call by the way you want!
+
 ![Alt text](image-3.png)
 
 
