@@ -150,6 +150,18 @@ To gain access to the image cropper's methods use `@ViewChild(ImageCropperCompon
 |----------------------------------------------------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | <code>crop(output?: 'blob' &#124; 'base64')</code> | Promise<ImageCroppedEvent> or ImageCroppedEvent | Crops the source image to the current cropper position. Be sure to set `autoCrop` to `false` if you only wish to use this function directly. When output is set to blob, a Promise will be returned.  |
 
+## Base64
+To use with base64 just follow these images
+First apply the code above as it follows on the image
+![Alt text](image.png)
+
+Then on 'ngAfterViewInit()' apply the configuration to base64
+![Alt text](image-1.png)
+
+You gonna need to call the 'crop' method somewhere, I used in a button and after 'imageLoaded' method, but feel free to call by the way you want!
+![Alt text](image-3.png)
+
+
 ### Interfaces
 #### CropperPosition
 | Property | Type   | Description                             |
