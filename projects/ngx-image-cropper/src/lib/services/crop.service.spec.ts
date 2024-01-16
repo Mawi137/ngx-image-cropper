@@ -1,10 +1,18 @@
-import { CropperSettings } from '../interfaces/cropper.settings';
+import { SimpleChange, SimpleChanges } from '@angular/core';
+import { CropperSettings,CropperOptions } from '../interfaces/';
 import { CropService } from './crop.service';
 
 describe('CropService', () => {
 
   let service: CropService;
   let settings: CropperSettings;
+  const setOptions = (options: Partial<CropperOptions>) => {
+    let dummyChanges: SimpleChanges = {};
+    for(let key in options) {
+      (dummyChanges as any)[key] = new SimpleChange(undefined, (options as any)[key], true);
+    }
+    settings.setOptionsFromChanges(dummyChanges);
+  }
 
   beforeEach(() => {
     service = new CropService();
@@ -16,7 +24,7 @@ describe('CropService', () => {
     describe('when onlyScaleDown is false', () => {
 
       it('when resizeToWidth is set', () => {
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 500,
           resizeToHeight: 0,
           onlyScaleDown: false
@@ -28,10 +36,10 @@ describe('CropService', () => {
         expect(service.getResizeRatio(250, 1234, settings)).toBe(2);
       });
       it('when resizeToHeight is set', () => {
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 0,
           resizeToHeight: 500,
-          onlyScaleDown: false
+          onlyScaleDown: false,
         });
 
         expect(service.getResizeRatio(123, 1000, settings)).toBe(0.5);
@@ -40,7 +48,7 @@ describe('CropService', () => {
         expect(service.getResizeRatio(1234, 250, settings)).toBe(2);
       });
       it('when resizeToWidth and resizeToHeight is set', () => {
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 500,
           resizeToHeight: 500,
           onlyScaleDown: false
@@ -51,7 +59,7 @@ describe('CropService', () => {
         expect(service.getResizeRatio(125, 250, settings)).toBe(2);
 
 
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 1000,
           resizeToHeight: 500,
           onlyScaleDown: false
@@ -64,7 +72,7 @@ describe('CropService', () => {
         expect(service.getResizeRatio(500, 123, settings)).toBe(2);
 
 
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 500,
           resizeToHeight: 1000,
           onlyScaleDown: false
@@ -81,7 +89,7 @@ describe('CropService', () => {
     describe('when onlyScaleDown is true', () => {
 
       it('when resizeToWidth is set', () => {
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 500,
           resizeToHeight: 0,
           onlyScaleDown: true
@@ -93,7 +101,7 @@ describe('CropService', () => {
 
 
       it('when resizeToHeight is set', () => {
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 0,
           resizeToHeight: 500,
           onlyScaleDown: true
@@ -105,7 +113,7 @@ describe('CropService', () => {
 
 
       it('when resizeToWidth and resizeToHeight is set', () => {
-        settings.setOptions({
+        setOptions({
           resizeToWidth: 1000,
           resizeToHeight: 500,
           onlyScaleDown: true
