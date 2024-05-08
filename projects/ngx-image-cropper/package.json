@@ -13,8 +13,6 @@
   "homepage": "https://github.com/Mawi137/ngx-image-cropper",
   "keywords": [
     "angular",
-    "angular 13",
-    "angular 14",
     "angular 15",
     "angular 16",
     "angular 17",
@@ -25,7 +23,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": ">=13.0.0",
-    "@angular/core": ">=13.0.0"
+    "@angular/common": ">=15.0.0",
+    "@angular/core": ">=15.0.0"
   }
 }
