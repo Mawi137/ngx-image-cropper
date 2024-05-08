@@ -1,3 +1,5 @@
+import {BasicEvent} from "../interfaces/basic-event.interface";
+
 export function getPositionForKey(key: string): string {
   switch (key) {
     case 'ArrowUp':
@@ -26,7 +28,7 @@ export function getInvertedPositionForKey(key: string): string {
   }
 }
 
-export function getEventForKey(key: string, stepSize: number): any {
+export function getEventForKey(key: string, stepSize: number): BasicEvent {
   switch (key) {
     case 'ArrowUp':
       return {clientX: 0, clientY: stepSize * -1};

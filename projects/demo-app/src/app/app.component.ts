@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Dimensions, ImageCroppedEvent, ImageTransform, ImageCropperComponent } from 'ngx-image-cropper';
-import { DomSanitizer } from '@angular/platform-browser';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import { NgIf } from '@angular/common';
 import { FormsModule } from "@angular/forms";
 
@@ -12,8 +12,8 @@ import { FormsModule } from "@angular/forms";
   imports: [NgIf, FormsModule, ImageCropperComponent]
 })
 export class AppComponent {
-  imageChangedEvent: any = '';
-  croppedImage: any = '';
+  imageChangedEvent: Event | null = null;
+  croppedImage: SafeUrl  = '';
   canvasRotation = 0;
   rotation?: number;
   translateH = 0;
@@ -35,7 +35,7 @@ export class AppComponent {
   ) {
   }
 
-  fileChangeEvent(event: any): void {
+  fileChangeEvent(event: Event): void {
     this.loading = true;
     this.imageChangedEvent = event;
   }
