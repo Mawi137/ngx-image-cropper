@@ -8,7 +8,7 @@
 
 ### Upgrade instructions
 For a list of breaking changes and update instructions, go to [releases](https://github.com/Mawi137/ngx-image-cropper/releases).
-Only Angular 16+ is supported.
+Only Angular 16+ is supported since version 8.0.0.
 
 ### Example usage
 
