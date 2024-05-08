@@ -40,15 +40,15 @@ import { DomSanitizer } from '@angular/platform-browser';
   imports: [ImageCropperComponent]
 })
 export class YourComponent {
-    imageChangedEvent: any = '';
-    croppedImage: any = '';
+    imageChangedEvent: Event | null = null;
+    croppedImage: SafeUrl  = '';
     
     constructor(
       private sanitizer: DomSanitizer
     ) {
     }
 
-    fileChangeEvent(event: any): void {
+    fileChangeEvent(event: Event): void {
         this.imageChangedEvent = event;
     }
     imageCropped(event: ImageCroppedEvent) {

@@ -1,6 +1,7 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { CropperPosition, Dimensions, MoveStart } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
+import {BasicEvent} from "../interfaces/basic-event.interface";
 
 @Injectable({ providedIn: 'root' })
 export class CropperPositionService {
@@ -40,7 +41,7 @@ export class CropperPositionService {
     }
   }
 
-  move(event: any, moveStart: MoveStart, cropperPosition: CropperPosition) {
+  move(event: Event | BasicEvent, moveStart: MoveStart, cropperPosition: CropperPosition) {
     const diffX = this.getClientX(event) - moveStart.clientX;
     const diffY = this.getClientY(event) - moveStart.clientY;
 
@@ -50,7 +51,7 @@ export class CropperPositionService {
     cropperPosition.y2 = moveStart.y2 + diffY;
   }
 
-  resize(event: any, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
+  resize(event: Event | BasicEvent, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
     const moveX = this.getClientX(event) - moveStart.clientX;
     const moveY = this.getClientY(event) - moveStart.clientY;
     switch (moveStart.position) {
@@ -95,7 +96,7 @@ export class CropperPositionService {
           cropperPosition.y1 + settings.cropperScaledMinHeight);
         break;
       case 'center':
-        const scale = event.scale;
+        const scale = (event as any).scale;
         const newWidth = Math.min(
           Math.max(settings.cropperScaledMinWidth, (Math.abs(moveStart.x2 - moveStart.x1)) * scale),
           settings.cropperScaledMaxWidth);
@@ -206,11 +207,23 @@ export class CropperPositionService {
     }
   }
 
-  getClientX(event: any): number {
-    return event.touches?.[0].clientX || event.clientX || 0;
+  getClientX(event: Event | BasicEvent | TouchEvent): number {
+    if ('touches' in event && event.touches[0])
+      return event.touches[0].clientX;
+    else if ('clientX' in event) {
+      return event.clientX
+    }
+
+    return 0;
   }
 
-  getClientY(event: any): number {
-    return event.touches?.[0].clientY || event.clientY || 0;
+  getClientY(event: Event | BasicEvent | TouchEvent): number {
+    if ('touches' in event && event.touches[0])
+      return event.touches[0].clientY;
+    else if ('clientX' in event) {
+      return event.clientY
+    }
+
+    return 0;
   }
 }

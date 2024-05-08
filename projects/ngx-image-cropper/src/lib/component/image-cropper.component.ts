@@ -30,6 +30,7 @@ import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '..
 import { first, takeUntil } from 'rxjs/operators';
 import { fromEvent, merge } from 'rxjs';
 import { NgIf } from '@angular/common';
+import {BasicEvent} from "../interfaces/basic-event.interface";
 
 @Component({
   selector: 'image-cropper',
@@ -59,7 +60,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @ViewChild('wrapper', {static: true}) wrapper!: ElementRef<HTMLDivElement>;
   @ViewChild('sourceImage', {static: false}) sourceImage!: ElementRef<HTMLDivElement>;
 
-  @Input() imageChangedEvent?: any;
+  @Input() imageChangedEvent?: Event | null;
   @Input() imageURL?: string;
   @Input() imageBase64?: string;
   @Input() imageFile?: File;
@@ -194,8 +195,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private isValidImageChangedEvent(): boolean {
-    return this.imageChangedEvent?.target?.files?.length > 0;
+  private isValidImageChangedEvent(): this is {
+    imageChangedEvent: Event & {
+      target: { files: FileList };
+    }
+  } {
+    const files = (this.imageChangedEvent as any)?.target?.files;
+    return files instanceof FileList && files.length > 0;
   }
 
   private setCssTransform() {
@@ -267,7 +273,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.cd.markForCheck();
   }
 
-  public loadImageError(error: any): void {
+  public loadImageError(error: unknown): void {
     console.error(error);
     this.loadImageFailed.emit();
   }
@@ -360,7 +366,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private keyboardMoveCropper(event: any) {
+  private keyboardMoveCropper(event: KeyboardEvent) {
     const keyboardWhiteList: string[] = ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'];
     if (!(keyboardWhiteList.includes(event.key))) {
       return;
@@ -375,13 +381,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.handleMouseUp();
   }
 
-  startMove(event: any, moveType: MoveTypes, position: string | null = null): void {
+  startMove(event: Event | BasicEvent, moveType: MoveTypes, position: string | null = null): void {
     if (this.disabled
       || this.moveStart?.active && this.moveStart?.type === MoveTypes.Pinch
       || moveType === MoveTypes.Drag && !this.allowMoveImage) {
       return;
     }
-    if (event.preventDefault) {
+    if ('preventDefault' in event) {
       event.preventDefault();
     }
     this.moveStart = {
@@ -435,12 +441,12 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     };
   }
 
-  private handleMouseMove(event: any): void {
+  private handleMouseMove(event: Event | BasicEvent): void {
     if (this.moveStart!.active) {
-      if (event.stopPropagation) {
+      if ('stopPropagation' in event) {
         event.stopPropagation();
       }
-      if (event.preventDefault) {
+      if ('preventDefault' in event) {
         event.preventDefault();
       }
       if (this.moveStart!.type === MoveTypes.Move) {
