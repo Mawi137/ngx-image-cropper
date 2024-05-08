@@ -109,7 +109,6 @@
       }
     }
   },
-  "defaultProject": "demo-app",
   "cli": {
     "analytics": false
   }
