@@ -29,12 +29,15 @@ import { HammerStatic } from '../utils/hammer.utils';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
 import { first, takeUntil } from 'rxjs/operators';
 import { fromEvent, merge } from 'rxjs';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'image-cropper',
   templateUrl: './image-cropper.component.html',
   styleUrls: ['./image-cropper.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [NgIf],
 })
 export class ImageCropperComponent implements OnChanges, OnInit {
   private settings = new CropperSettings();
