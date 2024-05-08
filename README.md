@@ -11,29 +11,6 @@ For a list of breaking changes and update instructions, go to [releases](https:/
 Only Angular 16+ is supported.
 
 ### Example usage
-Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.
-``` typescript
-import { NgModule } from '@angular/core';
-import { ImageCropperModule } from 'ngx-image-cropper';
-
-@NgModule({
-    imports: [
-        ...
-        ImageCropperModule
-    ],
-    declarations: [
-        ...
-    ],
-    exports: [
-        ...
-    ],
-    providers: [
-        ...
-    ]
-})
-export class YourModule {
-}
-```
 
 Add the element to your HTML:
 ``` html
@@ -53,11 +30,15 @@ Add the element to your HTML:
 <img [src]="croppedImage" />
 ```
 
-And add this to your ts file:
+In your ts file, declare the usage of `ImageCropperComponent` and add the following methods:
 ``` typescript
-import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
+import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer } from '@angular/platform-browser';
 
+@Component({
+  standalone: true,
+  imports: [ImageCropperComponent]
+})
 export class YourComponent {
     imageChangedEvent: any = '';
     croppedImage: any = '';
