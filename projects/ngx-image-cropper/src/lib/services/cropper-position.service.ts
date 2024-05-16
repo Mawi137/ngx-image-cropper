@@ -2,6 +2,7 @@ import { ElementRef, Injectable } from '@angular/core';
 import { CropperPosition, Dimensions, MoveStart } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import {BasicEvent} from "../interfaces/basic-event.interface";
+import { HammerInput } from "../utils/hammer.utils";
 
 @Injectable({ providedIn: 'root' })
 export class CropperPositionService {
@@ -51,7 +52,7 @@ export class CropperPositionService {
     cropperPosition.y2 = moveStart.y2 + diffY;
   }
 
-  resize(event: Event | BasicEvent, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
+  resize(event: Event | BasicEvent | HammerInput, moveStart: MoveStart, cropperPosition: CropperPosition, maxSize: Dimensions, settings: CropperSettings): void {
     const moveX = this.getClientX(event) - moveStart.clientX;
     const moveY = this.getClientY(event) - moveStart.clientY;
     switch (moveStart.position) {
@@ -96,7 +97,7 @@ export class CropperPositionService {
           cropperPosition.y1 + settings.cropperScaledMinHeight);
         break;
       case 'center':
-        const scale = (event as any).scale;
+        const scale = 'scale' in event ? event.scale : 1;
         const newWidth = Math.min(
           Math.max(settings.cropperScaledMinWidth, (Math.abs(moveStart.x2 - moveStart.x1)) * scale),
           settings.cropperScaledMaxWidth);
@@ -207,7 +208,7 @@ export class CropperPositionService {
     }
   }
 
-  getClientX(event: Event | BasicEvent | TouchEvent): number {
+  getClientX(event: Event | BasicEvent | TouchEvent | HammerInput): number {
     if ('touches' in event && event.touches[0])
       return event.touches[0].clientX;
     else if ('clientX' in event) {
@@ -217,7 +218,7 @@ export class CropperPositionService {
     return 0;
   }
 
-  getClientY(event: Event | BasicEvent | TouchEvent): number {
+  getClientY(event: Event | BasicEvent | TouchEvent | HammerInput): number {
     if ('touches' in event && event.touches[0])
       return event.touches[0].clientY;
     else if ('clientX' in event) {

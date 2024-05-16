@@ -21,11 +21,11 @@ import { DomSanitizer, HAMMER_LOADER, HammerLoader, SafeStyle, SafeUrl } from '@
 import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
 import { OutputFormat, OutputType } from '../interfaces/cropper-options.interface';
 import { CropperSettings } from '../interfaces/cropper.settings';
-import { MoveTypes } from '../interfaces/move-start.interface';
+import { MoveTypes, Position } from '../interfaces/move-start.interface';
 import { CropService } from '../services/crop.service';
 import { CropperPositionService } from '../services/cropper-position.service';
 import { LoadImageService } from '../services/load-image.service';
-import { HammerStatic } from '../utils/hammer.utils';
+import { HammerStatic, HammerInput } from '../utils/hammer.utils';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
 import { first, takeUntil } from 'rxjs/operators';
 import { fromEvent, merge } from 'rxjs';
@@ -381,7 +381,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.handleMouseUp();
   }
 
-  startMove(event: Event | BasicEvent, moveType: MoveTypes, position: string | null = null): void {
+  startMove(event: Event | BasicEvent, moveType: MoveTypes, position: Position | null = null): void {
     if (this.disabled
       || this.moveStart?.active && this.moveStart?.type === MoveTypes.Pinch
       || moveType === MoveTypes.Drag && !this.allowMoveImage) {
@@ -424,7 +424,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       });
   }
 
-  startPinch(event: any) {
+  startPinch(event: HammerInput) {
     if (!this.safeImgDataUrl) {
       return;
     }
@@ -470,11 +470,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  onPinch(event: any) {
+  onPinch(event: HammerInput) {
     if (this.moveStart!.active) {
-      if (event.stopPropagation) {
-        event.stopPropagation();
-      }
       if (event.preventDefault) {
         event.preventDefault();
       }

@@ -1,6 +1,7 @@
 import {BasicEvent} from "../interfaces/basic-event.interface";
+import {Position} from "../interfaces/move-start.interface";
 
-export function getPositionForKey(key: string): string {
+export function getPositionForKey(key: string): Position {
   switch (key) {
     case 'ArrowUp':
       return 'top';
@@ -14,7 +15,7 @@ export function getPositionForKey(key: string): string {
   }
 }
 
-export function getInvertedPositionForKey(key: string): string {
+export function getInvertedPositionForKey(key: string): Position {
   switch (key) {
     case 'ArrowUp':
       return 'bottom';
