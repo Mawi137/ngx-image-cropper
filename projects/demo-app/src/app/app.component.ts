@@ -1,18 +1,22 @@
 import { Component } from '@angular/core';
-import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
-import { DomSanitizer } from '@angular/platform-browser';
+import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, ImageCropperComponent } from 'ngx-image-cropper';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import { NgIf } from '@angular/common';
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  standalone: true,
+  imports: [NgIf, FormsModule, ImageCropperComponent]
 })
 export class AppComponent {
   showCropper = false;
   loading = false;
-  croppedImage: any = '';
+  croppedImage: SafeUrl  = '';
 
-  imageChangedEvent: any = '';
+  imageChangedEvent: Event | null = null;
   imageURL?: string;
   hidden = false;
   disabled = false;
@@ -51,7 +55,7 @@ export class AppComponent {
   ) {
   }
 
-  fileChangeEvent(event: any): void {
+  fileChangeEvent(event: Event): void {
     this.loading = true;
     this.imageChangedEvent = event;
   }

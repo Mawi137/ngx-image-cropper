@@ -8,32 +8,9 @@
 
 ### Upgrade instructions
 For a list of breaking changes and update instructions, go to [releases](https://github.com/Mawi137/ngx-image-cropper/releases).
-Only Angular 13+ is supported since image cropper version `6.0.0`.
+Only Angular 16+ is supported since version 8.0.0.
 
 ### Example usage
-Add the ImageCropperModule to the imports of the module which will be using the Image Cropper.
-``` typescript
-import { NgModule } from '@angular/core';
-import { ImageCropperModule } from 'ngx-image-cropper';
-
-@NgModule({
-    imports: [
-        ...
-        ImageCropperModule
-    ],
-    declarations: [
-        ...
-    ],
-    exports: [
-        ...
-    ],
-    providers: [
-        ...
-    ]
-})
-export class YourModule {
-}
-```
 
 Add the element to your HTML:
 ``` html
@@ -53,21 +30,25 @@ Add the element to your HTML:
 <img [src]="croppedImage" />
 ```
 
-And add this to your ts file:
+In your ts file, declare the usage of `ImageCropperComponent` and add the following methods:
 ``` typescript
-import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
+import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer } from '@angular/platform-browser';
 
+@Component({
+  standalone: true,
+  imports: [ImageCropperComponent]
+})
 export class YourComponent {
-    imageChangedEvent: any = '';
-    croppedImage: any = '';
+    imageChangedEvent: Event | null = null;
+    croppedImage: SafeUrl  = '';
     
     constructor(
       private sanitizer: DomSanitizer
     ) {
     }
 
-    fileChangeEvent(event: any): void {
+    fileChangeEvent(event: Event): void {
         this.imageChangedEvent = event;
     }
     imageCropped(event: ImageCroppedEvent) {

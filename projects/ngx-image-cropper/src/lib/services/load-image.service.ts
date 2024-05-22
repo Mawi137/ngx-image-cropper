@@ -8,6 +8,7 @@ interface LoadImageArrayBuffer {
   originalImage: HTMLImageElement;
   originalArrayBuffer: ArrayBufferLike;
   originalObjectUrl: string;
+  originalImageSize?: { width: number; height: number; } | null;
 }
 
 @Injectable({providedIn: 'root'})
@@ -15,26 +16,27 @@ export class LoadImageService {
 
   private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
 
-  loadImageFile(file: File, cropperSettings: CropperSettings): Promise<LoadedImage> {
-    return file.arrayBuffer()
-      .then(arrayBuffer => this.checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer, file.type, cropperSettings));
+  async loadImageFile(file: File, cropperSettings: CropperSettings): Promise<LoadedImage> {
+    const arrayBuffer = await file.arrayBuffer();
+    return await this.checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer, file.type, cropperSettings);
   }
 
   private checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
     if (!this.isValidImageType(imageType)) {
       return Promise.reject(new Error('Invalid image type'));
     }
-    return this.loadImageFromArrayBuffer(arrayBuffer, cropperSettings);
+    return this.loadImageFromArrayBuffer(arrayBuffer, cropperSettings, imageType);
   }
 
   private isValidImageType(type: string): boolean {
-    return /image\/(png|jpg|jpeg|bmp|gif|tiff|webp|x-icon|vnd.microsoft.icon)/.test(type);
+    return /image\/(png|jpg|jpeg|bmp|gif|tiff|svg|webp|x-icon|vnd.microsoft.icon)/.test(type);
   }
 
-  loadImageFromURL(url: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
-    return fetch(url)
-      .then(res => res.arrayBuffer())
-      .then(buffer => this.loadImageFromArrayBuffer(buffer, cropperSettings));
+  async loadImageFromURL(url: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const buffer = await blob.arrayBuffer();
+    return await this.loadImageFromArrayBuffer(buffer, cropperSettings, blob.type);
   }
 
   loadBase64Image(imageBase64: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
@@ -43,7 +45,7 @@ export class LoadImageService {
   }
 
   private base64ToArrayBuffer(imageBase64: string): ArrayBufferLike {
-    imageBase64 = imageBase64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
+    imageBase64 = imageBase64.replace(/^data:([^;]+);base64,/gmi, '');
     const binaryString = atob(imageBase64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
@@ -53,24 +55,56 @@ export class LoadImageService {
     return bytes.buffer;
   }
 
-  private loadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, cropperSettings: CropperSettings): Promise<LoadedImage> {
-    return new Promise<LoadImageArrayBuffer>((resolve, reject) => {
-      const blob = new Blob([arrayBuffer]);
-      const objectUrl = URL.createObjectURL(blob);
-      const originalImage = new Image();
-      originalImage.onload = () => resolve({
-        originalImage,
-        originalObjectUrl: objectUrl,
-        originalArrayBuffer: arrayBuffer
-      });
-      originalImage.onerror = reject;
-      originalImage.src = objectUrl;
-    }).then((res: LoadImageArrayBuffer) => this.transformImageFromArrayBuffer(res, cropperSettings));
+  private async loadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, cropperSettings: CropperSettings, imageType?: string): Promise<LoadedImage> {
+    const res = await new Promise<LoadImageArrayBuffer>(async (resolve, reject) => {
+      try {
+        const blob = new Blob([arrayBuffer], imageType ? {type: imageType} : undefined);
+        const objectUrl = URL.createObjectURL(blob);
+        const originalImage = new Image();
+        const isSvg = imageType === 'image/svg+xml';
+        const originalImageSize = isSvg ? await this.getSvgImageSize(blob) : undefined;
+        originalImage.onload = () => resolve({
+          originalImage,
+          originalImageSize,
+          originalObjectUrl: objectUrl,
+          originalArrayBuffer: arrayBuffer
+        });
+        originalImage.onerror = reject;
+        originalImage.src = objectUrl;
+      } catch (e) {
+        reject(e);
+      }
+    });
+    return await this.transformImageFromArrayBuffer(res, cropperSettings, res.originalImageSize != null);
   }
 
-  private async transformImageFromArrayBuffer(res: LoadImageArrayBuffer, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  private async getSvgImageSize(blob: Blob): Promise<{ width: number; height: number; } | null> {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(await blob.text(), 'image/svg+xml');
+    const svgElement = doc.querySelector('svg');
+    if (!svgElement) {
+      throw Error('Failed to parse SVG image');
+    }
+    const widthAttr = svgElement.getAttribute('width');
+    const heightAttr = svgElement.getAttribute('height');
+    if (widthAttr && heightAttr) {
+      return null;
+    }
+    const viewBoxAttr = svgElement.getAttribute('viewBox')
+      || svgElement.getAttribute('viewbox');
+    if (viewBoxAttr) {
+      const viewBox = viewBoxAttr.split(' ');
+      return {
+        width: +viewBox[2],
+        height: +viewBox[3]
+      };
+    }
+    throw Error('Failed to load SVG image. SVG must have width + height or viewBox definition.');
+  }
+
+  private async transformImageFromArrayBuffer(res: LoadImageArrayBuffer, cropperSettings: CropperSettings, forceTransform = false): Promise<LoadedImage> {
     const autoRotate = await this.autoRotateSupported;
-    const exifTransform = await getTransformationsFromExifData(autoRotate ? -1 : res.originalArrayBuffer);
+    const exifTransform = getTransformationsFromExifData(autoRotate ? -1 : res.originalArrayBuffer);
     if (!res.originalImage || !res.originalImage.complete) {
       return Promise.reject(new Error('No image loaded'));
     }
@@ -78,23 +112,20 @@ export class LoadImageService {
       original: {
         objectUrl: res.originalObjectUrl,
         image: res.originalImage,
-        size: {
+        size: res.originalImageSize ?? {
           width: res.originalImage.naturalWidth,
           height: res.originalImage.naturalHeight
         }
       },
       exifTransform
     };
-    return this.transformLoadedImage(loadedImage, cropperSettings);
+    return this.transformLoadedImage(loadedImage, cropperSettings, forceTransform);
   }
 
-  async transformLoadedImage(loadedImage: Partial<LoadedImage>, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  async transformLoadedImage(loadedImage: Partial<LoadedImage>, cropperSettings: CropperSettings, forceTransform = false): Promise<LoadedImage> {
     const canvasRotation = cropperSettings.canvasRotation + loadedImage.exifTransform!.rotate;
-    const originalSize = {
-      width: loadedImage.original!.image.naturalWidth,
-      height: loadedImage.original!.image.naturalHeight
-    };
-    if (canvasRotation === 0 && !loadedImage.exifTransform!.flip && !cropperSettings.containWithinAspectRatio) {
+    const originalSize = loadedImage.original!.size;
+    if (!forceTransform && canvasRotation === 0 && !loadedImage.exifTransform!.flip && !cropperSettings.containWithinAspectRatio) {
       return {
         original: {
           objectUrl: loadedImage.original!.objectUrl,
