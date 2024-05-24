@@ -42,7 +42,7 @@
       class="ngx-ic-move"
       role="presentation">
     </div>
-    <ng-container *ngIf="!hideResizeSquares">
+    <ng-container *ngIf="!hideResizeSquares && !(cropperStaticWidth && cropperStaticHeight)">
             <span class="ngx-ic-resize ngx-ic-topleft"
                   role="presentation"
                   (mousedown)="startMove($event, moveTypes.Resize, 'topleft')"

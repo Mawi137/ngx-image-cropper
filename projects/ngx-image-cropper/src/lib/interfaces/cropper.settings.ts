@@ -1,5 +1,5 @@
 import { CropperOptions, OutputFormat, OutputType } from './cropper-options.interface';
-import { ImageTransform } from './image-transform.interface';
+import { ImageTransform, CropperPosition } from './';
 import { SimpleChanges } from '@angular/core';
 
 export class CropperSettings {
@@ -13,6 +13,7 @@ export class CropperSettings {
   resetCropOnAspectRatioChange = true;
   resizeToWidth = 0;
   resizeToHeight = 0;
+  cropper: CropperPosition = {x1: 0, y1: 0, x2: 0, y2: 0};
   cropperMinWidth = 0;
   cropperMinHeight = 0;
   cropperMaxHeight = 0;
@@ -38,17 +39,11 @@ export class CropperSettings {
   cropperScaledMaxHeight = 20;
   stepSize = this.initialStepSize;
 
-  setOptions(options: Partial<CropperOptions>): void {
-    Object.keys(options)
-      .filter((k) => k in this)
-      .forEach((k) => (this as any)[k] = (options as any)[k]);
-    this.validateOptions();
-  }
-
   setOptionsFromChanges(changes: SimpleChanges): void {
-    Object.keys(changes)
-      .filter((k) => k in this)
-      .forEach((k) => (this as any)[k] = changes[k].currentValue);
+    for(const k in changes){
+      if (k === 'transform' || k === 'cropper') (this as any)[k] = { ...changes[k].currentValue };
+      else if (k in this) (this as any)[k] = changes[k].currentValue;
+    }
     this.validateOptions();
   }
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Dimensions, ImageCroppedEvent, ImageTransform, ImageCropperComponent } from 'ngx-image-cropper';
+import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, ImageCropperComponent } from 'ngx-image-cropper';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import { NgIf } from '@angular/common';
 import { FormsModule } from "@angular/forms";
@@ -12,23 +12,43 @@ import { FormsModule } from "@angular/forms";
   imports: [NgIf, FormsModule, ImageCropperComponent]
 })
 export class AppComponent {
-  imageChangedEvent: Event | null = null;
-  croppedImage: SafeUrl  = '';
-  canvasRotation = 0;
-  rotation?: number;
-  translateH = 0;
-  translateV = 0;
-  scale = 1;
-  aspectRatio = 4 / 3;
   showCropper = false;
-  containWithinAspectRatio = false;
-  transform: ImageTransform = {
-    translateUnit: 'px'
-  };
-  imageURL?: string;
   loading = false;
-  allowMoveImage = false;
+  croppedImage: SafeUrl  = '';
+
+  imageChangedEvent: Event | null = null;
+  imageURL?: string;
   hidden = false;
+  disabled = false;
+  alignImage = 'center' as const; 
+  roundCropper = false;
+  backgroundColor = 'red';
+  allowMoveImage = false;
+  hideResizeSquares = false;
+  canvasRotation = 0;
+  aspectRatio = 4 / 3;
+  containWithinAspectRatio = false;
+  maintainAspectRatio = false;
+  cropperStaticWidth = 0;
+  cropperStaticHeight = 0;
+  cropperMinWidth = 0;
+  cropperMinHeight = 0;
+  cropperMaxWidth = 0;
+  cropperMaxHeight = 0;
+  resetCropOnAspectRatioChange = true;
+  cropper: CropperPosition = { x1: 0, y1: 0, x2:0, y2:0 };
+  transform: ImageTransform = {
+    translateUnit: 'px',
+    scale: 1,
+    rotate: 0,
+    flipH: false,
+    flipV: false,
+    translateH: 0,
+    translateV: 0
+  };
+
+  timeout: any;
+  eventList = {};
 
   constructor(
     private sanitizer: DomSanitizer
@@ -42,7 +62,7 @@ export class AppComponent {
 
   imageCropped(event: ImageCroppedEvent) {
     this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl || event.base64 || '');
-    console.log(event);
+    console.log('CROPPED', event);
   }
 
   imageLoaded() {
@@ -57,6 +77,10 @@ export class AppComponent {
 
   loadImageFailed() {
     console.error('Load image failed');
+  }
+
+  transformChange(transform: ImageTransform){
+    console.log('transform changed', transform)
   }
 
   rotateLeft() {
@@ -78,28 +102,28 @@ export class AppComponent {
   moveLeft() {
     this.transform = {
       ...this.transform,
-      translateH: ++this.translateH
+      translateH: --this.transform.translateH!
     };
   }
 
   moveRight() {
     this.transform = {
       ...this.transform,
-      translateH: --this.translateH
+      translateH: ++this.transform.translateH! 
     };
   }
 
-  moveTop() {
+  moveDown() {
     this.transform = {
       ...this.transform,
-      translateV: ++this.translateV
+      translateV: ++this.transform.translateV!
     };
   }
 
-  moveBottom() {
+  moveUp() {
     this.transform = {
       ...this.transform,
-      translateV: --this.translateV
+      translateV: --this.transform.translateV!
     };
   }
 
@@ -109,10 +133,10 @@ export class AppComponent {
     this.transform = {
       ...this.transform,
       flipH: flippedV,
-      flipV: flippedH
+      flipV: flippedH,
+      translateH: 0,
+      translateV: 0
     };
-    this.translateH = 0;
-    this.translateV = 0;
   }
 
   flipHorizontal() {
@@ -130,42 +154,70 @@ export class AppComponent {
   }
 
   resetImage() {
-    this.scale = 1;
-    this.rotation = 0;
     this.canvasRotation = 0;
+    this.cropper = {x1: 0, y1: 0, x2: 0, y2: 0};
+    this.maintainAspectRatio = false; 
     this.transform = {
-      translateUnit: 'px'
+      translateUnit: 'px',
+      scale: 1,
+      rotate: 0,
+      flipH: false,
+      flipV: false,
+      translateH: 0,
+      translateV: 0 
     };
   }
 
   zoomOut() {
-    this.scale -= .1;
     this.transform = {
       ...this.transform,
-      scale: this.scale
+      scale: this.transform.scale! - .1
     };
   }
 
   zoomIn() {
-    this.scale += .1;
     this.transform = {
       ...this.transform,
-      scale: this.scale
+      scale: this.transform.scale! + .1
     };
-  }
-
-  toggleContainWithinAspectRatio() {
-    this.containWithinAspectRatio = !this.containWithinAspectRatio;
   }
 
   updateRotation() {
     this.transform = {
       ...this.transform,
-      rotate: this.rotation
     };
   }
 
   toggleAspectRatio() {
     this.aspectRatio = this.aspectRatio === 4 / 3 ? 16 / 5 : 4 / 3;
+  }
+
+  toggleBackgroundColor() {
+    this.backgroundColor = this.backgroundColor === 'red' ? 'blue' : 'red';
+  }
+
+  // prevent over triggering app when typing
+  debounce(event: any) {
+    clearTimeout(this.timeout);
+    (this.eventList as any)[event.target!.id] = event.target.value;
+    this.timeout = setTimeout(() => {
+      for (const [key, value] of Object.entries(this.eventList)) {
+        (this as any)[key] = Number(value);
+      }
+      this.eventList = {}; 
+    }, 500);
+  }
+
+  /*
+   Random Test button triggers this method
+   use it to test whatever you want
+  */
+  test() {
+    this.canvasRotation = 3;
+    this.transform = {
+      ...this.transform, 
+      scale: 2
+    }
+    this.cropper = { x1: 190, y1: 221.5, x2: 583, y2: 344.3125 } // has 16/5 aspect ratio
   }
 }

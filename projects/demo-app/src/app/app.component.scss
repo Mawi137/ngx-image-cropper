@@ -22,3 +22,39 @@ image-cropper {
   font-size: 20px;
   color: white;
 }
+
+input[type=number]{
+  width: 65px;
+}
+
+section {
+  border: 0;
+  display: grid;
+  justify-content: start;
+  align-items: center;
+  grid-template-columns: auto repeat(3, auto auto);
+  grid-template-rows: auto;
+  grid-gap: 0 5px;
+
+  label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+  }
+
+  input {
+    height: -webkit-fill-available;
+    margin-right: 5px;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+  
+  button {
+    height: fit-content;
+    margin-right: 7px;
+  }
+}
