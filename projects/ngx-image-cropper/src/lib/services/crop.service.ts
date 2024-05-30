@@ -1,5 +1,5 @@
-import { ElementRef, Injectable } from '@angular/core';
-import { CropperPosition, Dimensions, ImageCroppedEvent, LoadedImage } from '../interfaces';
+import { Injectable } from '@angular/core';
+import { CropperPosition, ImageCroppedEvent } from '../interfaces';
 import { CropperSettings } from '../interfaces/cropper.settings';
 import { resizeCanvas } from '../utils/resize.utils';
 import { percentage } from '../utils/percentage.utils';
@@ -8,10 +8,10 @@ import { OutputType } from '../interfaces/cropper-options.interface';
 @Injectable({providedIn: 'root'})
 export class CropService {
 
-  crop(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'blob', maxSize: Dimensions): Promise<ImageCroppedEvent> | null;
-  crop(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: 'base64', maxSize: Dimensions): ImageCroppedEvent | null;
-  crop(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, output: OutputType, maxSize: Dimensions): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
-    const imagePosition = this.getImagePosition(loadedImage, cropper, settings, maxSize);
+  crop(settings: CropperSettings, output: 'blob'): Promise<ImageCroppedEvent> | null;
+  crop(settings: CropperSettings, output: 'base64'): ImageCroppedEvent | null;
+  crop(settings: CropperSettings, output: OutputType): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
+    const imagePosition = this.getImagePosition(settings);
     const width = imagePosition.x2 - imagePosition.x1;
     const height = imagePosition.y2 - imagePosition.y1;
     const cropCanvas = document.createElement('canvas') as HTMLCanvasElement;
@@ -29,9 +29,9 @@ export class CropService {
 
     const scaleX = (settings.transform.scale || 1) * (settings.transform.flipH ? -1 : 1);
     const scaleY = (settings.transform.scale || 1) * (settings.transform.flipV ? -1 : 1);
-    const {translateH, translateV} = this.getCanvasTranslate(loadedImage, settings, maxSize);
+    const {translateH, translateV} = this.getCanvasTranslate(settings);
 
-    const transformedImage = loadedImage.transformed;
+    const transformedImage = settings.loadedImage!.transformed;
     ctx.setTransform(scaleX, 0, 0, scaleY, transformedImage.size.width / 2 + translateH, transformedImage.size.height / 2 + translateV);
     ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
     ctx.rotate((settings.transform.rotate || 0) * Math.PI / 180);
@@ -45,10 +45,10 @@ export class CropService {
     const result: ImageCroppedEvent = {
       width, height,
       imagePosition,
-      cropperPosition: {...cropper}
+      cropperPosition: {...settings.cropper}
     };
     if (settings.containWithinAspectRatio) {
-      result.offsetImagePosition = this.getOffsetImagePosition(loadedImage, cropper, settings, maxSize);
+      result.offsetImagePosition = this.getOffsetImagePosition(settings);
     }
     const resizeRatio = this.getResizeRatio(width, height, settings);
     if (resizeRatio !== 1) {
@@ -74,70 +74,70 @@ export class CropService {
     return output;
   }
 
-  private getCanvasTranslate(loadedImage: LoadedImage, settings: CropperSettings, maxSize: Dimensions): { translateH: number, translateV: number } {
+  private getCanvasTranslate(settings: CropperSettings): { translateH: number, translateV: number } {
     if (settings.transform.translateUnit === 'px') {
-      const ratio = this.getRatio(loadedImage, maxSize);
+      const ratio = this.getRatio(settings);
       return {
         translateH: (settings.transform.translateH || 0) * ratio,
         translateV: (settings.transform.translateV || 0) * ratio
       };
     } else {
       return {
-        translateH: settings.transform.translateH ? percentage(settings.transform.translateH, loadedImage.transformed.size.width) : 0,
-        translateV: settings.transform.translateV ? percentage(settings.transform.translateV, loadedImage.transformed.size.height) : 0
+        translateH: settings.transform.translateH ? percentage(settings.transform.translateH, settings.loadedImage!.transformed.size.width) : 0,
+        translateV: settings.transform.translateV ? percentage(settings.transform.translateV, settings.loadedImage!.transformed.size.height) : 0
       };
     }
   }
 
-  private getRatio(loadedImage: LoadedImage, maxSize: Dimensions): number {
-    return loadedImage.transformed.size.width / maxSize.width;
+  private getRatio(settings: CropperSettings): number {
+    return settings.loadedImage!.transformed.size.width / settings.maxSize!.width;
   }
 
-  private getImagePosition(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, maxSize: Dimensions): CropperPosition {
-    const ratio = this.getRatio(loadedImage, maxSize);
+  private getImagePosition(settings: CropperSettings): CropperPosition {
+    const ratio = this.getRatio(settings);
     const out: CropperPosition = {
-      x1: Math.round(cropper.x1 * ratio),
-      y1: Math.round(cropper.y1 * ratio),
-      x2: Math.round(cropper.x2 * ratio),
-      y2: Math.round(cropper.y2 * ratio)
+      x1: Math.round(settings.cropper.x1 * ratio),
+      y1: Math.round(settings.cropper.y1 * ratio),
+      x2: Math.round(settings.cropper.x2 * ratio),
+      y2: Math.round(settings.cropper.y2 * ratio)
     };
 
     if (!settings.containWithinAspectRatio) {
       out.x1 = Math.max(out.x1, 0);
       out.y1 = Math.max(out.y1, 0);
-      out.x2 = Math.min(out.x2, loadedImage.transformed.size.width);
-      out.y2 = Math.min(out.y2, loadedImage.transformed.size.height);
+      out.x2 = Math.min(out.x2, settings.loadedImage!.transformed.size.width);
+      out.y2 = Math.min(out.y2, settings.loadedImage!.transformed.size.height);
     }
 
     return out;
   }
 
-  private getOffsetImagePosition(loadedImage: LoadedImage, cropper: CropperPosition, settings: CropperSettings, maxSize: Dimensions): CropperPosition {
-    const canvasRotation = settings.canvasRotation + loadedImage.exifTransform.rotate;
-    const ratio = this.getRatio(loadedImage, maxSize);
+  private getOffsetImagePosition(settings: CropperSettings): CropperPosition {
+    const canvasRotation = settings.canvasRotation + settings.loadedImage!.exifTransform.rotate;
+    const ratio = this.getRatio(settings);
     let offsetX: number;
     let offsetY: number;
 
     if (canvasRotation % 2) {
-      offsetX = (loadedImage.transformed.size.width - loadedImage.original.size.height) / 2;
-      offsetY = (loadedImage.transformed.size.height - loadedImage.original.size.width) / 2;
+      offsetX = (settings.loadedImage!.transformed.size.width - settings.loadedImage!.original.size.height) / 2;
+      offsetY = (settings.loadedImage!.transformed.size.height - settings.loadedImage!.original.size.width) / 2;
     } else {
-      offsetX = (loadedImage.transformed.size.width - loadedImage.original.size.width) / 2;
-      offsetY = (loadedImage.transformed.size.height - loadedImage.original.size.height) / 2;
+      offsetX = (settings.loadedImage!.transformed.size.width - settings.loadedImage!.original.size.width) / 2;
+      offsetY = (settings.loadedImage!.transformed.size.height - settings.loadedImage!.original.size.height) / 2;
     }
 
     const out: CropperPosition = {
-      x1: Math.round(cropper.x1 * ratio) - offsetX,
-      y1: Math.round(cropper.y1 * ratio) - offsetY,
-      x2: Math.round(cropper.x2 * ratio) - offsetX,
-      y2: Math.round(cropper.y2 * ratio) - offsetY
+      x1: Math.round(settings.cropper.x1 * ratio) - offsetX,
+      y1: Math.round(settings.cropper.y1 * ratio) - offsetY,
+      x2: Math.round(settings.cropper.x2 * ratio) - offsetX,
+      y2: Math.round(settings.cropper.y2 * ratio) - offsetY
     };
 
     if (!settings.containWithinAspectRatio) {
       out.x1 = Math.max(out.x1, 0);
       out.y1 = Math.max(out.y1, 0);
-      out.x2 = Math.min(out.x2, loadedImage.transformed.size.width);
-      out.y2 = Math.min(out.y2, loadedImage.transformed.size.height);
+      out.x2 = Math.min(out.x2, settings.loadedImage!.transformed.size.width);
+      out.y2 = Math.min(out.y2, settings.loadedImage!.transformed.size.height);
     }
 
     return out;
