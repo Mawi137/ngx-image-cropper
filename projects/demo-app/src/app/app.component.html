@@ -2,13 +2,6 @@
 <input type="file" (change)="fileChangeEvent($event)" accept="image/*" />
 <br />
 <br />
-<button (click)="maintainAspectRatio = !maintainAspectRatio;" [class.enabled]="maintainAspectRatio">Maintain Aspect Ratio</button>
-<button (click)="toggleAspectRatio()" [class.enabled]="maintainAspectRatio">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
-<button (click)="containWithinAspectRatio = !containWithinAspectRatio;" [class.enabled]="containWithinAspectRatio">Fill Aspect Ratio</button>
-<button (click)="rotateLeft()">Rotate left</button>
-<button (click)="rotateRight()">Rotate right</button>
-<br />
-<br />
 <section>
   <label for="cropperStaticWidth">Cropper Static Width:</label>
   <input id="cropperStaticWidth" type="number" (keyup)="debounce($event)" />
@@ -25,6 +18,13 @@
   <input id="cropperMaxHeight" type="number" (keyup)="debounce($event)"/>
 </section>
 <br />
+<button (click)="maintainAspectRatio = !maintainAspectRatio;" [class.enabled]="maintainAspectRatio">Maintain Aspect Ratio</button>
+<button (click)="toggleAspectRatio()" [class.enabled]="maintainAspectRatio">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
+<button (click)="containWithinAspectRatio = !containWithinAspectRatio;" [class.enabled]="containWithinAspectRatio">Fill Aspect Ratio</button>
+<button (click)="rotateLeft()">Rotate left</button>
+<button (click)="rotateRight()">Rotate right</button>
+<br />
+<br />
 <input [ngModel]="transform.rotate!" placeholder="Rotation" type="number" (ngModelChange)="updateRotation($event)" />
 <button (click)="zoomOut()">Zoom -</button>
 <button (click)="zoomIn()">Zoom +</button>
@@ -37,7 +37,7 @@
 <button (click)="allowMoveImage = !allowMoveImage;" [class.enabled]="allowMoveImage">Image panning</button>
 <br/>
 <br/>
-<button (click)="hidden = !hidden;" [class.hidden]="maintainAspectRatio">Hidden}</button>
+<button (click)="hidden = !hidden;" [class.hidden]="maintainAspectRatio">Hidden</button>
 <button (click)="disabled = !disabled;" [class.enabled]="disabled">Disable</button>
 <button (click)="hideResizeSquares = !hideResizeSquares;" [class.enabled]="hideResizeSquares">Hide Resize Squares</button>
 <button (click)="resetCropOnAspectRatioChange = !resetCropOnAspectRatioChange;" [class.enabled]="resetCropOnAspectRatioChange">Reset Crop On Aspect Ratio Change</button>

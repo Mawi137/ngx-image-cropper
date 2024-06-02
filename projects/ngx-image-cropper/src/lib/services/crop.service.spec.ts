@@ -1,11 +1,11 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
-import { CropperSettings,CropperOptions } from '../interfaces/';
+import { CropperOptions, CropperState } from '../interfaces/';
 import { CropService } from './crop.service';
 
 describe('CropService', () => {
 
   let service: CropService;
-  let settings: CropperSettings;
+  let settings: CropperState;
   const setOptions = (options: Partial<CropperOptions>) => {
     let dummyChanges: SimpleChanges = {};
     for(let key in options) {
@@ -16,7 +16,7 @@ describe('CropService', () => {
 
   beforeEach(() => {
     service = new CropService();
-    settings = new CropperSettings();
+    settings = new CropperState();
   });
 
   describe('#getResizeRatio', () => {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Dimensions, LoadedImage } from '../interfaces';
-import { CropperSettings } from '../interfaces/cropper.settings';
+import { CropperState } from '../component/cropper.state';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
 import { getTransformationsFromExifData, supportsAutomaticRotation } from '../utils/exif.utils';
 
@@ -16,12 +16,12 @@ export class LoadImageService {
 
   private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
 
-  async loadImageFile(file: File, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  async loadImageFile(file: File, cropperSettings: CropperState): Promise<LoadedImage> {
     const arrayBuffer = await file.arrayBuffer();
     return await this.checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer, file.type, cropperSettings);
   }
 
-  private checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  private checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperState): Promise<LoadedImage> {
     if (!this.isValidImageType(imageType)) {
       return Promise.reject(new Error('Invalid image type'));
     }
@@ -32,14 +32,14 @@ export class LoadImageService {
     return /image\/(png|jpg|jpeg|bmp|gif|tiff|svg|webp|x-icon|vnd.microsoft.icon)/.test(type);
   }
 
-  async loadImageFromURL(url: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  async loadImageFromURL(url: string, cropperSettings: CropperState): Promise<LoadedImage> {
     const res = await fetch(url);
     const blob = await res.blob();
     const buffer = await blob.arrayBuffer();
     return await this.loadImageFromArrayBuffer(buffer, cropperSettings, blob.type);
   }
 
-  loadBase64Image(imageBase64: string, cropperSettings: CropperSettings): Promise<LoadedImage> {
+  loadBase64Image(imageBase64: string, cropperSettings: CropperState): Promise<LoadedImage> {
     const arrayBuffer = this.base64ToArrayBuffer(imageBase64);
     return this.loadImageFromArrayBuffer(arrayBuffer, cropperSettings);
   }
@@ -55,7 +55,7 @@ export class LoadImageService {
     return bytes.buffer;
   }
 
-  private async loadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, cropperSettings: CropperSettings, imageType?: string): Promise<LoadedImage> {
+  private async loadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, cropperState: CropperState, imageType?: string): Promise<LoadedImage> {
     const res = await new Promise<LoadImageArrayBuffer>(async (resolve, reject) => {
       try {
         const blob = new Blob([arrayBuffer], imageType ? {type: imageType} : undefined);
@@ -75,7 +75,7 @@ export class LoadImageService {
         reject(e);
       }
     });
-    return await this.transformImageFromArrayBuffer(res, cropperSettings, res.originalImageSize != null);
+    return await this.transformImageFromArrayBuffer(res, cropperState, res.originalImageSize != null);
   }
 
   private async getSvgImageSize(blob: Blob): Promise<{ width: number; height: number; } | null> {
@@ -102,7 +102,7 @@ export class LoadImageService {
     throw Error('Failed to load SVG image. SVG must have width + height or viewBox definition.');
   }
 
-  private async transformImageFromArrayBuffer(res: LoadImageArrayBuffer, cropperSettings: CropperSettings, forceTransform = false): Promise<LoadedImage> {
+  private async transformImageFromArrayBuffer(res: LoadImageArrayBuffer, cropperSettings: CropperState, forceTransform = false): Promise<LoadedImage> {
     const autoRotate = await this.autoRotateSupported;
     const exifTransform = getTransformationsFromExifData(autoRotate ? -1 : res.originalArrayBuffer);
     if (!res.originalImage || !res.originalImage.complete) {
@@ -122,10 +122,10 @@ export class LoadImageService {
     return this.transformLoadedImage(loadedImage, cropperSettings, forceTransform);
   }
 
-  async transformLoadedImage(loadedImage: Partial<LoadedImage>, cropperSettings: CropperSettings, forceTransform = false): Promise<LoadedImage> {
-    const canvasRotation = cropperSettings.canvasRotation + loadedImage.exifTransform!.rotate;
+  async transformLoadedImage(loadedImage: Partial<LoadedImage>, cropperState: CropperState, forceTransform = false): Promise<LoadedImage> {
+    const canvasRotation = cropperState.options.canvasRotation + loadedImage.exifTransform!.rotate;
     const originalSize = loadedImage.original!.size;
-    if (!forceTransform && canvasRotation === 0 && !loadedImage.exifTransform!.flip && !cropperSettings.containWithinAspectRatio) {
+    if (!forceTransform && canvasRotation === 0 && !loadedImage.exifTransform!.flip && !cropperState.options.containWithinAspectRatio) {
       return {
         original: {
           objectUrl: loadedImage.original!.objectUrl,
@@ -141,7 +141,7 @@ export class LoadImageService {
       };
     }
 
-    const transformedSize = this.getTransformedSize(originalSize, loadedImage.exifTransform!, cropperSettings);
+    const transformedSize = this.getTransformedSize(originalSize, loadedImage.exifTransform!, cropperState);
     const canvas = document.createElement('canvas');
     canvas.width = transformedSize.width;
     canvas.height = transformedSize.height;
@@ -160,7 +160,7 @@ export class LoadImageService {
       -originalSize.width / 2,
       -originalSize.height / 2
     );
-    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, cropperSettings.format));
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, cropperState.options.format));
     if (!blob) {
       throw new Error('Failed to get Blob for transformed image.');
     }
@@ -196,20 +196,20 @@ export class LoadImageService {
   private getTransformedSize(
     originalSize: { width: number, height: number },
     exifTransform: ExifTransform,
-    cropperSettings: CropperSettings
+    cropperState: CropperState
   ): Dimensions {
-    const canvasRotation = cropperSettings.canvasRotation + exifTransform.rotate;
-    if (cropperSettings.containWithinAspectRatio) {
+    const canvasRotation = cropperState.options.canvasRotation + exifTransform.rotate;
+    if (cropperState.options.containWithinAspectRatio) {
       if (canvasRotation % 2) {
-        const minWidthToContain = originalSize.width * cropperSettings.aspectRatio;
-        const minHeightToContain = originalSize.height / cropperSettings.aspectRatio;
+        const minWidthToContain = originalSize.width * cropperState.options.aspectRatio;
+        const minHeightToContain = originalSize.height / cropperState.options.aspectRatio;
         return {
           width: Math.max(originalSize.height, minWidthToContain),
           height: Math.max(originalSize.width, minHeightToContain)
         };
       } else {
-        const minWidthToContain = originalSize.height * cropperSettings.aspectRatio;
-        const minHeightToContain = originalSize.width / cropperSettings.aspectRatio;
+        const minWidthToContain = originalSize.height * cropperState.options.aspectRatio;
+        const minHeightToContain = originalSize.width / cropperState.options.aspectRatio;
         return {
           width: Math.max(originalSize.width, minWidthToContain),
           height: Math.max(originalSize.height, minHeightToContain)
