@@ -55,9 +55,6 @@ export class CropperState {
   }
 
   setOptions(options: Partial<CropperOptions>): void {
-
-    console.log({...options});
-
     this.options = {
       ...this.options,
       ...(options || {})
