@@ -18,7 +18,15 @@ import {
   ViewChild
 } from '@angular/core';
 import { DomSanitizer, HAMMER_LOADER, HammerLoader, SafeStyle, SafeUrl } from '@angular/platform-browser';
-import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, LoadedImage, MoveStart } from '../interfaces';
+import {
+  CropperOptions,
+  CropperPosition,
+  Dimensions,
+  ImageCroppedEvent,
+  ImageTransform,
+  LoadedImage,
+  MoveStart
+} from '../interfaces';
 import { OutputFormat, OutputType } from '../interfaces/cropper-options.interface';
 import { CropperState } from './cropper.state';
 import { MoveTypes, Position } from '../interfaces/move-start.interface';
@@ -70,6 +78,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() imageFile?: File;
   @Input() imageAltText?: string;
 
+  @Input() options?: Partial<CropperOptions>;
   @Input() cropperFrameAriaLabel?: string;
   @Input() output?: 'blob' | 'base64';
   @Input() format?: OutputFormat;
@@ -110,6 +119,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Output() cropperReady = new EventEmitter<Dimensions>();
   @Output() loadImageFailed = new EventEmitter<void>();
   @Output() transformChange = new EventEmitter<ImageTransform>();
+  @Output() cropperChange = new EventEmitter<CropperPosition>();
 
   @HostBinding('style.text-align')
   get alignImageStyle() {
@@ -135,6 +145,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   ngOnChanges(changes: SimpleChanges): void {
     const previousCropperPosition = this.state.cropper;
     const previousTransform = this.state.transform;
+    const previousBackgroundColor = this.state.options.backgroundColor;
 
     this.state.setOptionsFromChanges(changes);
     this.onChangesInputImage(changes);
@@ -159,10 +170,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (changes['cropper'] && this.cropper) {
       this.state.cropper = checkCropperPosition(this.cropper, this.state, true);
     }
-
-    if (!this.state.equalsCropperPosition(previousCropperPosition)
+    const cropperChanged = !this.state.equalsCropperPosition(previousCropperPosition);
+    if (cropperChanged && (!this.cropper || !this.state.equalsCropperPosition(this.cropper))) {
+      this.cropperChange.emit(this.state.cropper);
+    }
+    if (cropperChanged
       || !this.state.equalsTransform(previousTransform)
-      || changes['backgroundColor']) {
+      || this.state.options.backgroundColor !== previousBackgroundColor) {
       this.doAutoCrop();
     }
 
@@ -267,8 +281,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.setMaxSize();
       if (this.cropper && (!this.maintainAspectRatio || this.state.aspectRatioIsCorrect())) {
         this.state.cropper = checkCropperPosition(this.cropper, this.state, true);
+        this.emitCropperPositionChange(this.cropper)
       } else {
         this.state.cropper = checkCropperPosition(this.state.maxSizeCropperPosition(), this.state, true);
+        this.cropperChange.emit(this.state.cropper);
       }
       this.imageVisible = true;
       this.cropperReady.emit({...this.state.maxSize!});
@@ -477,6 +493,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       if (!this.state.equalsCropperPosition(this.moveStart.cropper) || this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform)) {
         if (this.moveStart.type === MoveTypes.Drag) {
           this.transformChange.emit(this.state.transform);
+        } else {
+          this.cropperChange.emit(this.state.cropper);
         }
         this.doAutoCrop();
       }
@@ -485,11 +503,18 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   pinchStop(): void {
-    if (this.moveStart!.active) {
+    if (this.moveStart?.active) {
+      this.emitCropperPositionChange(this.moveStart.cropper)
       this.moveStart!.active = false;
-      if (!this.state.equalsCropperPosition(this.moveStart?.cropper!)) {
+      if (!this.state.equalsCropperPosition(this.moveStart.cropper)) {
         this.doAutoCrop();
       }
+    }
+  }
+
+  private emitCropperPositionChange(previousPosition: CropperPosition): void {
+    if (!this.state.equalsCropperPosition(previousPosition)) {
+      this.cropperChange.emit(this.state.cropper);
     }
   }
 

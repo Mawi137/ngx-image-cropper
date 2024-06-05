@@ -43,6 +43,9 @@ export class CropperState {
   stepSize = 3;
 
   setOptionsFromChanges(changes: SimpleChanges): void {
+    if (changes['options']?.currentValue) {
+      this.setOptions(changes['options'].currentValue);
+    }
     const options = Object.entries(changes)
       .filter(([key]) => key in this.options)
       .reduce((acc, [key, change]) => ({
