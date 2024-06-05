@@ -19,7 +19,7 @@
 </section>
 <br />
 <button (click)="maintainAspectRatio = !maintainAspectRatio;" [class.enabled]="maintainAspectRatio">Maintain Aspect Ratio</button>
-<button (click)="toggleAspectRatio()" [class.enabled]="maintainAspectRatio">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
+<button (click)="toggleAspectRatio()" [class.enabled]="maintainAspectRatio || containWithinAspectRatio">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
 <button (click)="containWithinAspectRatio = !containWithinAspectRatio;" [class.enabled]="containWithinAspectRatio">Fill Aspect Ratio</button>
 <button (click)="rotateLeft()">Rotate left</button>
 <button (click)="rotateRight()">Rotate right</button>
@@ -70,7 +70,7 @@
     [cropperMaxWidth]="cropperMaxWidth"
     [cropperMaxHeight]="cropperMaxHeight"
     [resetCropOnAspectRatioChange]="resetCropOnAspectRatioChange"
-    [cropper]="cropper"
+    [(cropper)]="cropper"
     [(transform)]="transform"
     [onlyScaleDown]="true"
     output="blob"
