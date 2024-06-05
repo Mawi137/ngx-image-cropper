@@ -63,6 +63,7 @@ export class CropperState {
       ...this.options,
       ...(options || {})
     };
+    this.validateOptions();
 
     if (!this.loadedImage?.transformed.image.complete || !this.maxSize) {
       return;
@@ -93,8 +94,6 @@ export class CropperState {
     if (positionPossiblyChanged) {
       this.cropper = checkCropperPosition(this.cropper, this, false);
     }
-
-    this.validateOptions();
   }
 
   private validateOptions(): void {
