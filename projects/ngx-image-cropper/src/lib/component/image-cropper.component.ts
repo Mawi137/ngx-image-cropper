@@ -82,6 +82,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() cropperFrameAriaLabel?: string;
   @Input() output?: 'blob' | 'base64';
   @Input() format?: OutputFormat;
+  @Input() autoCrop?: boolean;
   @Input() cropper?: CropperPosition;
   @Input() transform?: ImageTransform;
   @Input() maintainAspectRatio?: boolean;
@@ -105,8 +106,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() hideResizeSquares?: boolean;
   @Input() allowMoveImage = false;
   @Input() alignImage?: 'left' | 'center';
-
-  @Input() autoCrop = true;
 
   @HostBinding('class.disabled')
   @Input() disabled = false;
@@ -519,7 +518,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   }
 
   private doAutoCrop(): void {
-    if (this.autoCrop) {
+    if (this.state.options.autoCrop) {
       void this.crop();
     }
   }

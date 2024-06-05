@@ -1,6 +1,7 @@
 export interface CropperOptions {
   format: OutputFormat;
   output: OutputType;
+  autoCrop: boolean;
   maintainAspectRatio: boolean;
   resetCropOnAspectRatioChange: boolean;
   aspectRatio: number;

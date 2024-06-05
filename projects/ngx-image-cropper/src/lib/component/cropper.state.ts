@@ -8,6 +8,7 @@ export class CropperState {
   options: CropperOptions = {
     format: 'png',
     output: 'blob',
+    autoCrop: true,
     maintainAspectRatio: true,
     aspectRatio: 1,
     resetCropOnAspectRatioChange: true,
