@@ -23,7 +23,7 @@ image-cropper {
   color: white;
 }
 
-input[type=number]{
+input[type=number] {
   width: 65px;
 }
 
@@ -52,9 +52,32 @@ section {
       margin: 0;
     }
   }
-  
-  button {
-    height: fit-content;
-    margin-right: 7px;
+}
+
+button {
+  cursor: pointer;
+  margin-right: 7px;
+  border: 1px solid #007bff;
+  color: #007bff;
+  background-color: transparent;
+  border-radius: 5px;
+  padding: .5rem 1rem;
+
+  &.enabled {
+    background-color: #007bff;
+    color: white;
   }
+
+  &:hover {
+    outline: 1px solid #007bff;
+  }
+
+  &:active {
+    background-color: #007bff;
+    color: white;
+  }
+}
+
+input {
+  margin-right: 7px;
 }

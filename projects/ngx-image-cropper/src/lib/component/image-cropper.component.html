@@ -1,5 +1,5 @@
 <div
-  [style.background]="imageVisible && backgroundColor"
+  [style.background]="imageVisible && state.options.backgroundColor"
   #wrapper
 >
   <img
@@ -19,19 +19,19 @@
   >
   <div
     class="ngx-ic-overlay"
-    [style.width.px]="maxSize.width"
-    [style.height.px]="maxSize.height"
+    [style.width.px]="state.maxSize?.width || 0"
+    [style.height.px]="state.maxSize?.height || 0"
     [style.margin-left]="alignImage === 'center' ? marginLeft : null"
   ></div>
   <div class="ngx-ic-cropper"
        *ngIf="imageVisible"
-       [class.ngx-ic-round]="roundCropper"
-       [attr.aria-label]="cropperFrameAriaLabel"
-       [style.top.px]="cropper.y1"
-       [style.left.px]="cropper.x1"
-       [style.width.px]="cropper.x2 - cropper.x1"
-       [style.height.px]="cropper.y2 - cropper.y1"
-       [style.margin-left]="alignImage === 'center' ? marginLeft : null"
+       [class.ngx-ic-round]="state.options.roundCropper"
+       [attr.aria-label]="state.options.cropperFrameAriaLabel"
+       [style.top.px]="state.cropper.y1"
+       [style.left.px]="state.cropper.x1"
+       [style.width.px]="state.cropper.x2 - state.cropper.x1"
+       [style.height.px]="state.cropper.y2 - state.cropper.y1"
+       [style.margin-left]="state.options.alignImage === 'center' ? marginLeft : null"
        [style.visibility]="imageVisible ? 'visible' : 'hidden'"
        (keydown)="keyboardAccess($event)"
        tabindex="0"
@@ -42,7 +42,7 @@
       class="ngx-ic-move"
       role="presentation">
     </div>
-    <ng-container *ngIf="!hideResizeSquares && !(cropperStaticWidth && cropperStaticHeight)">
+    <ng-container *ngIf="!state.options.hideResizeSquares && !(state.options.cropperStaticWidth && state.options.cropperStaticHeight)">
             <span class="ngx-ic-resize ngx-ic-topleft"
                   role="presentation"
                   (mousedown)="startMove($event, moveTypes.Resize, 'topleft')"

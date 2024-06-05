@@ -1,8 +1,14 @@
 import { Component } from '@angular/core';
-import { CropperPosition, Dimensions, ImageCroppedEvent, ImageTransform, ImageCropperComponent } from 'ngx-image-cropper';
-import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import {
+  CropperPosition,
+  Dimensions,
+  ImageCroppedEvent,
+  ImageCropperComponent,
+  ImageTransform
+} from 'ngx-image-cropper';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { NgIf } from '@angular/common';
-import { FormsModule } from "@angular/forms";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -14,13 +20,13 @@ import { FormsModule } from "@angular/forms";
 export class AppComponent {
   showCropper = false;
   loading = false;
-  croppedImage: SafeUrl  = '';
+  croppedImage: SafeUrl = '';
 
   imageChangedEvent: Event | null = null;
   imageURL?: string;
   hidden = false;
   disabled = false;
-  alignImage = 'center' as const; 
+  alignImage = 'center' as const;
   roundCropper = false;
   backgroundColor = 'red';
   allowMoveImage = false;
@@ -36,7 +42,7 @@ export class AppComponent {
   cropperMaxWidth = 0;
   cropperMaxHeight = 0;
   resetCropOnAspectRatioChange = true;
-  cropper: CropperPosition = { x1: 0, y1: 0, x2:0, y2:0 };
+  cropper?: CropperPosition;
   transform: ImageTransform = {
     translateUnit: 'px',
     scale: 1,
@@ -79,8 +85,8 @@ export class AppComponent {
     console.error('Load image failed');
   }
 
-  transformChange(transform: ImageTransform){
-    console.log('transform changed', transform)
+  transformChange(transform: ImageTransform) {
+    console.log('transform changed', transform);
   }
 
   rotateLeft() {
@@ -102,28 +108,28 @@ export class AppComponent {
   moveLeft() {
     this.transform = {
       ...this.transform,
-      translateH: --this.transform.translateH!
+      translateH: this.transform.translateH! - 1
     };
   }
 
   moveRight() {
     this.transform = {
       ...this.transform,
-      translateH: ++this.transform.translateH! 
+      translateH: this.transform.translateH! + 1
     };
   }
 
   moveDown() {
     this.transform = {
       ...this.transform,
-      translateV: ++this.transform.translateV!
+      translateV: this.transform.translateV! + 1
     };
   }
 
   moveUp() {
     this.transform = {
       ...this.transform,
-      translateV: --this.transform.translateV!
+      translateV: this.transform.translateV! - 1
     };
   }
 
@@ -155,8 +161,8 @@ export class AppComponent {
 
   resetImage() {
     this.canvasRotation = 0;
-    this.cropper = {x1: 0, y1: 0, x2: 0, y2: 0};
-    this.maintainAspectRatio = false; 
+    this.cropper = undefined;
+    this.maintainAspectRatio = false;
     this.transform = {
       translateUnit: 'px',
       scale: 1,
@@ -164,7 +170,7 @@ export class AppComponent {
       flipH: false,
       flipV: false,
       translateH: 0,
-      translateV: 0 
+      translateV: 0
     };
   }
 
@@ -182,9 +188,10 @@ export class AppComponent {
     };
   }
 
-  updateRotation() {
+  updateRotation(rotate: number) {
     this.transform = {
       ...this.transform,
+      rotate
     };
   }
 
@@ -204,7 +211,7 @@ export class AppComponent {
       for (const [key, value] of Object.entries(this.eventList)) {
         (this as any)[key] = Number(value);
       }
-      this.eventList = {}; 
+      this.eventList = {};
     }, 500);
   }
 
@@ -215,9 +222,9 @@ export class AppComponent {
   test() {
     this.canvasRotation = 3;
     this.transform = {
-      ...this.transform, 
+      ...this.transform,
       scale: 2
-    }
-    this.cropper = { x1: 190, y1: 221.5, x2: 583, y2: 344.3125 } // has 16/5 aspect ratio
+    };
+    this.cropper = {x1: 190, y1: 221.5, x2: 583, y2: 344.3125}; // has 16/5 aspect ratio
   }
 }

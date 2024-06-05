@@ -1,10 +1,9 @@
-import { ImageTransform } from './image-transform.interface';
-
 export interface CropperOptions {
   format: OutputFormat;
+  output: OutputType;
+  autoCrop: boolean;
   maintainAspectRatio: boolean;
   resetCropOnAspectRatioChange: boolean;
-  transform: ImageTransform;
   aspectRatio: number;
   resizeToWidth: number;
   resizeToHeight: number;
@@ -15,15 +14,14 @@ export interface CropperOptions {
   cropperStaticWidth: number;
   cropperStaticHeight: number;
   canvasRotation: number;
-  initialStepSize: number;
   roundCropper: boolean;
   onlyScaleDown: boolean;
   imageQuality: number;
-  autoCrop: boolean;
-  backgroundColor: string;
+  backgroundColor: string | null;
   containWithinAspectRatio: boolean;
   hideResizeSquares: boolean;
   alignImage: 'left' | 'center';
+  cropperFrameAriaLabel: string | undefined;
 }
 
 export type OutputFormat = 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico';
