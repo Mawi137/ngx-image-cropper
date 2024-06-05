@@ -1,4 +1,4 @@
-import { CropperState } from '../interfaces/';
+import { CropperState } from '../component/cropper.state';
 import { CropService } from './crop.service';
 
 describe('CropService', () => {
