@@ -45,7 +45,7 @@ import {
   getClientY,
   moveCropper,
   resizeCropper
-} from '../services/cropper-position.utils';
+} from '../utils/cropper-position.utils';
 
 @Component({
   selector: 'image-cropper',

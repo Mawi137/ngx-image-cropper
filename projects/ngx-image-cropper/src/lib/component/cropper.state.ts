@@ -1,7 +1,7 @@
 import { CropperOptions } from '../interfaces/cropper-options.interface';
 import { CropperPosition, Dimensions, ImageTransform, LoadedImage } from '../interfaces';
 import { SimpleChanges } from '@angular/core';
-import { checkCropperPosition } from '../services/cropper-position.utils';
+import { checkCropperPosition } from '../utils/cropper-position.utils';
 
 export class CropperState {
 

@@ -1,7 +1,7 @@
 import { CropperPosition, MoveStart } from '../interfaces';
 import { CropperState } from '../component/cropper.state';
 import { BasicEvent } from '../interfaces/basic-event.interface';
-import { HammerInput } from '../utils/hammer.utils';
+import { HammerInput } from './hammer.utils';
 
 export function checkCropperPosition(cropperPosition: CropperPosition, cropperState: CropperState, maintainSize: boolean): CropperPosition {
   cropperPosition = checkCropperSizeRestriction(cropperPosition, cropperState);
