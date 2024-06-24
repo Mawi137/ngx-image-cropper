@@ -22,6 +22,7 @@ export interface CropperOptions {
   hideResizeSquares: boolean;
   alignImage: 'left' | 'center';
   cropperFrameAriaLabel: string | undefined;
+  checkImageType: boolean;
 }
 
 export type OutputFormat = 'png' | 'jpeg' | 'bmp' | 'webp' | 'ico';

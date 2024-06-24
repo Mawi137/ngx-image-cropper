@@ -105,6 +105,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
   @Input() containWithinAspectRatio?: boolean;
   @Input() hideResizeSquares?: boolean;
   @Input() allowMoveImage = false;
+  @Input() checkImageType = true;
   @Input() alignImage?: 'left' | 'center';
 
   @HostBinding('class.disabled')

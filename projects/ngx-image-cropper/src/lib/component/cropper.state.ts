@@ -28,7 +28,8 @@ export class CropperState {
     containWithinAspectRatio: false,
     hideResizeSquares: false,
     alignImage: 'center',
-    cropperFrameAriaLabel: undefined
+    cropperFrameAriaLabel: undefined,
+    checkImageType: true
   };
 
   loadedImage?: LoadedImage;

@@ -18,7 +18,10 @@ export class LoadImageService {
 
   async loadImageFile(file: File, cropperSettings: CropperState): Promise<LoadedImage> {
     const arrayBuffer = await file.arrayBuffer();
-    return await this.checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer, file.type, cropperSettings);
+    if (cropperSettings.options.checkImageType) {
+      return await this.checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer, file.type, cropperSettings);
+    }
+    return await this.loadImageFromArrayBuffer(arrayBuffer, cropperSettings);
   }
 
   private checkImageTypeAndLoadImageFromArrayBuffer(arrayBuffer: ArrayBufferLike, imageType: string, cropperSettings: CropperState): Promise<LoadedImage> {
