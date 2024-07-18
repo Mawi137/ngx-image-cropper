@@ -1,4 +1,4 @@
-<input [(ngModel)]="imageURL" placeholder="URL to load image" type="text" />
+<input id="imageURL" placeholder="URL to load image" type="text" (keyup)="debounce($event)" />
 <input type="file" (change)="fileChangeEvent($event)" accept="image/*" />
 <br />
 <br />
@@ -18,30 +18,30 @@
   <input id="cropperMaxHeight" type="number" (keyup)="debounce($event)"/>
 </section>
 <br />
-<button (click)="maintainAspectRatio = !maintainAspectRatio;" [class.enabled]="maintainAspectRatio">Maintain Aspect Ratio</button>
-<button (click)="toggleAspectRatio()" [class.enabled]="maintainAspectRatio || containWithinAspectRatio">Aspect ratio: {{aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
-<button (click)="containWithinAspectRatio = !containWithinAspectRatio;" [class.enabled]="containWithinAspectRatio">Fill Aspect Ratio</button>
+<button (click)="settingsToUpdate = { maintainAspectRatio: !settings.maintainAspectRatio }" [class.enabled]="settings.maintainAspectRatio">Maintain Aspect Ratio</button>
+<button (click)="toggleAspectRatio()" [class.enabled]="settings.maintainAspectRatio || settings.containWithinAspectRatio">Aspect ratio: {{settings.aspectRatio === 4/3 ? '4/3' : '16/5'}}</button>
+<button (click)="settingsToUpdate = { containWithinAspectRatio: !settings.containWithinAspectRatio }" [class.enabled]="settings.containWithinAspectRatio">Fill Aspect Ratio</button>
 <button (click)="rotateLeft()">Rotate left</button>
 <button (click)="rotateRight()">Rotate right</button>
 <br />
 <br />
-<input [ngModel]="transform.rotate!" placeholder="Rotation" type="number" (ngModelChange)="updateRotation($event)" />
+<input [ngModel]="settings.transform.rotate" placeholder="Rotation" type="number" (ngModelChange)="updateRotation($event)" />
 <button (click)="zoomOut()">Zoom -</button>
 <button (click)="zoomIn()">Zoom +</button>
 <button (click)="moveLeft()">move left</button>
 <button (click)="moveRight()">move right</button>
 <button (click)="moveUp()">move up</button>
 <button (click)="moveDown()">move down</button>
-<button (click)="flipHorizontal()" [class.enabled]="transform.flipH">Flip horizontal</button>
-<button (click)="flipVertical()" [class.enabled]="transform.flipV">Flip vertical</button>
-<button (click)="allowMoveImage = !allowMoveImage;" [class.enabled]="allowMoveImage">Image panning</button>
+<button (click)="flipHorizontal()" [class.enabled]="settings.transform.flipX">Flip horizontal</button>
+<button (click)="flipVertical()" [class.enabled]="settings.transform.flipY">Flip vertical</button>
+<button (click)="settingsToUpdate = { allowMoveImage: !settings.allowMoveImage}" [class.enabled]="settings.allowMoveImage">Image panning</button>
 <br/>
 <br/>
-<button (click)="hidden = !hidden;" [class.hidden]="maintainAspectRatio">Hidden</button>
-<button (click)="disabled = !disabled;" [class.enabled]="disabled">Disable</button>
-<button (click)="hideResizeSquares = !hideResizeSquares;" [class.enabled]="hideResizeSquares">Hide Resize Squares</button>
-<button (click)="resetCropOnAspectRatioChange = !resetCropOnAspectRatioChange;" [class.enabled]="resetCropOnAspectRatioChange">Reset Crop On Aspect Ratio Change</button>
-<button (click)="toggleBackgroundColor()" style="color:white" [style.background-color]="backgroundColor">Background Color</button>
+<button (click)="settingsToUpdate = { hidden: !settings.hidden }" [class.hidden]="settings.maintainAspectRatio">Hidden</button>
+<button (click)="settingsToUpdate = { disabled: !settings.disabled }" [class.enabled]="settings.disabled">Disable</button>
+<button (click)="settingsToUpdate = { hideResizeSquares: !settings.hideResizeSquares }" [class.enabled]="settings.hideResizeSquares">Hide Resize Squares</button>
+<button (click)="settingsToUpdate = { resetCropOnAspectRatioChange: !settings.resetCropOnAspectRatioChange }" [class.enabled]="settings.resetCropOnAspectRatioChange">Reset Crop On Aspect Ratio Change</button>
+<button (click)="toggleBackgroundColor()" [style.color]="settings.backgroundColor ? 'white': '#007bff'" [style.background-color]="settings.backgroundColor">Background Color</button>
 <button (click)="test()">Random test</button>
 <button (click)="resetImage()">Reset image</button>
 <br/>
@@ -49,37 +49,12 @@
 
 <div [style.display]="showCropper ? null : 'none'" class="cropper-wrapper">
   <image-cropper
-    [imageChangedEvent]="imageChangedEvent"
-    [imageURL]="imageURL"
-    [hidden]="hidden"
-    [disabled]="disabled"
-    [alignImage]="alignImage"
-    [roundCropper]="roundCropper"
-    [backgroundColor]="backgroundColor"
-    imageAltText="Alternative image text"
-    [allowMoveImage]="allowMoveImage"
-    [hideResizeSquares]="hideResizeSquares"
-    [canvasRotation]="canvasRotation"
-    [aspectRatio]="aspectRatio"
-    [containWithinAspectRatio]="containWithinAspectRatio"
-    [maintainAspectRatio]="maintainAspectRatio"
-    [cropperStaticWidth]="cropperStaticWidth"
-    [cropperStaticHeight]="cropperStaticHeight"
-    [cropperMinWidth]="cropperMinWidth"
-    [cropperMinHeight]="cropperMinHeight"
-    [cropperMaxWidth]="cropperMaxWidth"
-    [cropperMaxHeight]="cropperMaxHeight"
-    [resetCropOnAspectRatioChange]="resetCropOnAspectRatioChange"
-    [(cropper)]="cropper"
-    [(transform)]="transform"
-    [onlyScaleDown]="true"
-    output="blob"
-    format="png"
+    [settingsToUpdate]="settingsToUpdate"
+    (settingsUpdated)="settingsUpdated($event)"
     (imageCropped)="imageCropped($event)"
     (imageLoaded)="imageLoaded()"
     (cropperReady)="cropperReady($event)"
     (loadImageFailed)="loadImageFailed()"
-    (transformChange)="transformChange($event)"
   ></image-cropper>
   <div *ngIf="loading" class="loader">Loading...</div>
 </div>

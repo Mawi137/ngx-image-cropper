@@ -1,7 +1,10 @@
-export { CropperOptions, OutputFormat } from './cropper-options.interface';
-export { CropperPosition } from './cropper-position.interface';
-export { Dimensions } from './dimensions.interface';
-export { ImageCroppedEvent } from './image-cropped-event.interface';
-export { MoveStart } from './move-start.interface';
-export { ImageTransform } from './image-transform.interface';
-export { LoadedImage } from './loaded-image.interface';
+export * from './basic-event.interface';
+export * from './cropper-position.interface';
+export * from './dimensions.interface';
+export * from './exif-transform.interface';
+export * from './image-cropped-event.interface';
+export * from './image-cropper-settings';
+export * from './image-source-interface';
+export * from './image-transform.interface';
+export * from './loaded-image.interface';
+export * from './move-start.interface';
