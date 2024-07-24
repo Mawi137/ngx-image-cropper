@@ -15,6 +15,21 @@ export class LoadImageService {
 
   private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
 
+  loadNewImage(state: ImageCropperState): Promise<LoadedImage> {
+    if (state.imageSource.imageChangedEvent) {
+      const target = state.imageSource.imageChangedEvent.target as HTMLInputElement;
+      if (!!target.files && target.files.length > 0) {
+        return this.loadImageFile(target.files![0], state)};
+    } else if (state.imageSource.imageURL) {
+      return this.loadImageFromURL(state.imageSource.imageURL, state);
+    } else if (state.imageSource.imageBase64) {
+      return this.loadBase64Image(state.imageSource.imageBase64, state);
+    } else if (state.imageSource.imageFile) {
+      return this.loadImageFile(state.imageSource.imageFile, state);
+    }
+    return Promise.reject(new Error('Invalid image source'));
+  }
+
   async loadImageFile(file: File, state: ImageCropperState): Promise<LoadedImage> {
     const arrayBuffer = await file.arrayBuffer();
     if (state.checkImageType) {

@@ -98,8 +98,14 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     changes = this.state.getChangesAndUpdateSettings(changes);
     
     if (changes.imageSource) {
-      this.onChangesInputImage(this.state);
-      return;
+      this.reset();
+      if (Object.keys(changes.imageSource).length) {
+        this.loadImageService
+        .loadNewImage(this.state)
+        .then((res) => this.setLoadedImage(res))
+        .catch((err) => this.loadImageError(err));
+        return;
+      }
     }; 
     
     if (!this.state.loadedImage?.transformed.image.complete) return;
@@ -119,7 +125,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if ((this.state.maintainAspectRatio && changes.aspectRatio) || changes.maintainAspectRatio) {
       cropperSizeBounds.setCropperScaledMinSize(this.state);
       cropperSizeBounds.setCropperScaledMaxSize(this.state);
-      if (this.state.maintainAspectRatio && (this.state.resetCropOnAspectRatioChange || !this.aspectRatioIsCorrect())) {
+      if (this.state.maintainAspectRatio && (this.state.resetCropOnAspectRatioChange || !cropperPosition.aspectRatioIsCorrect(this.state))) {
         checkCropperWithinBounds = true;
         resetCropper = true;
       }
@@ -166,20 +172,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
   }
 
-  private onChangesInputImage(state: ImageCropperState): void {
-    this.reset();
-    if (state.imageSource.imageChangedEvent) {
-      const target = state.imageSource.imageChangedEvent.target as HTMLInputElement;
-      if (!!target.files && target.files.length > 0) this.loadImageFile(target.files![0]);
-    } else if (state.imageSource.imageURL) {
-      this.loadImageFromURL(state.imageSource.imageURL);
-    } else if (state.imageSource.imageBase64) {
-      this.loadBase64Image(state.imageSource.imageBase64);
-    } else if (state.imageSource.imageFile) {
-      this.loadImageFile(state.imageSource.imageFile);
-    }
-  }
-
   private reset(): void {
     this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
       + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
@@ -187,27 +179,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     this.state.loadedImage = undefined;
     this.state.maxSize = { width: 0, height: 0 };
     this.imageVisible = false;
-  }
-
-  private loadImageFile(file: File): void {
-    this.loadImageService
-      .loadImageFile(file, this.state)
-      .then((res) => this.setLoadedImage(res))
-      .catch((err) => this.loadImageError(err));
-  }
-
-  private loadBase64Image(imageBase64: string): void {
-    this.loadImageService
-      .loadBase64Image(imageBase64, this.state)
-      .then((res) => this.setLoadedImage(res))
-      .catch((err) => this.loadImageError(err));
-  }
-
-  private loadImageFromURL(url: string): void {
-    this.loadImageService
-      .loadImageFromURL(url, this.state)
-      .then((res) => this.setLoadedImage(res))
-      .catch((err) => this.loadImageError(err));
   }
 
   private setLoadedImage(loadedImage: LoadedImage): void {
@@ -275,7 +246,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     } else {
       const oldMaxSize = {...this.state.maxSize};
       this.setMaxSize();
-      this.resizeCropperPosition(oldMaxSize);
+      cropperPosition.resizeCropperAccordingToNewMaxSize(this.state, oldMaxSize);
       cropperSizeBounds.setCropperScaledMinSize(this.state);
       cropperSizeBounds.setCropperScaledMaxSize(this.state);
       this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
@@ -465,20 +436,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
         this.doAutoCrop()
       };
-    }
-  }
-
-  private aspectRatioIsCorrect(): boolean {
-    const currentCropAspectRatio = (this.state.cropper.x2 - this.state.cropper.x1) / (this.state.cropper.y2 - this.state.cropper.y1);
-    return currentCropAspectRatio === this.state.aspectRatio;
-  }
-
-  private resizeCropperPosition(oldMaxSize: Dimensions): void {
-    if (oldMaxSize.width !== this.state.maxSize.width || oldMaxSize.height !== this.state.maxSize.height) {
-      this.state.cropper.x1 = this.state.cropper.x1 * this.state.maxSize.width / oldMaxSize.width;
-      this.state.cropper.x2 = this.state.cropper.x2 * this.state.maxSize.width / oldMaxSize.width;
-      this.state.cropper.y1 = this.state.cropper.y1 * this.state.maxSize.height / oldMaxSize.height;
-      this.state.cropper.y2 = this.state.cropper.y2 * this.state.maxSize.height / oldMaxSize.height;
     }
   }
 

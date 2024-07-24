@@ -1,4 +1,4 @@
-import { CropperPosition, MoveStart, BasicEvent } from '../interfaces';
+import { CropperPosition, MoveStart, BasicEvent, Dimensions } from '../interfaces';
 import { HammerInput } from './hammer.utils';
 import { ImageCropperState } from '../state/image-cropper-state';
 
@@ -219,6 +219,20 @@ export function checkAspectRatio(position: string, state: ImageCropperState): vo
         state.cropper.y2 -= (overflowY1 * state.aspectRatio) > overflowX1 ? overflowY1 : overflowX1 / state.aspectRatio;
       }
       break;
+  }
+}
+
+export function aspectRatioIsCorrect(state: ImageCropperState): boolean {
+  const currentCropAspectRatio = (state.cropper.x2 - state.cropper.x1) / (state.cropper.y2 - state.cropper.y1);
+  return currentCropAspectRatio === state.aspectRatio;
+}
+
+export function resizeCropperAccordingToNewMaxSize(state: ImageCropperState, oldMaxSize: Dimensions): void {
+  if (oldMaxSize.width !== state.maxSize.width || oldMaxSize.height !== state.maxSize.height) {
+    state.cropper.x1 = state.cropper.x1 * state.maxSize.width / oldMaxSize.width;
+    state.cropper.x2 = state.cropper.x2 * state.maxSize.width / oldMaxSize.width;
+    state.cropper.y1 = state.cropper.y1 * state.maxSize.height / oldMaxSize.height;
+    state.cropper.y2 = state.cropper.y2 * state.maxSize.height / oldMaxSize.height;
   }
 }
 
