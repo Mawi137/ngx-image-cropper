@@ -172,7 +172,6 @@ export function move(event: Event | BasicEvent, moveStart: MoveStart, cropper: C
 
 export function resize(event: Event | BasicEvent | HammerInput, moveStart: MoveStart, state: ImageCropperState): void {
 
-  console.log('HERE', state.internalStaticWidth, state.internalStaticHeight)
   //if (state.internalStaticWidth && state.internalStaticHeight) console.log('no resize, both static') // 
   if (state.internalStaticWidth && state.internalStaticHeight) return; 
 
@@ -309,11 +308,6 @@ function checkAspectRatioOnResize(position: string, state: ImageCropperState): v
       ? state.cropper.x1 = state.cropper.x2 - newWidth
       : state.cropper.x2 = state.cropper.x1 + newWidth;
   }
-}
-
-export function aspectRatioIsCorrect(state: ImageCropperState): boolean {
-  const currentCropAspectRatio = (state.cropper.x2 - state.cropper.x1) / (state.cropper.y2 - state.cropper.y1);
-  return currentCropAspectRatio === state.aspectRatio;
 }
 
 export function resizeCropperAccordingToNewMaxSize(state: ImageCropperState, ratio: number): void {
