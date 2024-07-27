@@ -29,7 +29,7 @@ export class AppComponent {
   eventList = {};
   
   settings: ImageCropperSettings = getImageCropperSettingsInitValue();
-  settingsToUpdate: PartialImageCropperSettings = {};
+  settingsToUpdate: PartialImageCropperSettings = { aspectRatio: 16/5 };
 
   constructor(
     private sanitizer: DomSanitizer
@@ -164,9 +164,7 @@ export class AppComponent {
   */
   test() {
     this.settingsToUpdate = { 
-      canvasRotation: 3,
-      transform: {scale: 2},
-      cropper: { x1: 190, y1: 221.5, x2: 583, y2: 344.3125 }  // has 16/5 aspect ratio
+      cropper: { x1: 50, y1: 50, x2: 250, y2: 112.5 }  // has 16/5 aspect ratio
     };
   }
 }
