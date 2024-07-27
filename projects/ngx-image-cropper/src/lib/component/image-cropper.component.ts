@@ -96,6 +96,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     
     let changes: PartialImageCropperSettings = simpleChanges["settingsToUpdate"].currentValue;
     changes = this.state.getChangesAndUpdateSettings(changes);
+
+    if (Object.keys(changes).length === 0) return;
     
     if (changes.imageSource) {
       this.reset();
@@ -108,7 +110,10 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       }
     }; 
     
-    if (!this.state.loadedImage?.transformed.image.complete) return;
+    if (!this.state.loadedImage?.transformed.image.complete) {
+      this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
+      return
+    };
  
     if ((this.state.containWithinAspectRatio && changes.aspectRatio) || changes.containWithinAspectRatio || changes.canvasRotation) { 
       this.loadImageService
@@ -156,7 +161,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       crop = true;
     }
 
-    if (Object.keys(changes).length > 0 && !changes.hidden) {
+    if (!changes.hidden) {
       this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
     }
     
