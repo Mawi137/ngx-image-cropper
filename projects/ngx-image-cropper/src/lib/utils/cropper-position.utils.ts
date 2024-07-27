@@ -18,6 +18,17 @@ RULES FOR THESE FUNCTIONS
       there's a new imageSource).
     * The logic in checkSizeAndPosition works because of the logic in cropper-size-bounds.utils.ts. The internal  
       bounding sizes already consider aspect ratio and static sides. That's why, for example, if it's a new cropper, we don't need to check mantain aspect ratio. internalMaxSize and internalStaticSide already consider it.
+  - resize:
+    - The cropper can be resized as long as at least one of the internal static side values is false (0). Remeber 
+      both internal static sides will be true if one static side is set by parent and mantain aspect ratio is true. 
+    - When mantain aspect ratio is true and resizing from one side, it's perpendicular sides will change too. So, 
+      for example, if you move the left side, top and bottom also change to keep the aspect ratio. Before it would resize from a corner. 
+    - When resizing from a corner, both x and y pointer movements are accounted for. There are still some "blind 
+      spots", I'll try and send a video, but it's good enough for now. I've noticed google photos has the same blind spots :) Before it only resized with x pointer movements. 
+    * The logic in resize works because of the logic in cropper-size-bounds.utils.ts. The internal min, max and   
+      static cropper bounding sizes account for maxSize and mantain aspect ratio. It also deals with weird values for min and max that a user could have sent in accidentally, making the cropper impossible to resize, but turning the side/s to static.
+    * As resizing the cropper will always be within maxSize, the maintainSize value in checkWithinMaxSizeBounds   
+      is no longer necessary. 
 */
 
 
@@ -110,7 +121,7 @@ export function checkSizeAndPosition(state: ImageCropperState): void {
   state.cropper.y1 = prevCenterY - cropperHeight / 2;
   state.cropper.y2 = state.cropper.y1 + cropperHeight;
 
-  if (!newCropper) { checkWithinMaxSizeBounds(state, true) };
+  if (!newCropper) { checkWithinMaxSizeBounds(state) };
 
   /*
   console.log('\n checkWithinBounds', 
@@ -130,21 +141,21 @@ export function checkSizeAndPosition(state: ImageCropperState): void {
   */
 }
 
-export function checkWithinMaxSizeBounds(state: ImageCropperState, maintainSize = false): void {
+export function checkWithinMaxSizeBounds(state: ImageCropperState): void {
   if (state.cropper.x1 < 0) {
-    state.cropper.x2 -= maintainSize ? state.cropper.x1 : 0;
+    state.cropper.x2 -= state.cropper.x1;
     state.cropper.x1 = 0;
   }
   if (state.cropper.y1 < 0) {
-    state.cropper.y2 -= maintainSize ? state.cropper.y1 : 0;
+    state.cropper.y2 -= state.cropper.y1;
     state.cropper.y1 = 0;
   }
   if (state.cropper.x2 > state.maxSize.width) {
-    state.cropper.x1 -= maintainSize ? (state.cropper.x2 - state.maxSize.width) : 0;
+    state.cropper.x1 -= (state.cropper.x2 - state.maxSize.width);
     state.cropper.x2 = state.maxSize.width;
   }
   if (state.cropper.y2 > state.maxSize.height) {
-    state.cropper.y1 -= maintainSize ? (state.cropper.y2 - state.maxSize.height) : 0;
+    state.cropper.y1 -= (state.cropper.y2 - state.maxSize.height);
     state.cropper.y2 = state.maxSize.height;
   }
 }
@@ -160,158 +171,143 @@ export function move(event: Event | BasicEvent, moveStart: MoveStart, cropper: C
 }
 
 export function resize(event: Event | BasicEvent | HammerInput, moveStart: MoveStart, state: ImageCropperState): void {
+
+  console.log('HERE', state.internalStaticWidth, state.internalStaticHeight)
+  //if (state.internalStaticWidth && state.internalStaticHeight) console.log('no resize, both static') // 
+  if (state.internalStaticWidth && state.internalStaticHeight) return; 
+
   const moveX = getClientX(event) - moveStart.clientX;
   const moveY = getClientY(event) - moveStart.clientY;
-  switch (moveStart.position) {
-    case 'left':
-      state.cropper.x1 = Math.min(Math.max(moveStart.cropper.x1 + moveX, state.cropper.x2 - state.internalMaxWidth),
-        state.cropper.x2 - state.internalMinWidth);
-      break;
-    case 'topleft':
-      state.cropper.x1 = Math.min(Math.max(moveStart.cropper.x1 + moveX, state.cropper.x2 - state.internalMaxWidth),
-        state.cropper.x2 - state.internalMinWidth);
-      state.cropper.y1 = Math.min(Math.max(moveStart.cropper.y1 + moveY, state.cropper.y2 - state.internalMaxHeight),
-        state.cropper.y2 - state.internalMinHeight);
-      break;
-    case 'top':
-      state.cropper.y1 = Math.min(Math.max(moveStart.cropper.y1 + moveY, state.cropper.y2 - state.internalMaxHeight),
-        state.cropper.y2 - state.internalMinHeight);
-      break;
-    case 'topright':
-      state.cropper.x2 = Math.max(Math.min(moveStart.cropper.x2 + moveX, state.cropper.x1 + state.internalMaxWidth),
-        state.cropper.x1 + state.internalMinWidth);
-      state.cropper.y1 = Math.min(Math.max(moveStart.cropper.y1 + moveY, state.cropper.y2 - state.internalMaxHeight),
-        state.cropper.y2 - state.internalMinHeight);
-      break;
-    case 'right':
-      state.cropper.x2 = Math.max(Math.min(moveStart.cropper.x2 + moveX, state.cropper.x1 + state.internalMaxWidth),
-        state.cropper.x1 + state.internalMinWidth);
-      break;
-    case 'bottomright':
-      state.cropper.x2 = Math.max(Math.min(moveStart.cropper.x2 + moveX, state.cropper.x1 + state.internalMaxWidth),
-        state.cropper.x1 + state.internalMinWidth);
-      state.cropper.y2 = Math.max(Math.min(moveStart.cropper.y2 + moveY, state.cropper.y1 + state.internalMaxHeight),
-        state.cropper.y1 + state.internalMinHeight);
-      break;
-    case 'bottom':
-      state.cropper.y2 = Math.max(Math.min(moveStart.cropper.y2 + moveY, state.cropper.y1 + state.internalMaxHeight),
-        state.cropper.y1 + state.internalMinHeight);
-      break;
-    case 'bottomleft':
-      state.cropper.x1 = Math.min(Math.max(moveStart.cropper.x1 + moveX, state.cropper.x2 - state.internalMaxWidth),
-        state.cropper.x2 - state.internalMinWidth);
-      state.cropper.y2 = Math.max(Math.min(moveStart.cropper.y2 + moveY, state.cropper.y1 + state.internalMaxHeight),
-        state.cropper.y1 + state.internalMinHeight);
-      break;
-    case 'center':
-      const scale = 'scale' in event ? event.scale : 1;
+
+  if (!state.internalStaticWidth) {
+    if (moveStart.position!.endsWith('left')) { 
+      state.cropper.x1 = Math.min(
+        state.cropper.x2 - state.internalMinWidth, 
+        Math.max(
+          0, 
+          moveStart.cropper.x1 + moveX, 
+          state.cropper.x2 - state.internalMaxWidth
+        )
+      );
+    } else if (moveStart.position!.endsWith('right')) { 
+      state.cropper.x2 = Math.max(
+        state.cropper.x1 + state.internalMinWidth, 
+        Math.min(
+          state.maxSize.width, 
+          moveStart.cropper.x2 + moveX, 
+          state.cropper.x1 + state.internalMaxWidth
+        )
+      );
+    } else if (moveStart.position! === "center") {
       const newWidth = Math.min(
-        Math.max(state.internalMinWidth, (Math.abs(moveStart.cropper.x2 - moveStart.cropper.x1)) * scale),
-        state.internalMaxWidth);
-      const newHeight = Math.min(
-        Math.max(state.internalMinHeight, (Math.abs(moveStart.cropper.y2 - moveStart.cropper.y1)) * scale),
-        state.internalMaxHeight);
+        state.internalMaxWidth, 
+        Math.max(
+          state.internalMinWidth, 
+          (moveStart.cropper.x2 - moveStart.cropper.x1) * ('scale' in event ? event.scale : 1) // always positive
+        )
+      ); 
       state.cropper.x1 = moveStart.clientX - newWidth / 2;
       state.cropper.x2 = moveStart.clientX + newWidth / 2;
-      state.cropper.y1 = moveStart.clientY - newHeight / 2;
-      state.cropper.y2 = moveStart.clientY + newHeight / 2;
       if (state.cropper.x1 < 0) {
         state.cropper.x2 -= state.cropper.x1;
         state.cropper.x1 = 0;
       } else if (state.cropper.x2 > state.maxSize.width) {
-        state.cropper.x1 -= (state.cropper.x2 - state.maxSize.width);
+        state.cropper.x1 -= state.cropper.x2 - state.maxSize.width;
         state.cropper.x2 = state.maxSize.width;
-      }
+      } 
+    }
+  }
+
+  if (!state.internalStaticHeight) {
+    if (moveStart.position!.startsWith('top')) {
+      state.cropper.y1 = Math.min(
+        state.cropper.y2 - state.internalMinHeight, 
+        Math.max(
+          0, 
+          moveStart.cropper.y1 + moveY, 
+          state.cropper.y2 - state.internalMaxHeight
+        )
+      );
+    } else if (moveStart.position!.startsWith('bottom')) {
+      state.cropper.y2 = Math.max(
+        state.cropper.y1 + state.internalMinHeight,
+        Math.min(
+          state.maxSize.height,
+          moveStart.cropper.y2 + moveY,
+          state.cropper.y1 + state.internalMaxHeight
+        )
+      );
+    } else if (moveStart.position! === "center") { 
+      const newHeight = Math.min(
+        state.internalMaxHeight,
+        Math.max(
+          state.internalMinHeight,
+          (moveStart.cropper.y2 - moveStart.cropper.y1) * ('scale' in event ? event.scale : 1) // always positive
+        )
+      );
+      state.cropper.y1 = moveStart.clientY - newHeight / 2;
+      state.cropper.y2 = moveStart.clientY  + newHeight / 2;
       if (state.cropper.y1 < 0) {
         state.cropper.y2 -= state.cropper.y1;
         state.cropper.y1 = 0;
       } else if (state.cropper.y2 > state.maxSize.height) {
-        state.cropper.y1 -= (state.cropper.y2 - state.maxSize.height);
+        state.cropper.y1 -= state.cropper.y2 - state.maxSize.height;
         state.cropper.y2 = state.maxSize.height;
       }
-      break;
+    }
   }
 
-  if (state.maintainAspectRatio) {
-    checkAspectRatio(moveStart.position!, state);
+  if (state.maintainAspectRatio && moveStart.position! !== 'center') { // center already keeps aspect ratio
+    checkAspectRatioOnResize(moveStart.position!, state);
   }
 }
 
-export function checkAspectRatio(position: string, state: ImageCropperState): void {
-  let overflowX = 0;
-  let overflowY = 0;
+function checkAspectRatioOnResize(position: string, state: ImageCropperState): void {
+  const newWidth = (state.cropper.y2 - state.cropper.y1) * state.aspectRatio;
+  const newHeight = (state.cropper.x2 - state.cropper.x1) / state.aspectRatio;
 
-  switch (position) {
-    case 'top':
-      state.cropper.x2 = state.cropper.x1 + (state.cropper.y2 - state.cropper.y1) * state.aspectRatio;
-      overflowX = Math.max(state.cropper.x2 - state.maxSize.width, 0);
-      overflowY = Math.max(0 - state.cropper.y1, 0);
-      if (overflowX > 0 || overflowY > 0) {
-        state.cropper.x2 -= (overflowY * state.aspectRatio) > overflowX ? (overflowY * state.aspectRatio) : overflowX;
-        state.cropper.y1 += (overflowY * state.aspectRatio) > overflowX ? overflowY : overflowX / state.aspectRatio;
+  if (position === 'left' || position === 'right') {
+    let diff = (state.cropper.y2 - (state.cropper.y1 + newHeight)) / 2;
+    state.cropper.y1 += diff;
+    state.cropper.y2 -= diff;
+    if (state.cropper.y1 < 0 || state.cropper.y2 > state.maxSize.height) {
+      diff = state.cropper.y1 < state.maxSize.height - state.cropper.y2
+        ? -state.cropper.y1 
+        : state.cropper.y2 - state.maxSize.height;
+      state.cropper.y1 += diff;
+      state.cropper.y2 -= diff;
+      position === 'left'
+        ? state.cropper.x1 += diff * 2 * state.aspectRatio  
+        : state.cropper.x2 -= diff * 2 * state.aspectRatio;
+    }
+    return;
+  }
+
+  if (position === 'top' || position === 'bottom') {
+    let diff = (state.cropper.x2 - (state.cropper.x1 + newWidth)) / 2;
+    state.cropper.x1 += diff;
+    state.cropper.x2 -= diff;
+    if (state.cropper.x1 < 0 || state.cropper.x2 > state.maxSize.width) {
+      diff = state.cropper.x1 < state.maxSize.width - state.cropper.x2
+        ? state.cropper.x1
+        : state.maxSize.width - state.cropper.x2;
+      state.cropper.x1 -= diff;
+      state.cropper.x2 += diff;
+      position === 'top'
+        ? state.cropper.y1 -= diff * 2 / state.aspectRatio  
+        : state.cropper.y2 += diff * 2 / state.aspectRatio;
       }
-      break;
-    case 'bottom':
-      state.cropper.x2 = state.cropper.x1 + (state.cropper.y2 - state.cropper.y1) * state.aspectRatio;
-      overflowX = Math.max(state.cropper.x2 - state.maxSize.width, 0);
-      overflowY = Math.max(state.cropper.y2 - state.maxSize.height, 0);
-      if (overflowX > 0 || overflowY > 0) {
-        state.cropper.x2 -= (overflowY * state.aspectRatio) > overflowX ? (overflowY * state.aspectRatio) : overflowX;
-        state.cropper.y2 -= (overflowY * state.aspectRatio) > overflowX ? overflowY : (overflowX / state.aspectRatio);
-      }
-      break;
-    case 'topleft':
-      state.cropper.y1 = state.cropper.y2 - (state.cropper.x2 - state.cropper.x1) / state.aspectRatio;
-      overflowX = Math.max(0 - state.cropper.x1, 0);
-      overflowY = Math.max(0 - state.cropper.y1, 0);
-      if (overflowX > 0 || overflowY > 0) {
-        state.cropper.x1 += (overflowY * state.aspectRatio) > overflowX ? (overflowY * state.aspectRatio) : overflowX;
-        state.cropper.y1 += (overflowY * state.aspectRatio) > overflowX ? overflowY : overflowX / state.aspectRatio;
-      }
-      break;
-    case 'topright':
-      state.cropper.y1 = state.cropper.y2 - (state.cropper.x2 - state.cropper.x1) / state.aspectRatio;
-      overflowX = Math.max(state.cropper.x2 - state.maxSize.width, 0);
-      overflowY = Math.max(0 - state.cropper.y1, 0);
-      if (overflowX > 0 || overflowY > 0) {
-        state.cropper.x2 -= (overflowY * state.aspectRatio) > overflowX ? (overflowY * state.aspectRatio) : overflowX;
-        state.cropper.y1 += (overflowY * state.aspectRatio) > overflowX ? overflowY : overflowX / state.aspectRatio;
-      }
-      break;
-    case 'right':
-    case 'bottomright':
-      state.cropper.y2 = state.cropper.y1 + (state.cropper.x2 - state.cropper.x1) / state.aspectRatio;
-      overflowX = Math.max(state.cropper.x2 - state.maxSize.width, 0);
-      overflowY = Math.max(state.cropper.y2 - state.maxSize.height, 0);
-      if (overflowX > 0 || overflowY > 0) {
-        state.cropper.x2 -= (overflowY * state.aspectRatio) > overflowX ? (overflowY * state.aspectRatio) : overflowX;
-        state.cropper.y2 -= (overflowY * state.aspectRatio) > overflowX ? overflowY : overflowX / state.aspectRatio;
-      }
-      break;
-    case 'left':
-    case 'bottomleft':
-      state.cropper.y2 = state.cropper.y1 + (state.cropper.x2 - state.cropper.x1) / state.aspectRatio;
-      overflowX = Math.max(0 - state.cropper.x1, 0);
-      overflowY = Math.max(state.cropper.y2 - state.maxSize.height, 0);
-      if (overflowX > 0 || overflowY > 0) {
-        state.cropper.x1 += (overflowY * state.aspectRatio) > overflowX ? (overflowY * state.aspectRatio) : overflowX;
-        state.cropper.y2 -= (overflowY * state.aspectRatio) > overflowX ? overflowY : overflowX / state.aspectRatio;
-      }
-      break;
-    case 'center':
-      state.cropper.x2 = state.cropper.x1 + (state.cropper.y2 - state.cropper.y1) * state.aspectRatio;
-      state.cropper.y2 = state.cropper.y1 + (state.cropper.x2 - state.cropper.x1) / state.aspectRatio;
-      const overflowX1 = Math.max(0 - state.cropper.x1, 0);
-      const overflowX2 = Math.max(state.cropper.x2 - state.maxSize.width, 0);
-      const overflowY1 = Math.max(state.cropper.y2 - state.maxSize.height, 0);
-      const overflowY2 = Math.max(0 - state.cropper.y1, 0);
-      if (overflowX1 > 0 || overflowX2 > 0 || overflowY1 > 0 || overflowY2 > 0) {
-        state.cropper.x1 += (overflowY1 * state.aspectRatio) > overflowX1 ? (overflowY1 * state.aspectRatio) : overflowX1;
-        state.cropper.x2 -= (overflowY2 * state.aspectRatio) > overflowX2 ? (overflowY2 * state.aspectRatio) : overflowX2;
-        state.cropper.y1 += (overflowY2 * state.aspectRatio) > overflowX2 ? overflowY2 : overflowX2 / state.aspectRatio;
-        state.cropper.y2 -= (overflowY1 * state.aspectRatio) > overflowX1 ? overflowY1 : overflowX1 / state.aspectRatio;
-      }
-      break;
+    return;
+  }
+
+  if (state.aspectRatio >= (state.cropper.x2 - state.cropper.x1) / (state.cropper.y2 - state.cropper.y1)) {
+    position.startsWith('top') 
+      ? state.cropper.y1 = state.cropper.y2 - newHeight
+      : state.cropper.y2 = state.cropper.y1 + newHeight;
+  } else {
+    position.endsWith('left') 
+      ? state.cropper.x1 = state.cropper.x2 - newWidth
+      : state.cropper.x2 = state.cropper.x1 + newWidth;
   }
 }
 

@@ -384,12 +384,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       }
       if (this.moveStart!.type === MoveTypes.Move) {
         cropperPosition.move(event, this.moveStart!, this.state.cropper);
-        cropperPosition.checkWithinMaxSizeBounds(this.state, true);
+        cropperPosition.checkWithinMaxSizeBounds(this.state);
       } else if (this.moveStart!.type === MoveTypes.Resize) {
-        if (!this.state.cropperStaticWidth && !this.state.cropperStaticHeight) {
-          cropperPosition.resize(event, this.moveStart!, this.state);
-          cropperPosition.checkWithinMaxSizeBounds(this.state, false);
-        }
+        cropperPosition.resize(event, this.moveStart!, this.state);
       } else if (this.moveStart!.type === MoveTypes.Drag) {
         const diffX = cropperPosition.getClientX(event) - this.moveStart!.clientX;
         const diffY = cropperPosition.getClientY(event) - this.moveStart!.clientY;
@@ -409,10 +406,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
         event.preventDefault();
       }
       if (this.moveStart!.type === MoveTypes.Pinch) {
-        if (!this.state.cropperStaticWidth && !this.state.cropperStaticHeight) {
-          cropperPosition.resize(event, this.moveStart!, this.state);
-          cropperPosition.checkWithinMaxSizeBounds(this.state, false);
-        }
+        cropperPosition.resize(event, this.moveStart!, this.state);
       }
       this.cd.markForCheck();
     }
