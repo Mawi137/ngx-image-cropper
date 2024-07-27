@@ -33,7 +33,6 @@ export const imageCropperSettingsInitValue: ImageCropperSettings = {
     maintainAspectRatio: true,
     onlyScaleDown: false,
     output: 'blob',
-    resetCropOnAspectRatioChange: true,
     resizeToHeight: 0,
     resizeToWidth: 0,
     roundCropper: false,

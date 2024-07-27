@@ -32,7 +32,6 @@ export interface ImageCropperSettings {
   maintainAspectRatio: boolean;
   onlyScaleDown: boolean;
   output: OutputType;
-  resetCropOnAspectRatioChange: boolean;
   resizeToHeight: number;
   resizeToWidth: number;
   roundCropper: boolean;

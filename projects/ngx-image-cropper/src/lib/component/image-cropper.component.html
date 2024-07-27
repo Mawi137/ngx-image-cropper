@@ -26,6 +26,8 @@
   <div class="ngx-ic-cropper"
        *ngIf="imageVisible"
        [class.ngx-ic-round]="state.roundCropper"
+       [class.ngx-ic-hide-x-squares]="state.internalStaticWidth"
+       [class.ngx-ic-hide-y-squares]="state.internalStaticHeight"
        [attr.aria-label]="state.cropperFrameAriaLabel"
        [style.top.px]="state.cropper.y1"
        [style.left.px]="state.cropper.x1"
@@ -42,7 +44,7 @@
       class="ngx-ic-move"
       role="presentation">
     </div>
-    <ng-container *ngIf="!state.hideResizeSquares && !(state.cropperStaticWidth && state.cropperStaticHeight)">
+    <ng-container *ngIf="!state.hideResizeSquares">
             <span class="ngx-ic-resize ngx-ic-topleft"
                   role="presentation"
                   (mousedown)="startMove($event, moveTypes.Resize, 'topleft')"

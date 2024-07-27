@@ -39,16 +39,18 @@ export class ImageCropperState implements ImageCropperSettings {
   maintainAspectRatio = imageCropperSettingsInitValue.maintainAspectRatio;
   onlyScaleDown = imageCropperSettingsInitValue.onlyScaleDown;
   output = imageCropperSettingsInitValue.output;
-  resetCropOnAspectRatioChange = imageCropperSettingsInitValue.resetCropOnAspectRatioChange;
   resizeToHeight = imageCropperSettingsInitValue.resizeToHeight;
   resizeToWidth = imageCropperSettingsInitValue.resizeToWidth;
   roundCropper = imageCropperSettingsInitValue.roundCropper;
   transform = imageCropperSettingsInitValue.transform;
   // Internal
-  cropperScaledMinHeight = 20;
-  cropperScaledMinWidth = 20;
-  cropperScaledMaxHeight = 20;
-  cropperScaledMaxWidth = 20;
+  internalMinHeight = 0;
+  internalMinWidth = 0;
+  internalMaxHeight = 0;
+  internalMaxWidth = 0;
+  internalStaticHeight = 0;
+  internalStaticWidth = 0;
+  cropperMinSizeForAccessibility = 36;
   loadedImage?: LoadedImage;
   maxSize: Dimensions = { width: 0, height: 0 };
 

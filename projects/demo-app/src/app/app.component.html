@@ -40,7 +40,6 @@
 <button (click)="settingsToUpdate = { hidden: !settings.hidden }" [class.hidden]="settings.maintainAspectRatio">Hidden</button>
 <button (click)="settingsToUpdate = { disabled: !settings.disabled }" [class.enabled]="settings.disabled">Disable</button>
 <button (click)="settingsToUpdate = { hideResizeSquares: !settings.hideResizeSquares }" [class.enabled]="settings.hideResizeSquares">Hide Resize Squares</button>
-<button (click)="settingsToUpdate = { resetCropOnAspectRatioChange: !settings.resetCropOnAspectRatioChange }" [class.enabled]="settings.resetCropOnAspectRatioChange">Reset Crop On Aspect Ratio Change</button>
 <button (click)="toggleBackgroundColor()" [style.color]="settings.backgroundColor ? 'white': '#007bff'" [style.background-color]="settings.backgroundColor">Background Color</button>
 <button (click)="test()">Random test</button>
 <button (click)="resetImage()">Reset image</button>

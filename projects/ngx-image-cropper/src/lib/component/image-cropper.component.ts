@@ -37,6 +37,7 @@ import { HammerInput, HammerStatic, getEventForKey, getInvertedPositionForKey, g
 import { first, takeUntil } from 'rxjs/operators';
 import { fromEvent, merge } from 'rxjs';
 import { NgIf } from '@angular/common';
+import { getCropperInitValue } from '../state/init-values';
 
 @Component({
   selector: 'image-cropper',
@@ -124,35 +125,34 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     }
 
     let checkCropperWithinBounds = false;
-    let resetCropper = false;
     let crop = false;
 
     if ((this.state.maintainAspectRatio && changes.aspectRatio) || changes.maintainAspectRatio) {
-      cropperSizeBounds.setCropperScaledMinSize(this.state);
-      cropperSizeBounds.setCropperScaledMaxSize(this.state);
-      if (this.state.maintainAspectRatio && (this.state.resetCropOnAspectRatioChange || !cropperPosition.aspectRatioIsCorrect(this.state))) {
-        checkCropperWithinBounds = true;
-        resetCropper = true;
-      }
+      cropperSizeBounds.setAllInternalSizes(this.state);
+      checkCropperWithinBounds = true;
     } else {
+      // I previously said these should be decoupled. I was wrong. If maintain aspect ratio was true in a previous state, both width and height should be checked when there's changes to one side. checkBoundsFollowAspectRatio can rewrite a side and then we're stuck with it unless changed from parent. If in the previous state maintainAspectRatio was false, they can be decoupled. I figure just keep them together. Simpler to read and runtime diff isn't big.
       if (changes.cropperMinWidth || changes.cropperMinHeight) {
-        cropperSizeBounds.setCropperScaledMinSize(this.state);
+        cropperSizeBounds.setInternalMinWidthAndHeight(this.state);
         checkCropperWithinBounds = true;
       }
       if (changes.cropperMaxWidth || changes.cropperMaxHeight) {
-        cropperSizeBounds.setCropperScaledMaxSize(this.state);
+        cropperSizeBounds.setInternalMaxWidthAndHeight(this.state);
         checkCropperWithinBounds = true;
       }
       if (changes.cropperStaticWidth || changes.cropperStaticHeight) {
         checkCropperWithinBounds = true;
+      }
+      if (checkCropperWithinBounds) { // take advantage of this var to see if we need to finish checking bounds
+        cropperSizeBounds.setInternalStaticWidthAndHeight(this.state); 
+        cropperSizeBounds.checkBoundsFollowAspectRatio(this.state);
       }
     }
 
     if (changes.cropper) checkCropperWithinBounds = true;
 
     if (checkCropperWithinBounds) {
-      cropperPosition.checkWithinCropperSizeBounds(this.state, resetCropper);
-      cropperPosition.checkWithinMaxSizeBounds(this.state, true);
+      cropperPosition.checkSizeAndPosition(this.state);
       crop = this.state.equalsCropper(previousCropper); 
     }
 
@@ -183,6 +183,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       + 'AAarVyFEAAAAASUVORK5CYII=';
     this.state.loadedImage = undefined;
     this.state.maxSize = { width: 0, height: 0 };
+    this.state.cropper = getCropperInitValue();
     this.imageVisible = false;
   }
 
@@ -220,10 +221,8 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.loadImageFailed.emit();
     } else if (this.sourceImageLoaded()) {
       this.setMaxSize();
-      cropperSizeBounds.setCropperScaledMinSize(this.state);
-      cropperSizeBounds.setCropperScaledMaxSize(this.state);
-      cropperPosition.checkWithinCropperSizeBounds(this.state, true);
-      //TODO(loiddy): add checkCropperWithinMaxSizeBounds when resetCropper and x2=0 is fully implemented. 
+      cropperSizeBounds.setAllInternalSizes(this.state);
+      cropperPosition.checkSizeAndPosition(this.state);
       this.setCssTransform();
       this.imageVisible = true;
       this.doAutoCrop();
@@ -252,8 +251,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       const oldMaxSize = {...this.state.maxSize};
       this.setMaxSize();
       cropperPosition.resizeCropperAccordingToNewMaxSize(this.state, oldMaxSize);
-      cropperSizeBounds.setCropperScaledMinSize(this.state);
-      cropperSizeBounds.setCropperScaledMaxSize(this.state);
+      cropperSizeBounds.setAllInternalSizes(this.state);
       this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
       this.cd.markForCheck();
     }
