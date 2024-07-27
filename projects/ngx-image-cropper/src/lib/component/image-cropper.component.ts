@@ -245,15 +245,20 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     if (!this.state.loadedImage) {
       return;
     }
-    if (this.hidden) {
+    if (this.state.hidden) {
       this.resizedWhileHidden = true;
     } else {
       const oldMaxSize = {...this.state.maxSize};
       this.setMaxSize();
-      cropperPosition.resizeCropperAccordingToNewMaxSize(this.state, oldMaxSize);
-      cropperSizeBounds.setAllInternalSizes(this.state);
-      this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
-      this.cd.markForCheck();
+      if (oldMaxSize.width !== this.state.maxSize.width) {
+        cropperPosition.resizeCropperAccordingToNewMaxSize(
+          this.state, 
+          this.state.maxSize.width / oldMaxSize.width
+        );
+        cropperSizeBounds.setAllInternalSizes(this.state);
+        this.settingsUpdated.emit(this.state.getDeepCopyOfSettings());
+        this.cd.markForCheck();
+      }
     }
   }
 
