@@ -69,7 +69,7 @@
     .ngx-ic-move {
       width: 100%;
       cursor: move;
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: var(--cropper-move-border, 1px solid rgba(255, 255, 255, 0.5));
     }
 
     &:focus {
