@@ -1,6 +1,6 @@
 import { CropperOptions } from '../interfaces/cropper-options.interface';
 import { CropperPosition, Dimensions, ImageTransform, LoadedImage } from '../interfaces';
-import { SimpleChanges } from '@angular/core';
+import { signal, SimpleChanges } from '@angular/core';
 import { checkCropperPosition } from '../utils/cropper-position.utils';
 
 export class CropperState {
@@ -34,7 +34,7 @@ export class CropperState {
 
   loadedImage?: LoadedImage;
   maxSize?: Dimensions;
-  cropper: CropperPosition = {x1: 0, x2: 0, y1: 0, y2: 0};
+  cropper = signal<CropperPosition>({x1: 0, x2: 0, y1: 0, y2: 0});
   transform: ImageTransform = {};
 
   // Internal
@@ -75,7 +75,7 @@ export class CropperState {
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
       if (this.options.maintainAspectRatio && (this.options.resetCropOnAspectRatioChange || !this.aspectRatioIsCorrect())) {
-        this.cropper = this.maxSizeCropperPosition();
+        this.cropper.set(this.maxSizeCropperPosition());
         positionPossiblyChanged = true;
       }
     } else {
@@ -93,7 +93,7 @@ export class CropperState {
     }
 
     if (positionPossiblyChanged) {
-      this.cropper = checkCropperPosition(this.cropper, this, false);
+      this.cropper.set(checkCropperPosition(this.cropper(), this, false));
     }
   }
 
@@ -157,12 +157,13 @@ export class CropperState {
   }
 
   equalsCropperPosition(cropper?: CropperPosition): boolean {
-    return this.cropper == null && cropper == null
-      || this.cropper != null && cropper != null
-      && this.cropper.x1.toFixed(3) === cropper.x1.toFixed(3)
-      && this.cropper.y1.toFixed(3) === cropper.y1.toFixed(3)
-      && this.cropper.x2.toFixed(3) === cropper.x2.toFixed(3)
-      && this.cropper.y2.toFixed(3) === cropper.y2.toFixed(3);
+    const localCropper = this.cropper();
+    return localCropper == null && cropper == null
+      || localCropper != null && cropper != null
+      && localCropper.x1.toFixed(3) === cropper.x1.toFixed(3)
+      && localCropper.y1.toFixed(3) === cropper.y1.toFixed(3)
+      && localCropper.x2.toFixed(3) === cropper.x2.toFixed(3)
+      && localCropper.y2.toFixed(3) === cropper.y2.toFixed(3);
   }
 
   equalsTransformTranslate(transform: ImageTransform): boolean {
@@ -179,7 +180,8 @@ export class CropperState {
   }
 
   aspectRatioIsCorrect(): boolean {
-    const currentCropAspectRatio = (this.cropper.x2 - this.cropper.x1) / (this.cropper.y2 - this.cropper.y1);
+    const localCropper = this.cropper();
+    const currentCropAspectRatio = (localCropper.x2 - localCropper.x1) / (localCropper.y2 - localCropper.y1);
     return currentCropAspectRatio === this.options.aspectRatio;
   }
 
@@ -188,12 +190,13 @@ export class CropperState {
       return;
     }
     if (oldMaxSize.width !== this.maxSize!.width || oldMaxSize.height !== this.maxSize!.height) {
-      this.cropper = {
-        x1: this.cropper.x1 * this.maxSize!.width / oldMaxSize.width,
-        x2: this.cropper.x2 * this.maxSize!.width / oldMaxSize.width,
-        y1: this.cropper.y1 * this.maxSize!.height / oldMaxSize.height,
-        y2: this.cropper.y2 * this.maxSize!.height / oldMaxSize.height
-      };
+      const localCropper = this.cropper();
+      this.cropper.set( {
+        x1: localCropper.x1 * this.maxSize!.width / oldMaxSize.width,
+        x2: localCropper.x2 * this.maxSize!.width / oldMaxSize.width,
+        y1: localCropper.y1 * this.maxSize!.height / oldMaxSize.height,
+        y2: localCropper.y2 * this.maxSize!.height / oldMaxSize.height
+      });
     }
   }
 
