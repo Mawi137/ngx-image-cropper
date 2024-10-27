@@ -1,11 +1,9 @@
-import { Injectable } from '@angular/core';
 import { CropperOptions, CropperPosition, ImageCroppedEvent } from '../interfaces';
 import { CropperState } from '../component/cropper.state';
 import { resizeCanvas } from '../utils/resize.utils';
 import { percentage } from '../utils/percentage.utils';
 import { OutputType } from '../interfaces/cropper-options.interface';
 
-@Injectable({providedIn: 'root'})
 export class CropService {
 
   crop(cropperState: CropperState, output: 'blob'): Promise<ImageCroppedEvent> | null;

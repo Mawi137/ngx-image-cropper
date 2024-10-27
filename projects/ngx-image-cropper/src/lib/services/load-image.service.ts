@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { Dimensions, LoadedImage } from '../interfaces';
 import { CropperState } from '../component/cropper.state';
 import { ExifTransform } from '../interfaces/exif-transform.interface';
@@ -11,7 +10,6 @@ interface LoadImageArrayBuffer {
   originalImageSize?: { width: number; height: number; } | null;
 }
 
-@Injectable({providedIn: 'root'})
 export class LoadImageService {
 
   private autoRotateSupported: Promise<boolean> = supportsAutomaticRotation();
