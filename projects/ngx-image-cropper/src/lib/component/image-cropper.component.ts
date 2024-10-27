@@ -12,6 +12,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  signal,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
@@ -54,7 +55,9 @@ import {
 })
 export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
-  private pinchStart$ = new Subject<void>();
+  private readonly pinchStart$ = new Subject<void>();
+  private readonly cropService = new CropService();
+  private readonly loadImageService = new LoadImageService();
 
   private setImageMaxSizeRetries = 0;
   private moveStart?: MoveStart;
@@ -63,7 +66,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   protected readonly moveTypes = MoveTypes;
   protected readonly state = new CropperState();
 
-  safeImgDataUrl?: SafeUrl | string;
+  readonly safeImgDataUrl = signal<SafeUrl | string | undefined>(undefined);
   safeTransformStyle?: SafeStyle | string;
   marginLeft: SafeStyle | string = '0px';
   imageVisible = false;
@@ -126,8 +129,6 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   constructor(
-    private cropService: CropService,
-    private loadImageService: LoadImageService,
     private sanitizer: DomSanitizer,
     private cd: ChangeDetectorRef,
     private zone: NgZone
@@ -213,9 +214,9 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private reset(): void {
-    this.safeImgDataUrl = 'data:image/png;base64,iVBORw0KGg'
+    this.safeImgDataUrl.set('data:image/png;base64,iVBORw0KGg'
       + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
-      + 'AAarVyFEAAAAASUVORK5CYII=';
+      + 'AAarVyFEAAAAASUVORK5CYII=');
     this.state.loadedImage = undefined;
     this.state.maxSize = undefined;
     this.imageVisible = false;
@@ -244,8 +245,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private setLoadedImage(loadedImage: LoadedImage): void {
     this.state.loadedImage = loadedImage;
-    this.safeImgDataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(loadedImage.transformed.objectUrl);
-    this.cd.markForCheck();
+    this.safeImgDataUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(loadedImage.transformed.objectUrl));
   }
 
   loadImageError(error: unknown): void {

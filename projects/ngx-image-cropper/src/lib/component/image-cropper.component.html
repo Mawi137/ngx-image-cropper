@@ -6,8 +6,8 @@
     #sourceImage
     class="ngx-ic-source-image"
     role="presentation"
-    *ngIf="safeImgDataUrl"
-    [src]="safeImgDataUrl"
+    *ngIf="safeImgDataUrl() as src"
+    [src]="src"
     [style.visibility]="imageVisible ? 'visible' : 'hidden'"
     [style.transform]="safeTransformStyle"
     [class.ngx-ic-draggable]="!disabled && allowMoveImage"
