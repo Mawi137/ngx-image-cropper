@@ -1,7 +1,6 @@
 import { CropperPosition, MoveStart } from '../interfaces';
 import { CropperState } from '../component/cropper.state';
 import { BasicEvent } from '../interfaces/basic-event.interface';
-import { HammerInput } from './hammer.utils';
 
 export function checkCropperPosition(cropperPosition: CropperPosition, cropperState: CropperState, maintainSize: boolean): CropperPosition {
   cropperPosition = checkCropperSizeRestriction(cropperPosition, cropperState);
@@ -84,7 +83,7 @@ export function moveCropper(event: Event | BasicEvent, moveStart: MoveStart): Cr
   };
 }
 
-export function resizeCropper(event: Event | BasicEvent | HammerInput, moveStart: MoveStart, cropperState: CropperState): CropperPosition {
+export function resizeCropper(event: Event | BasicEvent, moveStart: MoveStart, cropperState: CropperState): CropperPosition {
   const cropperPosition = {...cropperState.cropper};
   const moveX = getClientX(event) - moveStart.clientX;
   const moveY = getClientY(event) - moveStart.clientY;
@@ -130,7 +129,7 @@ export function resizeCropper(event: Event | BasicEvent | HammerInput, moveStart
         cropperPosition.y1 + cropperState.cropperScaledMinHeight);
       break;
     case 'center':
-      const scale = 'scale' in event ? event.scale : 1;
+      const scale = 'scale' in event ? event.scale as number : 1;
       const newWidth = Math.min(
         Math.max(cropperState.cropperScaledMinWidth, (Math.abs(moveStart.cropper.x2 - moveStart.cropper.x1)) * scale),
         cropperState.cropperScaledMaxWidth);
@@ -244,7 +243,7 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
   return cropperPosition;
 }
 
-export function getClientX(event: Event | BasicEvent | TouchEvent | HammerInput): number {
+export function getClientX(event: Event | BasicEvent | TouchEvent): number {
   if ('touches' in event && event.touches[0]) {
     return event.touches[0].clientX;
   } else if ('clientX' in event) {
@@ -254,7 +253,7 @@ export function getClientX(event: Event | BasicEvent | TouchEvent | HammerInput)
   return 0;
 }
 
-export function getClientY(event: Event | BasicEvent | TouchEvent | HammerInput): number {
+export function getClientY(event: Event | BasicEvent | TouchEvent): number {
   if ('touches' in event && event.touches[0]) {
     return event.touches[0].clientY;
   } else if ('clientX' in event) {

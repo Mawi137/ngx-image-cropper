@@ -6,18 +6,16 @@ import {
   EventEmitter,
   HostBinding,
   HostListener,
-  Inject,
   Input,
-  isDevMode,
   NgZone,
   OnChanges,
+  OnDestroy,
   OnInit,
-  Optional,
   Output,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { DomSanitizer, HAMMER_LOADER, HammerLoader, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
 import {
   CropperOptions,
   CropperPosition,
@@ -32,10 +30,9 @@ import { CropperState } from './cropper.state';
 import { MoveTypes, Position } from '../interfaces/move-start.interface';
 import { CropService } from '../services/crop.service';
 import { LoadImageService } from '../services/load-image.service';
-import { HammerInput, HammerStatic } from '../utils/hammer.utils';
 import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
 import { first, takeUntil } from 'rxjs/operators';
-import { fromEvent, merge } from 'rxjs';
+import { fromEvent, merge, Subject } from 'rxjs';
 import { NgIf } from '@angular/common';
 import { BasicEvent } from '../interfaces/basic-event.interface';
 import {
@@ -55,7 +52,9 @@ import {
   standalone: true,
   imports: [NgIf],
 })
-export class ImageCropperComponent implements OnChanges, OnInit {
+export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
+
+  private pinchStart$ = new Subject<void>();
 
   private setImageMaxSizeRetries = 0;
   private moveStart?: MoveStart;
@@ -131,15 +130,13 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     private loadImageService: LoadImageService,
     private sanitizer: DomSanitizer,
     private cd: ChangeDetectorRef,
-    private zone: NgZone,
-    @Optional() @Inject(HAMMER_LOADER) private readonly hammerLoader: HammerLoader | null
+    private zone: NgZone
   ) {
     this.reset();
   }
 
   ngOnInit(): void {
     this.state.stepSize = this.initialStepSize || this.state.stepSize;
-    void this.activatePinchGesture();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -281,7 +278,7 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.setMaxSize();
       if (this.cropper && (!this.maintainAspectRatio || this.state.aspectRatioIsCorrect())) {
         this.state.cropper = checkCropperPosition(this.cropper, this.state, true);
-        this.emitCropperPositionChange(this.cropper)
+        this.emitCropperPositionChange(this.cropper);
       } else {
         this.state.cropper = checkCropperPosition(this.state.maxSizeCropperPosition(), this.state, true);
         this.cropperChange.emit(this.state.cropper);
@@ -312,23 +309,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       this.setMaxSize();
       this.state.resizeCropperPosition(oldMaxSize);
       this.cd.markForCheck();
-    }
-  }
-
-  private async activatePinchGesture() {
-    // Loads HammerJS via angular APIs if configured
-    await this.hammerLoader?.();
-
-    const Hammer = (window as unknown as (Window & { Hammer?: HammerStatic }))?.['Hammer'] || null;
-
-    if (Hammer) {
-      const hammer = new Hammer(this.wrapper.nativeElement);
-      hammer.get('pinch').set({enable: true});
-      hammer.on('pinchmove', this.onPinch.bind(this));
-      hammer.on('pinchend', this.pinchStop.bind(this));
-      hammer.on('pinchstart', this.startPinch.bind(this));
-    } else if (isDevMode()) {
-      console.warn('[NgxImageCropper] Could not find HammerJS - Pinch Gesture won\'t work');
     }
   }
 
@@ -395,26 +375,77 @@ export class ImageCropperComponent implements OnChanges, OnInit {
     ).pipe(
       takeUntil(merge(
         fromEvent(document, 'mouseup'),
-        fromEvent(document, 'touchend')
+        fromEvent(document, 'touchend'),
+        this.pinchStart$
       ).pipe(first()))
-    )
-      .subscribe({
-        next: (event) => this.zone.run(() => {
-          this.handleMouseMove(event);
-          this.cd.markForCheck();
-        }),
-        complete: () => this.zone.run(() => {
-          this.handleMouseUp();
-          this.cd.markForCheck();
-        })
-      });
+    ).subscribe({
+      next: (event) => this.zone.run(() => {
+        this.handleMouseMove(event);
+        this.cd.markForCheck();
+      }),
+      complete: () => this.zone.run(() => {
+        this.handleMouseUp();
+        this.cd.markForCheck();
+      })
+    });
   }
 
-  startPinch(event: HammerInput) {
-    if (this.disabled || !this.sourceImageLoaded()) {
+  private handleMouseMove(event: Event | BasicEvent): void {
+    if (!this.moveStart?.active) {
       return;
     }
-    if (event.preventDefault) {
+    if ('stopPropagation' in event) {
+      event.stopPropagation();
+    }
+    if ('preventDefault' in event) {
+      event.preventDefault();
+    }
+    if (this.moveStart.type === MoveTypes.Move) {
+      this.state.cropper = checkCropperWithinMaxSizeBounds(
+        moveCropper(event, this.moveStart),
+        this.state,
+        true
+      );
+    } else if (this.moveStart.type === MoveTypes.Resize) {
+      if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
+        this.state.cropper = checkCropperWithinMaxSizeBounds(
+          resizeCropper(event, this.moveStart, this.state),
+          this.state,
+          false
+        );
+      }
+    } else if (this.moveStart.type === MoveTypes.Drag) {
+      const diffX = getClientX(event) - this.moveStart.clientX;
+      const diffY = getClientY(event) - this.moveStart.clientY;
+      this.state.transform = {
+        ...this.state.transform,
+        translateH: (this.moveStart.transform?.translateH || 0) + diffX,
+        translateV: (this.moveStart.transform?.translateV || 0) + diffY
+      };
+      this.setCssTransform();
+    }
+  }
+
+  private handleMouseUp(): void {
+    if (!this.moveStart?.active || this.moveStart?.type === MoveTypes.Pinch) {
+      return;
+    }
+    if (!this.state.equalsCropperPosition(this.moveStart.cropper) || this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform)) {
+      if (this.moveStart.type === MoveTypes.Drag) {
+        this.transformChange.emit(this.state.transform);
+      } else {
+        this.cropperChange.emit(this.state.cropper);
+      }
+      this.doAutoCrop();
+    }
+    this.moveStart = undefined;
+  }
+
+  startPinch(event: TouchEvent) {
+    if (this.disabled || !this.sourceImageLoaded() || event.touches.length < 2) {
+      return;
+    }
+    if ('preventDefault' in event) {
       event.preventDefault();
     }
     this.moveStart = {
@@ -425,59 +456,53 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       clientY: this.state.cropper.y1 + (this.state.cropper.y2 - this.state.cropper.y1) / 2,
       cropper: this.state.cropper
     };
+    this.initPinch();
   }
 
-  private handleMouseMove(event: Event | BasicEvent): void {
-    if (this.moveStart!.active) {
-      if ('stopPropagation' in event) {
-        event.stopPropagation();
-      }
-      if ('preventDefault' in event) {
-        event.preventDefault();
-      }
-      if (this.moveStart!.type === MoveTypes.Move) {
+  private initPinch(): void {
+    this.pinchStart$.next();
+    fromEvent(document, 'touchmove')
+      .pipe(takeUntil(fromEvent(document, 'touchend')))
+      .subscribe({
+        next: (event) => this.zone.run(() => {
+          this.handlePinchMove(event as TouchEvent);
+          this.cd.markForCheck();
+        }),
+        complete: () => this.zone.run(() => {
+          this.handlePinchStop();
+          this.cd.markForCheck();
+        })
+      });
+  }
+
+  handlePinchMove(event: TouchEvent) {
+    if (!this.moveStart?.active) {
+      return;
+    }
+    if (event.preventDefault) {
+      event.preventDefault();
+    }
+    if (this.moveStart.type === MoveTypes.Pinch) {
+      if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
         this.state.cropper = checkCropperWithinMaxSizeBounds(
-          moveCropper(event, this.moveStart!),
+          resizeCropper(event, this.moveStart, this.state),
           this.state,
-          true
+          false
         );
-      } else if (this.moveStart!.type === MoveTypes.Resize) {
-        if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
-          this.state.cropper = checkCropperWithinMaxSizeBounds(
-            resizeCropper(event, this.moveStart!, this.state),
-            this.state,
-            false
-          );
-        }
-      } else if (this.moveStart!.type === MoveTypes.Drag) {
-        const diffX = getClientX(event) - this.moveStart!.clientX;
-        const diffY = getClientY(event) - this.moveStart!.clientY;
-        this.state.transform = {
-          ...this.state.transform,
-          translateH: (this.moveStart!.transform?.translateH || 0) + diffX,
-          translateV: (this.moveStart!.transform?.translateV || 0) + diffY
-        };
-        this.setCssTransform();
       }
     }
+    this.cd.markForCheck();
   }
 
-  onPinch(event: HammerInput) {
-    if (this.moveStart!.active) {
-      if (event.preventDefault) {
-        event.preventDefault();
-      }
-      if (this.moveStart!.type === MoveTypes.Pinch) {
-        if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
-          this.state.cropper = checkCropperWithinMaxSizeBounds(
-            resizeCropper(event, this.moveStart!, this.state),
-            this.state,
-            false
-          );
-        }
-      }
-      this.cd.markForCheck();
+  handlePinchStop(): void {
+    if (!this.moveStart?.active) {
+      return;
     }
+    if (!this.state.equalsCropperPosition(this.moveStart.cropper)) {
+      this.emitCropperPositionChange(this.moveStart.cropper);
+      this.doAutoCrop();
+    }
+    this.moveStart = undefined;
   }
 
   private setMaxSize(): void {
@@ -485,30 +510,6 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
       this.state.setMaxSize(parseFloat(sourceImageStyle.width), parseFloat(sourceImageStyle.height));
       this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.state.maxSize!.width / 2 + 'px)');
-    }
-  }
-
-  private handleMouseUp(): void {
-    if (this.moveStart?.active) {
-      if (!this.state.equalsCropperPosition(this.moveStart.cropper) || this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform)) {
-        if (this.moveStart.type === MoveTypes.Drag) {
-          this.transformChange.emit(this.state.transform);
-        } else {
-          this.cropperChange.emit(this.state.cropper);
-        }
-        this.doAutoCrop();
-      }
-      this.moveStart = undefined;
-    }
-  }
-
-  pinchStop(): void {
-    if (this.moveStart?.active) {
-      this.emitCropperPositionChange(this.moveStart.cropper)
-      this.moveStart!.active = false;
-      if (!this.state.equalsCropperPosition(this.moveStart.cropper)) {
-        this.doAutoCrop();
-      }
     }
   }
 
@@ -558,5 +559,9 @@ export class ImageCropperComponent implements OnChanges, OnInit {
       return result;
     }
     return null;
+  }
+
+  ngOnDestroy(): void {
+    this.pinchStart$.complete();
   }
 }
