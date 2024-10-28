@@ -161,7 +161,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     if (changes['cropper'] && this.cropper) {
-      this.state.cropper.set( checkCropperPosition(this.cropper, this.state, true));
+      this.state.cropper.set(checkCropperPosition(this.cropper, this.state, true));
     }
     const cropperChanged = !this.state.equalsCropperPosition(previousCropperPosition);
     if (cropperChanged && (!this.cropper || !this.state.equalsCropperPosition(this.cropper))) {
@@ -328,7 +328,6 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     this.moveStart = {
-      active: true,
       type: moveType,
       position,
       clientX: 0,
@@ -342,7 +341,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   startMove(event: Event | BasicEvent, moveType: MoveTypes, position: Position | null = null): void {
     if (this.disabled
-      || this.moveStart?.active && this.moveStart?.type === MoveTypes.Pinch
+      || this.moveStart && this.moveStart.type === MoveTypes.Pinch
       || moveType === MoveTypes.Drag && !this.allowMoveImage) {
       return;
     }
@@ -350,7 +349,6 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
       event.preventDefault();
     }
     this.moveStart = {
-      active: true,
       type: moveType,
       position,
       clientX: getClientX(event),
@@ -372,17 +370,13 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
         this.pinchStart$
       ).pipe(first()))
     ).subscribe({
-      next: (event) => {
-        this.handleMouseMove(event);
-      },
-      complete: () => {
-        this.handleMouseUp();
-      }
+      next: (event) => this.handleMouseMove(event),
+      complete: () => this.handleMouseUp()
     });
   }
 
   private handleMouseMove(event: Event | BasicEvent): void {
-    if (!this.moveStart?.active) {
+    if (!this.moveStart) {
       return;
     }
     if ('stopPropagation' in event) {
@@ -418,10 +412,11 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private handleMouseUp(): void {
-    if (!this.moveStart?.active || this.moveStart?.type === MoveTypes.Pinch) {
+    if (!this.moveStart || this.moveStart.type === MoveTypes.Pinch) {
       return;
     }
-    if (!this.state.equalsCropperPosition(this.moveStart.cropper) || this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform)) {
+    if (!this.state.equalsCropperPosition(this.moveStart.cropper)
+      || this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform)) {
       if (this.moveStart.type === MoveTypes.Drag) {
         this.transformChange.emit(this.state.transform);
       } else {
@@ -441,7 +436,6 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     }
     const cropper = this.state.cropper();
     this.moveStart = {
-      active: true,
       type: MoveTypes.Pinch,
       position: 'center',
       clientX: cropper.x1 + (cropper.x2 - cropper.x1) / 2,
@@ -456,17 +450,13 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     fromEvent(document, 'touchmove')
       .pipe(takeUntil(fromEvent(document, 'touchend')))
       .subscribe({
-        next: (event) => {
-          this.handlePinchMove(event as TouchEvent);
-        },
-        complete: () => {
-          this.handlePinchStop();
-        }
+        next: (event) => this.handlePinchMove(event as TouchEvent),
+        complete: () => this.handlePinchStop()
       });
   }
 
-  handlePinchMove(event: TouchEvent) {
-    if (!this.moveStart?.active) {
+  private handlePinchMove(event: TouchEvent) {
+    if (!this.moveStart) {
       return;
     }
     if (event.preventDefault) {
@@ -483,8 +473,8 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     }
   }
 
-  handlePinchStop(): void {
-    if (!this.moveStart?.active) {
+  private handlePinchStop(): void {
+    if (!this.moveStart) {
       return;
     }
     if (!this.state.equalsCropperPosition(this.moveStart.cropper)) {

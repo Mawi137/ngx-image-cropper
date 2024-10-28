@@ -5,6 +5,11 @@ import { checkCropperPosition } from '../utils/cropper-position.utils';
 
 export class CropperState {
 
+  readonly cropper = signal<CropperPosition>({x1: 0, x2: 0, y1: 0, y2: 0});
+
+  loadedImage?: LoadedImage;
+  maxSize?: Dimensions;
+  transform: ImageTransform = {};
   options: CropperOptions = {
     format: 'png',
     output: 'blob',
@@ -31,11 +36,6 @@ export class CropperState {
     cropperFrameAriaLabel: undefined,
     checkImageType: true
   };
-
-  loadedImage?: LoadedImage;
-  maxSize?: Dimensions;
-  cropper = signal<CropperPosition>({x1: 0, x2: 0, y1: 0, y2: 0});
-  transform: ImageTransform = {};
 
   // Internal
   cropperScaledMinWidth = 20;
@@ -186,9 +186,6 @@ export class CropperState {
   }
 
   resizeCropperPosition(oldMaxSize: Dimensions): void {
-    if (!this.cropper) {
-      return;
-    }
     if (oldMaxSize.width !== this.maxSize!.width || oldMaxSize.height !== this.maxSize!.height) {
       const localCropper = this.cropper();
       this.cropper.set( {
