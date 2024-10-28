@@ -93,7 +93,7 @@ export class CropperState {
     }
 
     if (positionPossiblyChanged) {
-      this.cropper.set(checkCropperPosition(this.cropper(), this, false));
+      this.cropper.update((cropper) => checkCropperPosition(cropper, this, false));
     }
   }
 
@@ -187,13 +187,12 @@ export class CropperState {
 
   resizeCropperPosition(oldMaxSize: Dimensions): void {
     if (oldMaxSize.width !== this.maxSize!.width || oldMaxSize.height !== this.maxSize!.height) {
-      const localCropper = this.cropper();
-      this.cropper.set( {
-        x1: localCropper.x1 * this.maxSize!.width / oldMaxSize.width,
-        x2: localCropper.x2 * this.maxSize!.width / oldMaxSize.width,
-        y1: localCropper.y1 * this.maxSize!.height / oldMaxSize.height,
-        y2: localCropper.y2 * this.maxSize!.height / oldMaxSize.height
-      });
+      this.cropper.update(cropper => ({
+        x1: cropper.x1 * this.maxSize!.width / oldMaxSize.width,
+        x2: cropper.x2 * this.maxSize!.width / oldMaxSize.width,
+        y1: cropper.y1 * this.maxSize!.height / oldMaxSize.height,
+        y2: cropper.y2 * this.maxSize!.height / oldMaxSize.height
+      }));
     }
   }
 

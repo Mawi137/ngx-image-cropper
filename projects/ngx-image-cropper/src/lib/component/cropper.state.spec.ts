@@ -53,27 +53,27 @@ describe('CropperState', () => {
 
   it('should resize cropper position based on new max size', () => {
     cropperState.maxSize = {width: 200, height: 200};
-    cropperState.cropper = {x1: 25, x2: 75, y1: 25, y2: 75};
+    cropperState.cropper.set({x1: 25, x2: 75, y1: 25, y2: 75});
     cropperState.resizeCropperPosition({width: 100, height: 100});
-    expect(cropperState.cropper).toEqual({x1: 50, x2: 150, y1: 50, y2: 150});
+    expect(cropperState.cropper()).toEqual({x1: 50, x2: 150, y1: 50, y2: 150});
   });
 
   it('should correctly determine if aspect ratio is correct', () => {
-    cropperState.cropper = {x1: 0, x2: 100, y1: 0, y2: 100};
+    cropperState.cropper.set({x1: 0, x2: 100, y1: 0, y2: 100});
     cropperState.options.aspectRatio = 1;
     expect(cropperState.aspectRatioIsCorrect()).toBe(true);
 
-    cropperState.cropper = {x1: 0, x2: 100, y1: 0, y2: 50};
+    cropperState.cropper.set({x1: 0, x2: 100, y1: 0, y2: 50});
     cropperState.options.aspectRatio = 2;
     expect(cropperState.aspectRatioIsCorrect()).toBe(true);
   });
 
   it('should correctly compare cropper positions', () => {
     const position: CropperPosition = {x1: 0, x2: 100, y1: 0, y2: 100};
-    cropperState.cropper = {x1: 0, x2: 100, y1: 0, y2: 100};
+    cropperState.cropper.set({x1: 0, x2: 100, y1: 0, y2: 100});
     expect(cropperState.equalsCropperPosition(position)).toBe(true);
 
-    cropperState.cropper = {x1: 0, x2: 100, y1: 0, y2: 50};
+    cropperState.cropper.set({x1: 0, x2: 100, y1: 0, y2: 50});
     expect(cropperState.equalsCropperPosition(position)).toBe(false);
   });
 
