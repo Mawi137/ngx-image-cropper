@@ -70,6 +70,14 @@ When you choose a file from the file input, it will trigger `fileChangeEvent`.
 That event is then passed to the image cropper through `imageChangedEvent` which will load the image into the cropper.
 Everytime you release the mouse, the `imageCropped` event will be triggered with the cropped image as a Base64 string in its payload.
 
+## If you find ngx-image-cropper doesn't cover your needs we recommend taking a look at Pintura
+
+Pintura features cropping, rotating, flipping, filtering, annotating, and lots of additional functionality to cover all your image and video editing needs on both mobile and desktop devices.
+
+[![Pintura example](https://github.com/Mawi137/ngx-image-cropper/raw/master/pintura-animation.gif)](https://pqina.nl/pintura/?aff=yMk6n8)
+
+[Learn more about Pintura Image Editor](https://pqina.nl/pintura/?aff=yMk6n8)
+
 ## API
 All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `imageFile` should be set to load an image into the cropper.
 ### Inputs
