@@ -561,6 +561,11 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     return null;
   }
 
+  resetCropperPosition(): void {
+    this.state.cropper = checkCropperPosition(this.state.maxSizeCropperPosition(), this.state, true);
+    this.cropperChange.emit(this.state.cropper);
+  }
+
   ngOnDestroy(): void {
     this.pinchStart$.complete();
   }
