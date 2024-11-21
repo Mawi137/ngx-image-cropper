@@ -43,7 +43,7 @@ export class CropService {
     const result: ImageCroppedEvent = {
       width, height,
       imagePosition,
-      cropperPosition: {...cropperState.cropper}
+      cropperPosition: {...cropperState.cropper()}
     };
     if (cropperState.options.containWithinAspectRatio) {
       result.offsetImagePosition = this.getOffsetImagePosition(cropperState);
@@ -93,11 +93,12 @@ export class CropService {
 
   private getImagePosition(cropperState: CropperState): CropperPosition {
     const ratio = this.getRatio(cropperState);
+    const cropper = cropperState.cropper();
     const out: CropperPosition = {
-      x1: Math.round(cropperState.cropper.x1 * ratio),
-      y1: Math.round(cropperState.cropper.y1 * ratio),
-      x2: Math.round(cropperState.cropper.x2 * ratio),
-      y2: Math.round(cropperState.cropper.y2 * ratio)
+      x1: Math.round(cropper.x1 * ratio),
+      y1: Math.round(cropper.y1 * ratio),
+      x2: Math.round(cropper.x2 * ratio),
+      y2: Math.round(cropper.y2 * ratio)
     };
 
     if (!cropperState.options.containWithinAspectRatio) {
@@ -124,11 +125,12 @@ export class CropService {
       offsetY = (cropperState.loadedImage!.transformed.size.height - cropperState.loadedImage!.original.size.height) / 2;
     }
 
+    const cropper = cropperState.cropper();
     const out: CropperPosition = {
-      x1: Math.round(cropperState.cropper.x1 * ratio) - offsetX,
-      y1: Math.round(cropperState.cropper.y1 * ratio) - offsetY,
-      x2: Math.round(cropperState.cropper.x2 * ratio) - offsetX,
-      y2: Math.round(cropperState.cropper.y2 * ratio) - offsetY
+      x1: Math.round(cropper.x1 * ratio) - offsetX,
+      y1: Math.round(cropper.y1 * ratio) - offsetY,
+      x2: Math.round(cropper.x2 * ratio) - offsetX,
+      y2: Math.round(cropper.y2 * ratio) - offsetY
     };
 
     if (!cropperState.options.containWithinAspectRatio) {

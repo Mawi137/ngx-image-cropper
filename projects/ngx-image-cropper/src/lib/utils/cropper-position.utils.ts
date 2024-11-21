@@ -84,7 +84,7 @@ export function moveCropper(event: Event | BasicEvent, moveStart: MoveStart): Cr
 }
 
 export function resizeCropper(event: Event | BasicEvent, moveStart: MoveStart, cropperState: CropperState): CropperPosition {
-  const cropperPosition = {...cropperState.cropper};
+  const cropperPosition = {...cropperState.cropper()};
   const moveX = getClientX(event) - moveStart.clientX;
   const moveY = getClientY(event) - moveStart.clientY;
   switch (moveStart.position) {
