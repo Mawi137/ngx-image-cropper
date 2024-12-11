@@ -4,7 +4,7 @@ import { ExifTransform } from '../interfaces/exif-transform.interface';
 // - EXIF Orientation: 6 (Rotated 90° CCW)
 // Source: https://github.com/blueimp/JavaScript-Load-Image
 const testAutoOrientationImageURL =
-  'data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
+  '/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
   'AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA' +
   'QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' +
   'BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x' +
@@ -19,8 +19,29 @@ export function supportsAutomaticRotation(): Promise<boolean> {
       const supported = img.width === 1 && img.height === 2;
       resolve(supported);
     };
-    img.src = testAutoOrientationImageURL;
+    const blob = b64toBlob(testAutoOrientationImageURL, 'image/jpeg');
+    img.src = URL.createObjectURL(blob);
   });
+}
+
+function b64toBlob(b64Data: string, contentType = '', sliceSize = 512) {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
 }
 
 export function getTransformationsFromExifData(exifRotationOrArrayBuffer: number | ArrayBufferLike): ExifTransform {
