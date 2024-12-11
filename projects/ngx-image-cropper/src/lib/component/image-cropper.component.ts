@@ -209,9 +209,6 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private reset(): void {
-    this.safeImgDataUrl.set('data:image/png;base64,iVBORw0KGg'
-      + 'oAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAU'
-      + 'AAarVyFEAAAAASUVORK5CYII=');
     this.state.loadedImage = undefined;
     this.state.maxSize = undefined;
     this.imageVisible = false;
