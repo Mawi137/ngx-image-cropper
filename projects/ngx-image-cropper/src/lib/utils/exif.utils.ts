@@ -3,13 +3,13 @@ import { ExifTransform } from '../interfaces/exif-transform.interface';
 // Black 2x1 JPEG, with the following meta information set:
 // - EXIF Orientation: 6 (Rotated 90° CCW)
 // Source: https://github.com/blueimp/JavaScript-Load-Image
-const testAutoOrientationImageURL =
+const testAutoOrientationImageURL = URL.createObjectURL(b64toBlob(
   '/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
   'AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA' +
   'QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' +
   'BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x' +
   'ABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAA' +
-  'AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q==';
+  'AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q=='));
 
 export function supportsAutomaticRotation(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -19,8 +19,7 @@ export function supportsAutomaticRotation(): Promise<boolean> {
       const supported = img.width === 1 && img.height === 2;
       resolve(supported);
     };
-    const blob = b64toBlob(testAutoOrientationImageURL, 'image/jpeg');
-    img.src = URL.createObjectURL(blob);
+    img.src = testAutoOrientationImageURL;
   });
 }
 
@@ -40,8 +39,7 @@ function b64toBlob(b64Data: string, contentType = '', sliceSize = 512) {
     byteArrays.push(byteArray);
   }
 
-  const blob = new Blob(byteArrays, { type: contentType });
-  return blob;
+  return new Blob(byteArrays, { type: contentType });
 }
 
 export function getTransformationsFromExifData(exifRotationOrArrayBuffer: number | ArrayBufferLike): ExifTransform {
