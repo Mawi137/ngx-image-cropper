@@ -77,6 +77,13 @@
         border-color: var(--cropper-border-color-hf, dodgerblue);
         border-width: var(--cropper-border-width-hf, 2px);
       }
+
+      .ngx-ic-resize {
+        .ngx-ic-square {
+          background: var(--cropper-square-hf, #53535C);
+          border: var(--cropper-square-border-hf, 1px solid rgba(255, 255, 255, 0.5));
+        }
+      }
     }
 
     .ngx-ic-resize {

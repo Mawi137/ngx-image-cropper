@@ -88,6 +88,8 @@ Add the variables that you need to your scss:
   --cropper-border-width-hf: 3px;
   --cropper-square: green;
   --cropper-square-border: 1px solid red;
+  --cropper-square-hf: green;
+  --cropper-square-border-hf: 1px solid red;
 }
 ```
 ![cropper-custom-colors-example](customize-colors.png)
@@ -145,16 +147,18 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `options`                  | Partial<CropperOptions> | undefined    | Provide more options at once instead of using the individual inputs. The options passed using this input will be applied as a patch. If you pass `{canvasRotation: 3}` and then `{}`, this will not reset the `canvasRotation`. To reset it, you should pass `{canvasRotation: 0}`.                                                   |
 
 ### CSS Variables
-| Name                        | Type      | Default                            | Description                                                   |
-|-----------------------------|-----------|------------------------------------|---------------------------------------------------------------|
-| `--cropper-outline-color`   | string    | rgba(255,255,255,0.3)              | The background color you see around the cropper               |
-| `--cropper-overlay-color`   | string    | rgba(255,255,255)                  | The background color you see around the image                 |
-| `--cropper-color`           | string    | #53535C                            | The color you see in the cropping selection                   |
-| `--cropper-border`          | string    | 1px solid rgba(255, 255, 255, 0.5) | The border you see in the cropping selection                  |
-| `--cropper-border-color-hf` | string    | dodgerblue                         | The color when hover or focus the cropping selection          |
-| `--cropper-border-width-hf` | string    | 2px                                | The size of border when hover or focus the cropping selection |
-| `--cropper-square`          | string    | #53535C                            | The color of the squares to resize cropping selection         |
-| `--cropper-square-border`   | string    | 1px solid rgba(255, 255, 255, 0.5) | The border of the squares to resize cropping selection        |
+| Name                         | Type      | Default                            | Description                                                          |
+|------------------------------|-----------|------------------------------------|----------------------------------------------------------------------|
+| `--cropper-outline-color`    | string    | rgba(255,255,255,0.3)              | The background color you see around the cropper                      |
+| `--cropper-overlay-color`    | string    | rgba(255,255,255)                  | The background color you see around the image                        |
+| `--cropper-color`            | string    | #53535C                            | The color you see in the cropping selection                          |
+| `--cropper-border`           | string    | 1px solid rgba(255, 255, 255, 0.5) | The border you see in the cropping selection                         |
+| `--cropper-border-color-hf`  | string    | dodgerblue                         | The color when hover or focus the cropping selection                 |
+| `--cropper-border-width-hf`  | string    | 2px                                | The size of border when hover or focus the cropping selection        |
+| `--cropper-square`           | string    | #53535C                            | The color of the squares to resize cropping selection                |
+| `--cropper-square-border`    | string    | 1px solid rgba(255, 255, 255, 0.5) | The border of the squares to resize cropping selection               |
+| `--cropper-square-hf`        | string    | #53535C                            | The color of the squares when hover or focus the cropping selection  |
+| `--cropper-square-border-hf` | string    | 1px solid rgba(255, 255, 255, 0.5) | The border of the squares when hover or focus the cropping selection |
 
 ### Outputs
 | Name              | Type              | Description                                                                                                                                                          |
