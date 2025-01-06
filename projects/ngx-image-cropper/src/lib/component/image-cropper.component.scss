@@ -43,7 +43,6 @@
     display: flex;
     color: var(--cropper-color, #53535C);
     background: transparent;
-    outline: rgba(255, 255, 255, 0.3) solid 100vw;
     outline: var(--cropper-outline-color, rgba(255, 255, 255, 0.3)) solid 100vw;
     touch-action: none;
 
@@ -72,16 +71,21 @@
       border: var(--cropper-border, 1px solid rgba(255, 255, 255, 0.5));
     }
 
-    &:focus,&:hover {
+    &:hover {
       .ngx-ic-move {
-        border-color: var(--cropper-border-color-hf, dodgerblue);
-        border-width: var(--cropper-border-width-hf, 2px);
+        border: var(--cropper-hover-border, var(--cropper-border, 1px solid rgba(255, 255, 255, 0.5)));
+      }
+    }
+
+    &:focus {
+      .ngx-ic-move {
+        border: var(--cropper-focus-border, 2px solid dodgerblue);
       }
 
       .ngx-ic-resize {
         .ngx-ic-square {
-          background: var(--cropper-square-hf, #53535C);
-          border: var(--cropper-square-border-hf, 1px solid rgba(255, 255, 255, 0.5));
+          background: var(--cropper-resize-square-focus-bg, var(--cropper-resize-square-bg, #53535C));
+          border: var(--cropper-resize-square-focus-border, var(--cropper-resize-square-border, 1px solid rgba(255, 255, 255, 0.5)));
         }
       }
     }
@@ -96,11 +100,18 @@
 
       .ngx-ic-square {
         display: inline-block;
-        background: var(--cropper-square, #53535C);
         width: 6px;
         height: 6px;
-        border: var(--cropper-square-border, 1px solid rgba(255, 255, 255, 0.5));
         box-sizing: content-box;
+        background: var(--cropper-resize-square-bg, #53535C);
+        border: var(--cropper-resize-square-border, 1px solid rgba(255, 255, 255, 0.5));
+      }
+
+      &:hover {
+        .ngx-ic-square {
+          background: var(--cropper-resize-square-hover-bg, var(--cropper-resize-square-bg, #53535C));
+          border: var(--cropper-resize-square-hover-border, var(--cropper-resize-square-border, 1px solid rgba(255, 255, 255, 0.5)));
+        }
       }
 
       &.ngx-ic-topleft {
@@ -195,10 +206,10 @@
 
       &:after {
         border-radius: 100%;
-        box-shadow: 0 0 0 100vw (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
+        box-shadow: 0 0 0 100vw var(--cropper-outline-color, rgba(255, 255, 255, 0.3));
 
         @media (orientation: portrait) {
-          box-shadow: 0 0 0 100vh (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
+          box-shadow: 0 0 0 100vh var(--cropper-outline-color, rgba(255, 255, 255, 0.3));
         }
       }
 

@@ -53,18 +53,12 @@
       >
         <span class="ngx-ic-square"></span>
       </span>
-      <span class="ngx-ic-resize ngx-ic-top">
-        <span class="ngx-ic-square"></span>
-      </span>
       <span
         class="ngx-ic-resize ngx-ic-topright"
         role="presentation"
         (mousedown)="startMove($event, moveTypes.Resize, 'topright')"
         (touchstart)="startMove($event, moveTypes.Resize, 'topright')"
       >
-        <span class="ngx-ic-square"></span>
-      </span>
-      <span class="ngx-ic-resize ngx-ic-right">
         <span class="ngx-ic-square"></span>
       </span>
       <span
@@ -75,9 +69,6 @@
       >
         <span class="ngx-ic-square"></span>
       </span>
-      <span class="ngx-ic-resize ngx-ic-bottom">
-        <span class="ngx-ic-square"></span>
-      </span>
       <span
         class="ngx-ic-resize ngx-ic-bottomleft"
         role="presentation"
@@ -86,15 +77,20 @@
       >
         <span class="ngx-ic-square"></span>
       </span>
-      <span class="ngx-ic-resize ngx-ic-left">
-        <span class="ngx-ic-square"></span>
-      </span>
       <span
         class="ngx-ic-resize-bar ngx-ic-top"
         role="presentation"
         (mousedown)="startMove($event, moveTypes.Resize, 'top')"
         (touchstart)="startMove($event, moveTypes.Resize, 'top')"
       ></span>
+
+      <span
+        class="ngx-ic-resize ngx-ic-top"
+        (mousedown)="startMove($event, moveTypes.Resize, 'top')"
+        (touchstart)="startMove($event, moveTypes.Resize, 'top')"
+      >
+        <span class="ngx-ic-square"></span>
+      </span>
       <span
         class="ngx-ic-resize-bar ngx-ic-right"
         role="presentation"
@@ -102,17 +98,38 @@
         (touchstart)="startMove($event, moveTypes.Resize, 'right')"
       ></span>
       <span
+        class="ngx-ic-resize ngx-ic-right"
+        (mousedown)="startMove($event, moveTypes.Resize, 'right')"
+        (touchstart)="startMove($event, moveTypes.Resize, 'right')"
+      >
+        <span class="ngx-ic-square"></span>
+      </span>
+      <span
         class="ngx-ic-resize-bar ngx-ic-bottom"
         role="presentation"
         (mousedown)="startMove($event, moveTypes.Resize, 'bottom')"
         (touchstart)="startMove($event, moveTypes.Resize, 'bottom')"
       ></span>
       <span
+        class="ngx-ic-resize ngx-ic-bottom"
+        (mousedown)="startMove($event, moveTypes.Resize, 'bottom')"
+        (touchstart)="startMove($event, moveTypes.Resize, 'bottom')"
+      >
+        <span class="ngx-ic-square"></span>
+      </span>
+      <span
         class="ngx-ic-resize-bar ngx-ic-left"
         role="presentation"
         (mousedown)="startMove($event, moveTypes.Resize, 'left')"
         (touchstart)="startMove($event, moveTypes.Resize, 'left')"
       ></span>
+      <span
+        class="ngx-ic-resize ngx-ic-left"
+        (mousedown)="startMove($event, moveTypes.Resize, 'left')"
+        (touchstart)="startMove($event, moveTypes.Resize, 'left')"
+      >
+        <span class="ngx-ic-square"></span>
+      </span>
     </ng-container>
   </div>
 </div>
