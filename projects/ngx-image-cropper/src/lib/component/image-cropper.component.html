@@ -21,7 +21,7 @@
     class="ngx-ic-overlay"
     [style.width.px]="state.maxSize?.width || 0"
     [style.height.px]="state.maxSize?.height || 0"
-    [style.margin-left]="alignImage === 'center' ? marginLeft : null"
+    [style.margin-left]="state.options.alignImage === 'center' ? marginLeft : null"
   ></div>
   <div
     class="ngx-ic-cropper"
