@@ -70,32 +70,6 @@ When you choose a file from the file input, it will trigger `fileChangeEvent`.
 That event is then passed to the image cropper through `imageChangedEvent` which will load the image into the cropper.
 Everytime you release the mouse, the `imageCropped` event will be triggered with the cropped image as a Base64 string in its payload.
 
-#### Example of customize colors
-Add class to the image-cropper in your HTML:
-``` html
-<image-cropper class="cropper-custom-colors"
-  ...
-></image-cropper>
-```
-Add the variables that you need to your scss:
-``` scss
-.cropper-custom-colors {
-  --cropper-overlay-color: blueviolet;
-  --cropper-outline-color: rgba(255, 192, 203, 0.514);
-  --cropper-color: white;
-  --cropper-border: 1px dashed yellow;
-  --cropper-border-color-hf: deeppink;
-  --cropper-border-width-hf: 3px;
-  --cropper-square: green;
-  --cropper-square-border: 1px solid red;
-  --cropper-square-hf: green;
-  --cropper-square-border-hf: 1px solid red;
-}
-```
-![cropper-custom-colors-example](customize-colors.png)
-
-*Review the variables described in API > CSS Variables section.
-
 ## Alternatives
 
 ### If you find ngx-image-cropper doesn't cover your needs we recommend taking a look at Pintura
@@ -146,6 +120,18 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `hidden`                   | boolean                 | false        | Set to true to hide image cropper                                                                                                                                                                                                                                                                                                     |
 | `options`                  | Partial<CropperOptions> | undefined    | Provide more options at once instead of using the individual inputs. The options passed using this input will be applied as a patch. If you pass `{canvasRotation: 3}` and then `{}`, this will not reset the `canvasRotation`. To reset it, you should pass `{canvasRotation: 0}`.                                                   |
 
+
+### Outputs
+| Name              | Type              | Description                                                                                                                                                          |
+|-------------------|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `imageCropped`    | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped                                                                                                            |
+| `imageLoaded`     | LoadedImage       | Emits the `LoadedImage` when it was loaded into the cropper                                                                                                          |
+| `cropperReady`    | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size                                           |
+| `startCropImage`  | void              | Emits when the component started cropping the image                                                                                                                  |
+| `loadImageFailed` | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed)                                                                                        |
+| `transformChange` | ImageTransform    | Emits when the image transformations changed. It can be used for 2-way data-binding because this object can be changed from outside as well as inside the component. |
+| `cropperChange`   | CropperPosition   | Emits when the cropper position changed. It can be used for 2-way data-binding because this object can be changed from outside as well as inside the component.      |
+
 ### CSS Variables
 | Name                         | Type      | Default                            | Description                                                          |
 |------------------------------|-----------|------------------------------------|----------------------------------------------------------------------|
@@ -160,16 +146,7 @@ All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `image
 | `--cropper-square-hf`        | string    | #53535C                            | The color of the squares when hover or focus the cropping selection  |
 | `--cropper-square-border-hf` | string    | 1px solid rgba(255, 255, 255, 0.5) | The border of the squares when hover or focus the cropping selection |
 
-### Outputs
-| Name              | Type              | Description                                                                                                                                                          |
-|-------------------|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `imageCropped`    | ImageCroppedEvent | Emits an ImageCroppedEvent each time the image is cropped                                                                                                            |
-| `imageLoaded`     | LoadedImage       | Emits the `LoadedImage` when it was loaded into the cropper                                                                                                          |
-| `cropperReady`    | Dimensions        | Emits when the cropper is ready to be interacted. The Dimensions object that is returned contains the displayed image size                                           |
-| `startCropImage`  | void              | Emits when the component started cropping the image                                                                                                                  |
-| `loadImageFailed` | void              | Emits when a wrong file type was selected (only png, gif and jpg are allowed)                                                                                        |
-| `transformChange` | ImageTransform    | Emits when the image transformations changed. It can be used for 2-way data-binding because this object can be changed from outside as well as inside the component. |
-| `cropperChange`   | CropperPosition   | Emits when the cropper position changed. It can be used for 2-way data-binding because this object can be changed from outside as well as inside the component.      |
+![cropper-custom-colors-example](customize-colors.png)
 
 ### Methods
 To gain access to the image cropper's methods use `@ViewChild(ImageCropperComponent) imageCropper: ImageCropperComponent;`

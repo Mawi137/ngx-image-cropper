@@ -3,13 +3,8 @@ import { ExifTransform } from '../interfaces/exif-transform.interface';
 // Black 2x1 JPEG, with the following meta information set:
 // - EXIF Orientation: 6 (Rotated 90° CCW)
 // Source: https://github.com/blueimp/JavaScript-Load-Image
-const testAutoOrientationImageURL = URL.createObjectURL(b64toBlob(
-  '/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
-  'AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA' +
-  'QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' +
-  'BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x' +
-  'ABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAA' +
-  'AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q=='));
+const testAutoOrientationImageByteArray = [new Uint8Array([255, 216, 255, 225, 0, 34, 69, 120, 105, 102, 0, 0, 77, 77, 0, 42, 0, 0, 0, 8, 0, 1, 1, 18, 0, 3, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 0, 255, 219, 0, 132, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 255, 192, 0, 17, 8, 0, 1, 0, 2, 3, 1, 17, 0, 2, 17, 1, 3, 17, 1, 255, 196, 0, 74, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 16, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 218, 0, 12, 3, 1, 0, 2, 17, 3, 17, 0, 63, 0, 63, 240, 127, 255, 217])];
+const testAutoOrientationImageURL = URL.createObjectURL(new Blob(testAutoOrientationImageByteArray, {type: 'image/jpeg'}));
 
 export function supportsAutomaticRotation(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -23,46 +18,27 @@ export function supportsAutomaticRotation(): Promise<boolean> {
   });
 }
 
-function b64toBlob(b64Data: string, contentType = '', sliceSize = 512) {
-  const byteCharacters = atob(b64Data);
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
-  }
-
-  return new Blob(byteArrays, { type: contentType });
-}
-
 export function getTransformationsFromExifData(exifRotationOrArrayBuffer: number | ArrayBufferLike): ExifTransform {
   if (typeof exifRotationOrArrayBuffer === 'object') {
     exifRotationOrArrayBuffer = getExifRotation(exifRotationOrArrayBuffer);
   }
   switch (exifRotationOrArrayBuffer) {
     case 2:
-      return { rotate: 0, flip: true };
+      return {rotate: 0, flip: true};
     case 3:
-      return { rotate: 2, flip: false };
+      return {rotate: 2, flip: false};
     case 4:
-      return { rotate: 2, flip: true };
+      return {rotate: 2, flip: true};
     case 5:
-      return { rotate: 1, flip: true };
+      return {rotate: 1, flip: true};
     case 6:
-      return { rotate: 1, flip: false };
+      return {rotate: 1, flip: false};
     case 7:
-      return { rotate: 3, flip: true };
+      return {rotate: 3, flip: true};
     case 8:
-      return { rotate: 3, flip: false };
+      return {rotate: 3, flip: false};
     default:
-      return { rotate: 0, flip: false };
+      return {rotate: 0, flip: false};
   }
 }
 
