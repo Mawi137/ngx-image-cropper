@@ -41,7 +41,7 @@
   .ngx-ic-cropper {
     position: absolute;
     display: flex;
-    color: #53535C;
+    color: var(--cropper-color, #53535C);
     background: transparent;
     outline: rgba(255, 255, 255, 0.3) solid 100vw;
     outline: var(--cropper-outline-color, rgba(255, 255, 255, 0.3)) solid 100vw;
@@ -69,13 +69,20 @@
     .ngx-ic-move {
       width: 100%;
       cursor: move;
-      border: var(--cropper-move-border, 1px solid rgba(255, 255, 255, 0.5));
+      border: var(--cropper-border, 1px solid rgba(255, 255, 255, 0.5));
     }
 
-    &:focus {
+    &:focus,&:hover {
       .ngx-ic-move {
-        border-color: dodgerblue;
-        border-width: 2px;
+        border-color: var(--cropper-border-color-hf, dodgerblue);
+        border-width: var(--cropper-border-width-hf, 2px);
+      }
+
+      .ngx-ic-resize {
+        .ngx-ic-square {
+          background: var(--cropper-square-hf, #53535C);
+          border: var(--cropper-square-border-hf, 1px solid rgba(255, 255, 255, 0.5));
+        }
       }
     }
 
@@ -89,10 +96,10 @@
 
       .ngx-ic-square {
         display: inline-block;
-        background: #53535C;
+        background: var(--cropper-square, #53535C);
         width: 6px;
         height: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        border: var(--cropper-square-border, 1px solid rgba(255, 255, 255, 0.5));
         box-sizing: content-box;
       }
 
@@ -188,11 +195,9 @@
 
       &:after {
         border-radius: 100%;
-        box-shadow: 0 0 0 100vw rgba(255, 255, 255, 0.3);
         box-shadow: 0 0 0 100vw (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
 
         @media (orientation: portrait) {
-          box-shadow: 0 0 0 100vh rgba(255, 255, 255, 0.3);
           box-shadow: 0 0 0 100vh (var(--cropper-outline-color, rgba(255, 255, 255, 0.3)));
         }
       }
