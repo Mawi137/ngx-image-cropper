@@ -71,7 +71,7 @@ export class CropperState {
     }
 
     let positionPossiblyChanged = false;
-    if ((this.options.maintainAspectRatio && options['aspectRatio']) || options['maintainAspectRatio']) {
+    if ((this.options.maintainAspectRatio && options['aspectRatio']) || 'maintainAspectRatio' in options) {
       this.setCropperScaledMinSize();
       this.setCropperScaledMaxSize();
       if (this.options.maintainAspectRatio && (this.options.resetCropOnAspectRatioChange || !this.aspectRatioIsCorrect())) {
