@@ -1,7 +1,4 @@
-<div
-  [style.background]="imageVisible && state.options.backgroundColor"
-  (touchstart)="startPinch($event)"
->
+<div [style.background]="imageVisible && state.options.backgroundColor" (touchstart)="startPinch($event)">
   <img
     #sourceImage
     class="ngx-ic-source-image"
@@ -16,11 +13,11 @@
     (mousedown)="startMove($event, moveTypes.Drag)"
     (touchstart)="startMove($event, moveTypes.Drag)"
     (error)="loadImageError($event)"
-  >
+  />
   <div
     class="ngx-ic-overlay"
-    [style.width.px]="state.maxSize?.width || 0"
-    [style.height.px]="state.maxSize?.height || 0"
+    [style.width.px]="state.maxSize().width || 0"
+    [style.height.px]="state.maxSize().height || 0"
     [style.margin-left]="state.options.alignImage === 'center' ? marginLeft : null"
   ></div>
   <div
@@ -41,10 +38,11 @@
       (mousedown)="startMove($event, moveTypes.Move)"
       (touchstart)="startMove($event, moveTypes.Move)"
       class="ngx-ic-move"
-      role="presentation">
-    </div>
+      role="presentation"
+    ></div>
     <ng-container
-      *ngIf="!state.options.hideResizeSquares && !(state.options.cropperStaticWidth && state.options.cropperStaticHeight)">
+      *ngIf="!state.options.hideResizeSquares && !(state.options.cropperStaticWidth && state.options.cropperStaticHeight)"
+    >
       <span
         class="ngx-ic-resize ngx-ic-topleft"
         role="presentation"

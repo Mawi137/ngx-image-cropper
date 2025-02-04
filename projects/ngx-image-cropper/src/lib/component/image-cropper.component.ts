@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,6 +15,8 @@ import {
   ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import { fromEvent, merge, Subject } from 'rxjs';
+import { first, takeUntil } from 'rxjs/operators';
 import {
   CropperOptions,
   CropperPosition,
@@ -23,16 +26,11 @@ import {
   LoadedImage,
   MoveStart
 } from '../interfaces';
+import { BasicEvent } from '../interfaces/basic-event.interface';
 import { OutputFormat, OutputType } from '../interfaces/cropper-options.interface';
-import { CropperState } from './cropper.state';
 import { MoveTypes, Position } from '../interfaces/move-start.interface';
 import { CropService } from '../services/crop.service';
 import { LoadImageService } from '../services/load-image.service';
-import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
-import { first, takeUntil } from 'rxjs/operators';
-import { fromEvent, merge, Subject } from 'rxjs';
-import { NgIf } from '@angular/common';
-import { BasicEvent } from '../interfaces/basic-event.interface';
 import {
   checkCropperPosition,
   checkCropperWithinMaxSizeBounds,
@@ -41,6 +39,8 @@ import {
   moveCropper,
   resizeCropper
 } from '../utils/cropper-position.utils';
+import { getEventForKey, getInvertedPositionForKey, getPositionForKey } from '../utils/keyboard.utils';
+import { CropperState } from './cropper.state';
 
 @Component({
   selector: 'image-cropper',
@@ -48,10 +48,9 @@ import {
   styleUrls: ['./image-cropper.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf]
 })
 export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
-
   private readonly pinchStart$ = new Subject<void>();
   private readonly cropService = new CropService();
   private readonly loadImageService = new LoadImageService();
@@ -68,8 +67,8 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   marginLeft: SafeStyle | string = '0px';
   imageVisible = false;
 
-  @ViewChild('wrapper', {static: true}) wrapper!: ElementRef<HTMLDivElement>;
-  @ViewChild('sourceImage', {static: false}) sourceImage!: ElementRef<HTMLDivElement>;
+  @ViewChild('wrapper', { static: true }) wrapper!: ElementRef<HTMLDivElement>;
+  @ViewChild('sourceImage', { static: false }) sourceImage!: ElementRef<HTMLDivElement>;
 
   @Input() imageChangedEvent?: Event | null;
   @Input() imageURL?: string;
@@ -108,9 +107,11 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   @Input() alignImage?: 'left' | 'center';
 
   @HostBinding('class.disabled')
-  @Input() disabled = false;
+  @Input()
+  disabled = false;
   @HostBinding('class.ngx-ic-hidden')
-  @Input() hidden = false;
+  @Input()
+  hidden = false;
 
   readonly imageCropped = output<ImageCroppedEvent>();
   readonly startCropImage = output<void>();
@@ -125,9 +126,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     return this.state.options.alignImage;
   }
 
-  constructor(
-    private sanitizer: DomSanitizer
-  ) {
+  constructor(private sanitizer: DomSanitizer) {
     this.reset();
   }
 
@@ -152,7 +151,11 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
 
-    if ((this.containWithinAspectRatio && changes['aspectRatio']) || changes['containWithinAspectRatio'] || changes['canvasRotation']) {
+    if (
+      (this.containWithinAspectRatio && changes['aspectRatio']) ||
+      changes['containWithinAspectRatio'] ||
+      changes['canvasRotation']
+    ) {
       this.loadImageService
         .transformLoadedImage(this.state.loadedImage, this.state)
         .then((res) => this.setLoadedImage(res))
@@ -167,9 +170,11 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     if (cropperChanged && (!this.cropper || !this.state.equalsCropperPosition(this.cropper))) {
       this.cropperChange.emit(this.state.cropper());
     }
-    if (cropperChanged
-      || !this.state.equalsTransform(previousTransform)
-      || this.state.options.backgroundColor !== previousBackgroundColor) {
+    if (
+      cropperChanged ||
+      !this.state.equalsTransform(previousTransform) ||
+      this.state.options.backgroundColor !== previousBackgroundColor
+    ) {
       this.doAutoCrop();
     }
 
@@ -202,7 +207,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   private isValidImageChangedEvent(): this is {
     imageChangedEvent: Event & {
       target: { files: FileList };
-    }
+    };
   } {
     const files = (this.imageChangedEvent as any)?.target?.files;
     return files instanceof FileList && files.length > 0;
@@ -210,7 +215,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private reset(): void {
     this.state.loadedImage = undefined;
-    this.state.maxSize = undefined;
+    this.state.maxSize.set({ width: 0, height: 0 });
     this.imageVisible = false;
   }
 
@@ -247,12 +252,22 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private setCssTransform(): void {
     const translateUnit = this.state.transform?.translateUnit || '%';
-    this.safeTransformStyle.set(this.sanitizer.bypassSecurityTrustStyle(
-      `translate(${this.state.transform.translateH || 0}${translateUnit}, ${this.state.transform.translateV || 0}${translateUnit})` +
-      ' scaleX(' + (this.state.transform.scale || 1) * (this.state.transform.flipH ? -1 : 1) + ')' +
-      ' scaleY(' + (this.state.transform.scale || 1) * (this.state.transform.flipV ? -1 : 1) + ')' +
-      ' rotate(' + (this.state.transform.rotate || 0) + 'deg)'
-    ));
+    this.safeTransformStyle.set(
+      this.sanitizer.bypassSecurityTrustStyle(
+        `translate(${this.state.transform.translateH || 0}${translateUnit}, ${
+          this.state.transform.translateV || 0
+        }${translateUnit})` +
+          ' scaleX(' +
+          (this.state.transform.scale || 1) * (this.state.transform.flipH ? -1 : 1) +
+          ')' +
+          ' scaleY(' +
+          (this.state.transform.scale || 1) * (this.state.transform.flipV ? -1 : 1) +
+          ')' +
+          ' rotate(' +
+          (this.state.transform.rotate || 0) +
+          'deg)'
+      )
+    );
   }
 
   imageLoadedInView(): void {
@@ -276,7 +291,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
         this.cropperChange.emit(this.state.cropper());
       }
       this.imageVisible = true;
-      this.cropperReady.emit({...this.state.maxSize!});
+      this.cropperReady.emit(this.state.maxSize());
       this.doAutoCrop();
     } else {
       this.setImageMaxSizeRetries++;
@@ -296,7 +311,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     if (this.hidden) {
       this.resizedWhileHidden = true;
     } else {
-      const oldMaxSize = {...this.state.maxSize!};
+      const oldMaxSize = this.state.maxSize();
       this.setMaxSize();
       this.state.resizeCropperPosition(oldMaxSize);
     }
@@ -316,7 +331,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private keyboardMoveCropper(event: KeyboardEvent) {
     const keyboardWhiteList: string[] = ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'];
-    if (!(keyboardWhiteList.includes(event.key))) {
+    if (!keyboardWhiteList.includes(event.key)) {
       return;
     }
     const moveType = event.shiftKey ? MoveTypes.Resize : MoveTypes.Move;
@@ -337,9 +352,11 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   startMove(event: Event | BasicEvent, moveType: MoveTypes, position: Position | null = null): void {
-    if (this.disabled
-      || this.moveStart && this.moveStart.type === MoveTypes.Pinch
-      || moveType === MoveTypes.Drag && !this.allowMoveImage) {
+    if (
+      this.disabled ||
+      (this.moveStart && this.moveStart.type === MoveTypes.Pinch) ||
+      (moveType === MoveTypes.Drag && !this.allowMoveImage)
+    ) {
       return;
     }
     if ('preventDefault' in event) {
@@ -357,19 +374,12 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private initMouseMove(): void {
-    merge(
-      fromEvent(document, 'mousemove'),
-      fromEvent(document, 'touchmove')
-    ).pipe(
-      takeUntil(merge(
-        fromEvent(document, 'mouseup'),
-        fromEvent(document, 'touchend'),
-        this.pinchStart$
-      ).pipe(first()))
-    ).subscribe({
-      next: (event) => this.handleMouseMove(event),
-      complete: () => this.handleMouseUp()
-    });
+    merge(fromEvent(document, 'mousemove'), fromEvent(document, 'touchmove'))
+      .pipe(takeUntil(merge(fromEvent(document, 'mouseup'), fromEvent(document, 'touchend'), this.pinchStart$).pipe(first())))
+      .subscribe({
+        next: (event) => this.handleMouseMove(event),
+        complete: () => this.handleMouseUp()
+      });
   }
 
   private handleMouseMove(event: Event | BasicEvent): void {
@@ -383,18 +393,12 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
       event.preventDefault();
     }
     if (this.moveStart.type === MoveTypes.Move) {
-      this.state.cropper.set(checkCropperWithinMaxSizeBounds(
-        moveCropper(event, this.moveStart),
-        this.state,
-        true
-      ));
+      this.state.cropper.set(checkCropperWithinMaxSizeBounds(moveCropper(event, this.moveStart), this.state, true));
     } else if (this.moveStart.type === MoveTypes.Resize) {
       if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
-        this.state.cropper.set(checkCropperWithinMaxSizeBounds(
-          resizeCropper(event, this.moveStart, this.state),
-          this.state,
-          false
-        ));
+        this.state.cropper.set(
+          checkCropperWithinMaxSizeBounds(resizeCropper(event, this.moveStart, this.state), this.state, false)
+        );
       }
     } else if (this.moveStart.type === MoveTypes.Drag) {
       const diffX = getClientX(event) - this.moveStart.clientX;
@@ -412,8 +416,10 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     if (!this.moveStart || this.moveStart.type === MoveTypes.Pinch) {
       return;
     }
-    if (!this.state.equalsCropperPosition(this.moveStart.cropper)
-      || this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform)) {
+    if (
+      !this.state.equalsCropperPosition(this.moveStart.cropper) ||
+      (this.moveStart.transform && !this.state.equalsTransform(this.moveStart.transform))
+    ) {
       if (this.moveStart.type === MoveTypes.Drag) {
         this.transformChange.emit(this.state.transform);
       } else {
@@ -461,11 +467,9 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     }
     if (this.moveStart.type === MoveTypes.Pinch) {
       if (!this.cropperStaticWidth && !this.cropperStaticHeight) {
-        this.state.cropper.set(checkCropperWithinMaxSizeBounds(
-          resizeCropper(event, this.moveStart, this.state),
-          this.state,
-          false
-        ));
+        this.state.cropper.set(
+          checkCropperWithinMaxSizeBounds(resizeCropper(event, this.moveStart, this.state), this.state, false)
+        );
       }
     }
   }
@@ -485,7 +489,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     if (this.sourceImage) {
       const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
       this.state.setMaxSize(parseFloat(sourceImageStyle.width), parseFloat(sourceImageStyle.height));
-      this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.state.maxSize!.width / 2 + 'px)');
+      this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.state.maxSize().width / 2 + 'px)');
     }
   }
 

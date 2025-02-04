@@ -1,11 +1,10 @@
-import { CropperOptions, CropperPosition, ImageCroppedEvent } from '../interfaces';
 import { CropperState } from '../component/cropper.state';
-import { resizeCanvas } from '../utils/resize.utils';
-import { percentage } from '../utils/percentage.utils';
+import { CropperOptions, CropperPosition, ImageCroppedEvent } from '../interfaces';
 import { OutputType } from '../interfaces/cropper-options.interface';
+import { percentage } from '../utils/percentage.utils';
+import { resizeCanvas } from '../utils/resize.utils';
 
 export class CropService {
-
   crop(cropperState: CropperState, output: 'blob'): Promise<ImageCroppedEvent> | null;
   crop(cropperState: CropperState, output: 'base64'): ImageCroppedEvent | null;
   crop(cropperState: CropperState, output: OutputType): Promise<ImageCroppedEvent> | ImageCroppedEvent | null {
@@ -27,23 +26,27 @@ export class CropService {
 
     const scaleX = (cropperState.transform.scale || 1) * (cropperState.transform.flipH ? -1 : 1);
     const scaleY = (cropperState.transform.scale || 1) * (cropperState.transform.flipV ? -1 : 1);
-    const {translateH, translateV} = this.getCanvasTranslate(cropperState);
+    const { translateH, translateV } = this.getCanvasTranslate(cropperState);
 
     const transformedImage = cropperState.loadedImage!.transformed;
-    ctx.setTransform(scaleX, 0, 0, scaleY, transformedImage.size.width / 2 + translateH, transformedImage.size.height / 2 + translateV);
-    ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
-    ctx.rotate((cropperState.transform.rotate || 0) * Math.PI / 180);
-
-    ctx.drawImage(
-      transformedImage.image,
-      -transformedImage.size.width / 2,
-      -transformedImage.size.height / 2
+    ctx.setTransform(
+      scaleX,
+      0,
+      0,
+      scaleY,
+      transformedImage.size.width / 2 + translateH,
+      transformedImage.size.height / 2 + translateV
     );
+    ctx.translate(-imagePosition.x1 / scaleX, -imagePosition.y1 / scaleY);
+    ctx.rotate(((cropperState.transform.rotate || 0) * Math.PI) / 180);
+
+    ctx.drawImage(transformedImage.image, -transformedImage.size.width / 2, -transformedImage.size.height / 2);
 
     const result: ImageCroppedEvent = {
-      width, height,
+      width,
+      height,
       imagePosition,
-      cropperPosition: {...cropperState.cropper()}
+      cropperPosition: { ...cropperState.cropper() }
     };
     if (cropperState.options.containWithinAspectRatio) {
       result.offsetImagePosition = this.getOffsetImagePosition(cropperState);
@@ -59,20 +62,32 @@ export class CropService {
     if (output === 'blob') {
       return this.cropToBlob(result, cropCanvas, cropperState);
     } else {
-      result.base64 = cropCanvas.toDataURL('image/' + cropperState.options.format, this.getQuality(cropperState.options));
+      result.base64 = cropCanvas.toDataURL(
+        'image/' + cropperState.options.format,
+        this.getQuality(cropperState.options)
+      );
       return result;
     }
   }
 
-  private async cropToBlob(output: ImageCroppedEvent, cropCanvas: HTMLCanvasElement, cropperState: CropperState): Promise<ImageCroppedEvent> {
-    output.blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, 'image/' + cropperState.options.format, this.getQuality(cropperState.options)));
+  private async cropToBlob(
+    output: ImageCroppedEvent,
+    cropCanvas: HTMLCanvasElement,
+    cropperState: CropperState
+  ): Promise<ImageCroppedEvent> {
+    output.blob = await new Promise<Blob | null>((resolve) =>
+      cropCanvas.toBlob(resolve, 'image/' + cropperState.options.format, this.getQuality(cropperState.options))
+    );
     if (output.blob) {
       output.objectUrl = URL.createObjectURL(output.blob);
     }
     return output;
   }
 
-  private getCanvasTranslate(cropperState: CropperState): { translateH: number, translateV: number } {
+  private getCanvasTranslate(cropperState: CropperState): {
+    translateH: number;
+    translateV: number;
+  } {
     if (cropperState.transform.translateUnit === 'px') {
       const ratio = this.getRatio(cropperState);
       return {
@@ -81,14 +96,18 @@ export class CropService {
       };
     } else {
       return {
-        translateH: cropperState.transform.translateH ? percentage(cropperState.transform.translateH, cropperState.loadedImage!.transformed.size.width) : 0,
-        translateV: cropperState.transform.translateV ? percentage(cropperState.transform.translateV, cropperState.loadedImage!.transformed.size.height) : 0
+        translateH: cropperState.transform.translateH
+          ? percentage(cropperState.transform.translateH, cropperState.loadedImage!.transformed.size.width)
+          : 0,
+        translateV: cropperState.transform.translateV
+          ? percentage(cropperState.transform.translateV, cropperState.loadedImage!.transformed.size.height)
+          : 0
       };
     }
   }
 
   private getRatio(cropperState: CropperState): number {
-    return cropperState.loadedImage!.transformed.size.width / cropperState.maxSize!.width;
+    return cropperState.loadedImage!.transformed.size.width / cropperState.maxSize().width;
   }
 
   private getImagePosition(cropperState: CropperState): CropperPosition {
@@ -122,7 +141,8 @@ export class CropService {
       offsetY = (cropperState.loadedImage!.transformed.size.height - cropperState.loadedImage!.original.size.width) / 2;
     } else {
       offsetX = (cropperState.loadedImage!.transformed.size.width - cropperState.loadedImage!.original.size.width) / 2;
-      offsetY = (cropperState.loadedImage!.transformed.size.height - cropperState.loadedImage!.original.size.height) / 2;
+      offsetY =
+        (cropperState.loadedImage!.transformed.size.height - cropperState.loadedImage!.original.size.height) / 2;
     }
 
     const cropper = cropperState.cropper();

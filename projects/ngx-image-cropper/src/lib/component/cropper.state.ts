@@ -1,14 +1,13 @@
-import { CropperOptions } from '../interfaces/cropper-options.interface';
-import { CropperPosition, Dimensions, ImageTransform, LoadedImage } from '../interfaces';
 import { signal, SimpleChanges } from '@angular/core';
+import { CropperPosition, Dimensions, ImageTransform, LoadedImage } from '../interfaces';
+import { CropperOptions } from '../interfaces/cropper-options.interface';
 import { checkCropperPosition } from '../utils/cropper-position.utils';
 
 export class CropperState {
-
-  readonly cropper = signal<CropperPosition>({x1: 0, x2: 0, y1: 0, y2: 0});
+  readonly cropper = signal<CropperPosition>({ x1: 0, x2: 0, y1: 0, y2: 0 });
 
   loadedImage?: LoadedImage;
-  maxSize?: Dimensions;
+  maxSize = signal<Dimensions>({ width: 0, height: 0 });
   transform: ImageTransform = {};
   options: CropperOptions = {
     format: 'png',
@@ -50,10 +49,13 @@ export class CropperState {
     }
     const options = Object.entries(changes)
       .filter(([key]) => key in this.options)
-      .reduce((acc, [key, change]) => ({
-        ...acc,
-        [key]: change.currentValue
-      }), {} as Partial<CropperOptions>);
+      .reduce(
+        (acc, [key, change]) => ({
+          ...acc,
+          [key]: change.currentValue
+        }),
+        {} as Partial<CropperOptions>
+      );
     if (Object.keys(options).length > 0) {
       this.setOptions(options);
     }
@@ -104,7 +106,7 @@ export class CropperState {
   }
 
   setMaxSize(width: number, height: number): void {
-    this.maxSize = {width, height};
+    this.maxSize.set({ width, height });
     this.setCropperScaledMinSize();
     this.setCropperScaledMaxSize();
   }
@@ -120,19 +122,15 @@ export class CropperState {
   }
 
   setCropperScaledMinWidth(): void {
-    this.cropperScaledMinWidth = this.options.cropperMinWidth > 0
-      ? Math.max(20, this.options.cropperMinWidth / this.loadedImage!.transformed.size.width * this.maxSize!.width)
-      : 20;
+    this.cropperScaledMinWidth =
+      this.options.cropperMinWidth > 0 ? Math.max(20, (this.options.cropperMinWidth / this.loadedImage!.transformed.size.width) * this.maxSize().width) : 20;
   }
 
   setCropperScaledMinHeight(): void {
     if (this.options.maintainAspectRatio) {
       this.cropperScaledMinHeight = Math.max(20, this.cropperScaledMinWidth / this.options.aspectRatio);
     } else if (this.options.cropperMinHeight > 0) {
-      this.cropperScaledMinHeight = Math.max(
-        20,
-        this.options.cropperMinHeight / this.loadedImage!.transformed.size.height * this.maxSize!.height
-      );
+      this.cropperScaledMinHeight = Math.max(20, (this.options.cropperMinHeight / this.loadedImage!.transformed.size.height) * this.maxSize().height);
     } else {
       this.cropperScaledMinHeight = 20;
     }
@@ -140,9 +138,9 @@ export class CropperState {
 
   setCropperScaledMaxSize(): void {
     if (this.loadedImage?.transformed.size) {
-      const ratio = this.loadedImage.transformed.size.width / this.maxSize!.width;
-      this.cropperScaledMaxWidth = this.options.cropperMaxWidth > 20 ? this.options.cropperMaxWidth / ratio : this.maxSize!.width;
-      this.cropperScaledMaxHeight = this.options.cropperMaxHeight > 20 ? this.options.cropperMaxHeight / ratio : this.maxSize!.height;
+      const ratio = this.loadedImage.transformed.size.width / this.maxSize().width;
+      this.cropperScaledMaxWidth = this.options.cropperMaxWidth > 20 ? this.options.cropperMaxWidth / ratio : this.maxSize().width;
+      this.cropperScaledMaxHeight = this.options.cropperMaxHeight > 20 ? this.options.cropperMaxHeight / ratio : this.maxSize().height;
       if (this.options.maintainAspectRatio) {
         if (this.cropperScaledMaxWidth > this.cropperScaledMaxHeight * this.options.aspectRatio) {
           this.cropperScaledMaxWidth = this.cropperScaledMaxHeight * this.options.aspectRatio;
@@ -151,32 +149,36 @@ export class CropperState {
         }
       }
     } else {
-      this.cropperScaledMaxWidth = this.maxSize!.width;
-      this.cropperScaledMaxHeight = this.maxSize!.height;
+      this.cropperScaledMaxWidth = this.maxSize().width;
+      this.cropperScaledMaxHeight = this.maxSize().height;
     }
   }
 
   equalsCropperPosition(cropper?: CropperPosition): boolean {
     const localCropper = this.cropper();
-    return localCropper == null && cropper == null
-      || localCropper != null && cropper != null
-      && localCropper.x1.toFixed(3) === cropper.x1.toFixed(3)
-      && localCropper.y1.toFixed(3) === cropper.y1.toFixed(3)
-      && localCropper.x2.toFixed(3) === cropper.x2.toFixed(3)
-      && localCropper.y2.toFixed(3) === cropper.y2.toFixed(3);
+    return (
+      (localCropper == null && cropper == null) ||
+      (localCropper != null &&
+        cropper != null &&
+        localCropper.x1.toFixed(3) === cropper.x1.toFixed(3) &&
+        localCropper.y1.toFixed(3) === cropper.y1.toFixed(3) &&
+        localCropper.x2.toFixed(3) === cropper.x2.toFixed(3) &&
+        localCropper.y2.toFixed(3) === cropper.y2.toFixed(3))
+    );
   }
 
   equalsTransformTranslate(transform: ImageTransform): boolean {
-    return (this.transform.translateH ?? 0) === (transform.translateH ?? 0)
-      && (this.transform.translateV ?? 0) === (transform.translateV ?? 0);
+    return (this.transform.translateH ?? 0) === (transform.translateH ?? 0) && (this.transform.translateV ?? 0) === (transform.translateV ?? 0);
   }
 
   equalsTransform(transform: ImageTransform): boolean {
-    return this.equalsTransformTranslate(transform)
-      && (this.transform.scale ?? 1) === (transform.scale ?? 1)
-      && (this.transform.rotate ?? 0) === (transform.rotate ?? 0)
-      && (this.transform.flipH ?? false) === (transform.flipH ?? false)
-      && (this.transform.flipV ?? false) === (transform.flipV ?? false);
+    return (
+      this.equalsTransformTranslate(transform) &&
+      (this.transform.scale ?? 1) === (transform.scale ?? 1) &&
+      (this.transform.rotate ?? 0) === (transform.rotate ?? 0) &&
+      (this.transform.flipH ?? false) === (transform.flipH ?? false) &&
+      (this.transform.flipV ?? false) === (transform.flipV ?? false)
+    );
   }
 
   aspectRatioIsCorrect(): boolean {
@@ -186,12 +188,12 @@ export class CropperState {
   }
 
   resizeCropperPosition(oldMaxSize: Dimensions): void {
-    if (oldMaxSize.width !== this.maxSize!.width || oldMaxSize.height !== this.maxSize!.height) {
-      this.cropper.update(cropper => ({
-        x1: cropper.x1 * this.maxSize!.width / oldMaxSize.width,
-        x2: cropper.x2 * this.maxSize!.width / oldMaxSize.width,
-        y1: cropper.y1 * this.maxSize!.height / oldMaxSize.height,
-        y2: cropper.y2 * this.maxSize!.height / oldMaxSize.height
+    if (oldMaxSize.width !== this.maxSize().width || oldMaxSize.height !== this.maxSize().height) {
+      this.cropper.update((cropper) => ({
+        x1: (cropper.x1 * this.maxSize().width) / oldMaxSize.width,
+        x2: (cropper.x2 * this.maxSize().width) / oldMaxSize.width,
+        y1: (cropper.y1 * this.maxSize().height) / oldMaxSize.height,
+        y2: (cropper.y2 * this.maxSize().height) / oldMaxSize.height
       }));
     }
   }
@@ -200,8 +202,8 @@ export class CropperState {
     return {
       x1: 0,
       y1: 0,
-      x2: this.maxSize!.width,
-      y2: this.maxSize!.height
+      x2: this.maxSize().width,
+      y2: this.maxSize().height
     };
   }
 }
