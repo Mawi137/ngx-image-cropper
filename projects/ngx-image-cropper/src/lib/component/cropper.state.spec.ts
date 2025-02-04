@@ -44,7 +44,7 @@ describe('CropperState', () => {
     } as LoadedImage;
 
     cropperState.setMaxSize(100, 100);
-    expect(cropperState.maxSize).toEqual({width: 100, height: 100});
+    expect(cropperState.maxSize()).toEqual({width: 100, height: 100});
     expect(cropperState.cropperScaledMinWidth).toBe(20);
     expect(cropperState.cropperScaledMinHeight).toBe(20);
     expect(cropperState.cropperScaledMaxWidth).toBe(100);
