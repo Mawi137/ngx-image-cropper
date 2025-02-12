@@ -88,7 +88,7 @@ export class CropService {
   }
 
   private getRatio(cropperState: CropperState): number {
-    return cropperState.loadedImage!.transformed.size.width / cropperState.maxSize!.width;
+    return cropperState.loadedImage!.transformed.size.width / cropperState.maxSize().width;
   }
 
   private getImagePosition(cropperState: CropperState): CropperPosition {

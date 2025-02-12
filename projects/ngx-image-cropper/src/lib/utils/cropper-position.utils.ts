@@ -14,17 +14,17 @@ export function checkCropperSizeRestriction(cropperPosition: CropperPosition, cr
   const centerY = cropperPosition.y1 + cropperHeight / 2;
 
   if (cropperState.options.cropperStaticHeight && cropperState.options.cropperStaticWidth) {
-    cropperWidth = cropperState.maxSize!.width > cropperState.options.cropperStaticWidth
+    cropperWidth = cropperState.maxSize().width > cropperState.options.cropperStaticWidth
       ? cropperState.options.cropperStaticWidth
-      : cropperState.maxSize!.width;
-    cropperHeight = cropperState.maxSize!.height > cropperState.options.cropperStaticHeight
+      : cropperState.maxSize().width;
+    cropperHeight = cropperState.maxSize().height > cropperState.options.cropperStaticHeight
       ? cropperState.options.cropperStaticHeight
-      : cropperState.maxSize!.height;
+      : cropperState.maxSize().height;
   } else {
-    cropperWidth = Math.max(cropperState.cropperScaledMinWidth, Math.min(cropperWidth, cropperState.cropperScaledMaxWidth, cropperState.maxSize!.width));
-    cropperHeight = Math.max(cropperState.cropperScaledMinHeight, Math.min(cropperHeight, cropperState.cropperScaledMaxHeight, cropperState.maxSize!.height));
+    cropperWidth = Math.max(cropperState.cropperScaledMinWidth, Math.min(cropperWidth, cropperState.cropperScaledMaxWidth, cropperState.maxSize().width));
+    cropperHeight = Math.max(cropperState.cropperScaledMinHeight, Math.min(cropperHeight, cropperState.cropperScaledMaxHeight, cropperState.maxSize().height));
     if (cropperState.options.maintainAspectRatio) {
-      if (cropperState.maxSize!.width / cropperState.options.aspectRatio < cropperState.maxSize!.height) {
+      if (cropperState.maxSize().width / cropperState.options.aspectRatio < cropperState.maxSize().height) {
         cropperHeight = cropperWidth / cropperState.options.aspectRatio;
       } else {
         cropperWidth = cropperHeight * cropperState.options.aspectRatio;
@@ -54,18 +54,18 @@ export function checkCropperWithinMaxSizeBounds(position: CropperPosition, cropp
       y1: 0
     };
   }
-  if (position.x2 > cropperState.maxSize!.width) {
+  if (position.x2 > cropperState.maxSize().width) {
     position = {
       ...position,
-      x1: position.x1 - (maintainSize ? (position.x2 - cropperState.maxSize!.width) : 0),
-      x2: cropperState.maxSize!.width
+      x1: position.x1 - (maintainSize ? (position.x2 - cropperState.maxSize().width) : 0),
+      x2: cropperState.maxSize().width
     };
   }
-  if (position.y2 > cropperState.maxSize!.height) {
+  if (position.y2 > cropperState.maxSize().height) {
     position = {
       ...position,
-      y1: position.y1 - (maintainSize ? (position.y2 - cropperState.maxSize!.height) : 0),
-      y2: cropperState.maxSize!.height
+      y1: position.y1 - (maintainSize ? (position.y2 - cropperState.maxSize().height) : 0),
+      y2: cropperState.maxSize().height
     };
   }
   return position;
@@ -143,16 +143,16 @@ export function resizeCropper(event: Event | BasicEvent, moveStart: MoveStart, c
       if (cropperPosition.x1 < 0) {
         cropperPosition.x2 -= cropperPosition.x1;
         cropperPosition.x1 = 0;
-      } else if (cropperPosition.x2 > cropperState.maxSize!.width) {
-        cropperPosition.x1 -= (cropperPosition.x2 - cropperState.maxSize!.width);
-        cropperPosition.x2 = cropperState.maxSize!.width;
+      } else if (cropperPosition.x2 > cropperState.maxSize().width) {
+        cropperPosition.x1 -= (cropperPosition.x2 - cropperState.maxSize().width);
+        cropperPosition.x2 = cropperState.maxSize().width;
       }
       if (cropperPosition.y1 < 0) {
         cropperPosition.y2 -= cropperPosition.y1;
         cropperPosition.y1 = 0;
-      } else if (cropperPosition.y2 > cropperState.maxSize!.height) {
-        cropperPosition.y1 -= (cropperPosition.y2 - cropperState.maxSize!.height);
-        cropperPosition.y2 = cropperState.maxSize!.height;
+      } else if (cropperPosition.y2 > cropperState.maxSize().height) {
+        cropperPosition.y1 -= (cropperPosition.y2 - cropperState.maxSize().height);
+        cropperPosition.y2 = cropperState.maxSize().height;
       }
       break;
   }
@@ -171,7 +171,7 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
   switch (position) {
     case 'top':
       cropperPosition.x2 = cropperPosition.x1 + (cropperPosition.y2 - cropperPosition.y1) * cropperState.options.aspectRatio;
-      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize!.width, 0);
+      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize().width, 0);
       overflowY = Math.max(0 - cropperPosition.y1, 0);
       if (overflowX > 0 || overflowY > 0) {
         cropperPosition.x2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? (overflowY * cropperState.options.aspectRatio) : overflowX;
@@ -180,8 +180,8 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
       break;
     case 'bottom':
       cropperPosition.x2 = cropperPosition.x1 + (cropperPosition.y2 - cropperPosition.y1) * cropperState.options.aspectRatio;
-      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize!.width, 0);
-      overflowY = Math.max(cropperPosition.y2 - cropperState.maxSize!.height, 0);
+      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize().width, 0);
+      overflowY = Math.max(cropperPosition.y2 - cropperState.maxSize().height, 0);
       if (overflowX > 0 || overflowY > 0) {
         cropperPosition.x2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? (overflowY * cropperState.options.aspectRatio) : overflowX;
         cropperPosition.y2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? overflowY : (overflowX / cropperState.options.aspectRatio);
@@ -198,7 +198,7 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
       break;
     case 'topright':
       cropperPosition.y1 = cropperPosition.y2 - (cropperPosition.x2 - cropperPosition.x1) / cropperState.options.aspectRatio;
-      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize!.width, 0);
+      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize().width, 0);
       overflowY = Math.max(0 - cropperPosition.y1, 0);
       if (overflowX > 0 || overflowY > 0) {
         cropperPosition.x2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? (overflowY * cropperState.options.aspectRatio) : overflowX;
@@ -208,8 +208,8 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
     case 'right':
     case 'bottomright':
       cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / cropperState.options.aspectRatio;
-      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize!.width, 0);
-      overflowY = Math.max(cropperPosition.y2 - cropperState.maxSize!.height, 0);
+      overflowX = Math.max(cropperPosition.x2 - cropperState.maxSize().width, 0);
+      overflowY = Math.max(cropperPosition.y2 - cropperState.maxSize().height, 0);
       if (overflowX > 0 || overflowY > 0) {
         cropperPosition.x2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? (overflowY * cropperState.options.aspectRatio) : overflowX;
         cropperPosition.y2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? overflowY : overflowX / cropperState.options.aspectRatio;
@@ -219,7 +219,7 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
     case 'bottomleft':
       cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / cropperState.options.aspectRatio;
       overflowX = Math.max(0 - cropperPosition.x1, 0);
-      overflowY = Math.max(cropperPosition.y2 - cropperState.maxSize!.height, 0);
+      overflowY = Math.max(cropperPosition.y2 - cropperState.maxSize().height, 0);
       if (overflowX > 0 || overflowY > 0) {
         cropperPosition.x1 += (overflowY * cropperState.options.aspectRatio) > overflowX ? (overflowY * cropperState.options.aspectRatio) : overflowX;
         cropperPosition.y2 -= (overflowY * cropperState.options.aspectRatio) > overflowX ? overflowY : overflowX / cropperState.options.aspectRatio;
@@ -229,8 +229,8 @@ export function checkAspectRatio(position: string, cropperPosition: CropperPosit
       cropperPosition.x2 = cropperPosition.x1 + (cropperPosition.y2 - cropperPosition.y1) * cropperState.options.aspectRatio;
       cropperPosition.y2 = cropperPosition.y1 + (cropperPosition.x2 - cropperPosition.x1) / cropperState.options.aspectRatio;
       const overflowX1 = Math.max(0 - cropperPosition.x1, 0);
-      const overflowX2 = Math.max(cropperPosition.x2 - cropperState.maxSize!.width, 0);
-      const overflowY1 = Math.max(cropperPosition.y2 - cropperState.maxSize!.height, 0);
+      const overflowX2 = Math.max(cropperPosition.x2 - cropperState.maxSize().width, 0);
+      const overflowY1 = Math.max(cropperPosition.y2 - cropperState.maxSize().height, 0);
       const overflowY2 = Math.max(0 - cropperPosition.y1, 0);
       if (overflowX1 > 0 || overflowX2 > 0 || overflowY1 > 0 || overflowY2 > 0) {
         cropperPosition.x1 += (overflowY1 * cropperState.options.aspectRatio) > overflowX1 ? (overflowY1 * cropperState.options.aspectRatio) : overflowX1;

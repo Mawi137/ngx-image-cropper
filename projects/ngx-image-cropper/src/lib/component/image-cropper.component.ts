@@ -210,7 +210,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private reset(): void {
     this.state.loadedImage = undefined;
-    this.state.maxSize = undefined;
+    this.state.maxSize.set({ width: 0, height: 0 });
     this.imageVisible = false;
   }
 
@@ -276,7 +276,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
         this.cropperChange.emit(this.state.cropper());
       }
       this.imageVisible = true;
-      this.cropperReady.emit({...this.state.maxSize!});
+      this.cropperReady.emit(this.state.maxSize());
       this.doAutoCrop();
     } else {
       this.setImageMaxSizeRetries++;
@@ -296,7 +296,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     if (this.hidden) {
       this.resizedWhileHidden = true;
     } else {
-      const oldMaxSize = {...this.state.maxSize!};
+      const oldMaxSize = this.state.maxSize();
       this.setMaxSize();
       this.state.resizeCropperPosition(oldMaxSize);
     }
@@ -485,7 +485,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
     if (this.sourceImage) {
       const sourceImageStyle = getComputedStyle(this.sourceImage.nativeElement);
       this.state.setMaxSize(parseFloat(sourceImageStyle.width), parseFloat(sourceImageStyle.height));
-      this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.state.maxSize!.width / 2 + 'px)');
+      this.marginLeft = this.sanitizer.bypassSecurityTrustStyle('calc(50% - ' + this.state.maxSize().width / 2 + 'px)');
     }
   }
 
