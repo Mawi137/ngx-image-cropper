@@ -5,3 +5,4 @@ export { ImageCroppedEvent } from './image-cropped-event.interface';
 export { MoveStart } from './move-start.interface';
 export { ImageTransform } from './image-transform.interface';
 export { LoadedImage } from './loaded-image.interface';
+export { CropInput } from './crop-input.interface';

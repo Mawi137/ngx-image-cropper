@@ -518,7 +518,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private cropToBlob(): Promise<ImageCroppedEvent> | null {
     return new Promise(async (resolve, reject) => {
-      const result = await this.cropService.crop(this.state, 'blob');
+      const result = await this.cropService.crop(this.state.toCropInput(), 'blob');
       if (result) {
         this.imageCropped.emit(result);
         resolve(result);
@@ -529,7 +529,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private cropToBase64(): ImageCroppedEvent | null {
-    const result = this.cropService.crop(this.state, 'base64');
+    const result = this.cropService.crop(this.state.toCropInput(), 'base64');
     if (result) {
       this.imageCropped.emit(result);
       return result;

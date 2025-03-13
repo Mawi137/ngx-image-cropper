@@ -1,5 +1,4 @@
-import { CropperOptions } from '../interfaces/cropper-options.interface';
-import { CropperPosition, Dimensions, ImageTransform, LoadedImage } from '../interfaces';
+import { CropInput, CropperOptions, CropperPosition, Dimensions, ImageTransform, LoadedImage } from '../interfaces';
 import { signal, SimpleChanges } from '@angular/core';
 import { checkCropperPosition } from '../utils/cropper-position.utils';
 
@@ -29,7 +28,7 @@ export class CropperState {
     roundCropper: false,
     onlyScaleDown: false,
     imageQuality: 92,
-    backgroundColor: null,
+    backgroundColor: undefined,
     containWithinAspectRatio: false,
     hideResizeSquares: false,
     alignImage: 'center',
@@ -202,6 +201,16 @@ export class CropperState {
       y1: 0,
       x2: this.maxSize().width,
       y2: this.maxSize().height
+    };
+  }
+
+  toCropInput(): CropInput {
+    return {
+      cropper: this.cropper(),
+      maxSize: this.maxSize(),
+      transform: this.transform,
+      loadedImage: this.loadedImage!,
+      options: {...this.options}
     };
   }
 }

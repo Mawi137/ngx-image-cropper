@@ -17,7 +17,7 @@ export interface CropperOptions {
   roundCropper: boolean;
   onlyScaleDown: boolean;
   imageQuality: number;
-  backgroundColor: string | null;
+  backgroundColor: string | undefined;
   containWithinAspectRatio: boolean;
   hideResizeSquares: boolean;
   alignImage: 'left' | 'center';
