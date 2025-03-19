@@ -154,7 +154,7 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
     if ((this.containWithinAspectRatio && changes['aspectRatio']) || changes['containWithinAspectRatio'] || changes['canvasRotation']) {
       this.loadImageService
-        .transformLoadedImage(this.state.loadedImage, this.state)
+        .transformLoadedImage(this.state.loadedImage, this.state.options)
         .then((res) => this.setLoadedImage(res))
         .catch((err) => this.loadImageError(err));
       return;
@@ -216,21 +216,21 @@ export class ImageCropperComponent implements OnChanges, OnInit, OnDestroy {
 
   private loadImageFile(file: File): void {
     this.loadImageService
-      .loadImageFile(file, this.state)
+      .loadImageFile(file, this.state.options)
       .then((res) => this.setLoadedImage(res))
       .catch((err) => this.loadImageError(err));
   }
 
   private loadBase64Image(imageBase64: string): void {
     this.loadImageService
-      .loadBase64Image(imageBase64, this.state)
+      .loadBase64Image(imageBase64, this.state.options)
       .then((res) => this.setLoadedImage(res))
       .catch((err) => this.loadImageError(err));
   }
 
   private loadImageFromURL(url: string): void {
     this.loadImageService
-      .loadImageFromURL(url, this.state)
+      .loadImageFromURL(url, this.state.options)
       .then((res) => this.setLoadedImage(res))
       .catch((err) => this.loadImageError(err));
   }
