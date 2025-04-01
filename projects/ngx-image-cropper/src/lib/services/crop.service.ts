@@ -164,6 +164,6 @@ export class CropService {
   }
 
   getQuality(options?: { imageQuality?: number }): number {
-    return Math.min(1, Math.max(0, options?.imageQuality ?? 92 / 100));
+    return Math.min(1, Math.max(0, (options?.imageQuality ?? 92) / 100));
   }
 }

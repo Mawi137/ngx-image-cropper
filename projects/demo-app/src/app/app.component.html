@@ -9,6 +9,8 @@
   <input id="cropperMinWidth" type="number" (keyup)="debounce($event)"/>
   <label for="cropperMaxWidth">Cropper Max Width:</label>
   <input id="cropperMaxWidth" type="number" (keyup)="debounce($event)"/>
+  <label for="resizeToWidth">Resisze to Width:</label>
+  <input id="resizeToWidth" type="number" (keyup)="debounce($event)"/>
   <span></span>
   <label for="cropperStaticHeight">Cropper Static Height:</label>
   <input id="cropperStaticHeight" type="number" (keyup)="debounce($event)" />
@@ -16,6 +18,8 @@
   <input id="cropperMinHeight" type="number" (keyup)="debounce($event)"/>
   <label for="cropperMaxHeight">Cropper Max Height:</label>
   <input id="cropperMaxHeight" type="number" (keyup)="debounce($event)"/>
+  <label for="resizeToHeight">Resize to Height:</label>
+  <input id="resizeToHeight" type="number" (keyup)="debounce($event)"/>
 </section>
 <br />
 <button (click)="maintainAspectRatio = !maintainAspectRatio;" [class.enabled]="maintainAspectRatio">Maintain Aspect Ratio</button>
@@ -69,6 +73,8 @@
     [cropperMinHeight]="cropperMinHeight"
     [cropperMaxWidth]="cropperMaxWidth"
     [cropperMaxHeight]="cropperMaxHeight"
+    [resizeToWidth]="resizeToWidth"
+    [resizeToHeight]="resizeToHeight"
     [resetCropOnAspectRatioChange]="resetCropOnAspectRatioChange"
     [(cropper)]="cropper"
     [(transform)]="transform"

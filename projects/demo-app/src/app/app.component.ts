@@ -41,6 +41,8 @@ export class AppComponent {
   cropperMinHeight = 0;
   cropperMaxWidth = 0;
   cropperMaxHeight = 0;
+  resizeToWidth = 0;
+  resizeToHeight = 0;
   resetCropOnAspectRatioChange = true;
   cropper?: CropperPosition;
   transform: ImageTransform = {
