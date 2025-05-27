@@ -67,7 +67,7 @@ export class CropService {
   private async cropToBlob(output: ImageCroppedEvent, cropCanvas: HTMLCanvasElement, input: CropInput): Promise<ImageCroppedEvent> {
     output.blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, 'image/' + (input.options?.format ?? 'png'), this.getQuality(input.options)));
     if (output.blob) {
-      output.objectUrl = URL.createObjectURL(output.blob);
+      output.objectUrl = globalThis.URL.createObjectURL(output.blob);
     }
     return output;
   }

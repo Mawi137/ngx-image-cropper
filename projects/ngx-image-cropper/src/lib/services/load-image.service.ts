@@ -59,7 +59,7 @@ export class LoadImageService {
     const res = await new Promise<LoadImageArrayBuffer>(async (resolve, reject) => {
       try {
         const blob = new Blob([arrayBuffer], imageType ? {type: imageType} : undefined);
-        const objectUrl = URL.createObjectURL(blob);
+        const objectUrl = globalThis.URL.createObjectURL(blob);
         const originalImage = new Image();
         const isSvg = imageType === 'image/svg+xml';
         const originalImageSize = isSvg ? await this.getSvgImageSize(blob) : undefined;
@@ -164,7 +164,7 @@ export class LoadImageService {
     if (!blob) {
       throw new Error('Failed to get Blob for transformed image.');
     }
-    const objectUrl = URL.createObjectURL(blob);
+    const objectUrl = globalThis.URL.createObjectURL(blob);
     const transformedImage = await this.loadImageFromObjectUrl(objectUrl);
     return {
       original: {
