@@ -29,7 +29,7 @@ export class LoadImageService {
   }
 
   private isValidImageType(type: string): boolean {
-    return /image\/(png|jpg|jpeg|heic|bmp|gif|tiff|svg|webp|x-icon|vnd.microsoft.icon)/.test(type);
+    return /image\/(png|jpg|jpeg|heic|bmp|gif|tiff|svg|webp|x-icon|vnd.microsoft.icon|avif)/.test(type);
   }
 
   async loadImageFromURL(url: string, options: LoadImageOptions): Promise<LoadedImage> {
