@@ -76,9 +76,9 @@ Everytime you release the mouse, the `imageCropped` event will be triggered with
 
 Pintura features cropping, rotating, flipping, filtering, annotating, and lots of additional functionality to cover all your image and video editing needs on both mobile and desktop devices.
 
-[![Pintura example](https://github.com/Mawi137/ngx-image-cropper/raw/master/pintura-animation.gif)](https://pqina.nl/pintura/?aff=yMk6n8)
+[![Pintura example](https://github.com/Mawi137/ngx-image-cropper/raw/master/pintura-animation.gif)](https://pqina.nl/pintura?atp=cNdznp)
 
-[Learn more about Pintura Image Editor](https://pqina.nl/pintura/?aff=yMk6n8)
+[Learn more about Pintura Image Editor](https://pqina.nl/pintura?atp=cNdznp)
 
 ## API
 All inputs are optional. Either the `imageChangedEvent`, `imageBase64` or `imageFile` should be set to load an image into the cropper.
