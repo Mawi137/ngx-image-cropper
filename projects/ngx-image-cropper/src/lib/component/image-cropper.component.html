@@ -1,5 +1,5 @@
 <div
-  [style.background]="imageVisible && state.options.backgroundColor"
+  [style.background]="imageVisible ? state.options.backgroundColor : null"
   (touchstart)="startPinch($event)"
 >
   <img
