@@ -93,11 +93,13 @@ export class CropService {
 
   private getImagePosition(cropperState: CropInput): CropperPosition {
     const ratio = this.getRatio(cropperState);
+    const x1 = Math.round(cropperState.cropper.x1 * ratio);
+    const y1 = Math.round(cropperState.cropper.y1 * ratio);
     const out: CropperPosition = {
-      x1: Math.round(cropperState.cropper.x1 * ratio),
-      y1: Math.round(cropperState.cropper.y1 * ratio),
-      x2: Math.round(cropperState.cropper.x2 * ratio),
-      y2: Math.round(cropperState.cropper.y2 * ratio)
+      x1,
+      y1,
+      x2: x1 + Math.round((cropperState.cropper.x2 - cropperState.cropper.x1) * ratio),
+      y2: y1 + Math.round((cropperState.cropper.y2 - cropperState.cropper.y1) * ratio)
     };
 
     if (!cropperState.options?.containWithinAspectRatio) {
